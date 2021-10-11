@@ -17,35 +17,25 @@
 ;
 
 (ns org.pmonks.pbr
-  "Personal Build Resources.
-
-  The following high-level defaults are provided:
-
-  :target    \"target\",
-  :basis     (create-basis {:project \"deps.edn\"},
-  :class-dir (str target \"/classes\"),
-  :jar-file  (format \"%s/%s-%s.jar\" target lib version),
-  :uber-file (format \"%s/%s-%s.jar\" target lib version)
-             or, if :version is not provided:
-             (format \"%s/%s-standalone.jar\" target lib)
-
-  You are expected to provide :lib and :version as needed.
+  "Peter's Build Resources.
 
   The following convenience fns are provided:
 
   exec           -- req: string or [strings]
-  ensure-command -- req: command-name
-  git            -- opt: arguments to git
+  ensure-command -- req: command-name (string)
+  git            -- opt: arguments to git (vararg strings)
 
   The following build task functions are provided, with the
   specified required and optional hash map options:
 
-  deploy-info    -- opt :deploy-info-file (defaults to \"resources.deploy-info.edn\")
-  pom            -- req :lib, :version, :pom (see docstring for details)
-                    opt <options from clojure.tools.build.api/write-pom: https://clojure.github.io/tools.build/clojure.tools.build.api.html#var-write-pom>
-  release        -- req :version, :lib or :uber-file
+  deploy-info    -- opt: :deploy-info-file (defaults to \"./resources/deploy-info.edn\")
+  pom            -- opt: :lib a symbol identifying your project e.g. 'org.github.pmonks/pbr
+                         :version a string containing the version of your project e.g. \"1.0.0-SNAPSHOT\"
+                         :pom-file the name of the file to write to (defaults to \"./pom.xml\"
+                         :write-pom a flag determining whether to invoke the tools.build `write-pom` fn after generating the pom (note: it probably doesn't do what you're expecting...)
+                         :pom a map containing other POM elements (see https://maven.apache.org/pom.html for details).
 
-  All of the above return the opts hash map they were passed
+  All of the above build tasks return the opts hash map they were passed
   (unlike some of the functions in clojure.tools.build.api)."
   (:require [clojure.string          :as s]
             [clojure.java.io         :as io]
@@ -105,7 +95,8 @@
                           (try {:tag (git "describe" "--tags" "--exact-match")} (catch clojure.lang.ExceptionInfo _ nil)))]
     (io/make-parents file-name)
     (with-open [w (io/writer (io/file file-name))]
-      (pp/pprint deploy-info w))))
+      (pp/pprint deploy-info w)))
+  opts)
 
 (defn- pom-keyword
   "Converts a regular Clojure keyword into a POM-compatible keyword."
@@ -146,4 +137,5 @@
     (when (:write-pom opts)
       (b/write-pom (merge (assoc opts :src-pom pom-file)
                           (when-not (:basis     opts) {:basis     (bb/default-basis)})
-                          (when-not (:class-dir opts) {:class-dir (bb/default-class-dir)}))))))
+                          (when-not (:class-dir opts) {:class-dir (bb/default-class-dir)})))))
+  opts)

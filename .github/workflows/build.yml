@@ -20,5 +20,5 @@ jobs:
         with:
           tools-deps: latest
 
-      - name: Build code
-        run: bin/build
+      - name: Check (compile) code
+        run: clojure -Srepro -J-Dclojure.main.report=stderr -T:build check
