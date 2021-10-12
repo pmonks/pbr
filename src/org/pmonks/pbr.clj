@@ -153,8 +153,8 @@
   (ensure-command "hub")
 
   ; Check that opts map is properly populated
-  (when-not (:version opts) (throw (ex-info ":version not provided" opts)))
-  (when-not (:lib opts)     (throw (ex-info ":lib not provided" opts)))
+  (when-not (:version opts) (throw (ex-info ":version not provided" (into {} opts))))
+  (when-not (:lib opts)     (throw (ex-info ":lib not provided" (into {} opts))))
 
   ; Check status of working directory
   (let [dev-branch     (get opts :dev-branch "dev")
@@ -179,8 +179,8 @@
   :pr-desc     -- opt: a format string used for the PR description with two %s values passed in (%1$s = lib, %2$s = version) (defaults to \"%1$s release v%2$s. See commit log for details of what's included in this release.\")
   -- all opts from the (deploy-info) task --"
   [opts]
-  (when-not (:version opts) (throw (ex-info ":version not provided" opts)))
-  (when-not (:lib opts)     (throw (ex-info ":lib not provided" opts)))
+  (when-not (:version opts) (throw (ex-info ":version not provided" (into {} opts))))
+  (when-not (:lib opts)     (throw (ex-info ":lib not provided" (into {} opts))))
 
   (let [lib         (:lib opts)
         version     (:version opts)
