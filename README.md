@@ -54,6 +54,10 @@ Require either or both of the included namespaces at the REPL:
 (require '[org.pmonks.pbr :as pbr])
 ```
 
+### Worked example
+
+For a worked example of using the library, see [futbot's build script](https://github.com/pmonks/futbot/blob/main/build.clj).
+
 ## Why "PBR"?
 
 Because this code is cheap and nasty, and will give you a headache if you consume too much of it.
