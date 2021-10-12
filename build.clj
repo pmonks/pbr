@@ -72,5 +72,5 @@ clojure -A:deps -T:build help/doc"
   [opts]
   (-> opts
     (outdated)
-    (check)
+;    (check)    ; Removed until https://github.com/athos/clj-check/issues/4 is fixed
     (lint)))

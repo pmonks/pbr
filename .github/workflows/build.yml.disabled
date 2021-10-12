@@ -1,3 +1,5 @@
+# *** Disabled until https://github.com/athos/clj-check/issues/4 is fixed ***
+
 name: build
 
 on: [push, pull_request]
