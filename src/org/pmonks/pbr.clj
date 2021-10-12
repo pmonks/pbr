@@ -121,8 +121,8 @@
 
   :lib       -- opt: a symbol identifying your project e.g. 'org.github.pmonks/pbr
   :version   -- opt: a string containing the version of your project e.g. \"1.0.0-SNAPSHOT\"
-  :pom-file  -- opt: the name of the file to write to (defaults to \"./pom.xml\"
-  :write-pom -- opt: a flag determining whether to invoke the tools.build `write-pom` fn after generating the pom (note: it probably doesn't do what you're expecting...)
+  :pom-file  -- opt: the name of the file to write to (defaults to \"./pom.xml\")
+  :write-pom -- opt: a flag determining whether to invoke \"clj -Spom\" generating the basic pom (i.e. adding dependencies and repositories from your deps.edn file)
   :pom       -- opt: a map containing other POM elements (see https://maven.apache.org/pom.html for details)."
   [opts]
   (let [pom-file (get opts :pom-file "./pom.xml")
