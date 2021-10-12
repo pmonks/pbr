@@ -28,7 +28,7 @@ Coming soon.  For now, best to [browse the source](https://github.com/pmonks/pbr
 
 1. `deploy-info` - generate an EDN file containing deployment info for your code (build date/time and git commit & tag).
 2. `pom` - generate a comprehensive `pom.xml` file from EDN (which can come from anywhere - stored in your `deps.edn` or a separate file, or synthesised on the fly in your build tool script).
-3. `release` (coming soon) - perform a release by tagging the current code and creating a PR from `dev` branch to `main`. This is highly specific to the author's GitHub workflow and may not be useful for anyone else.
+3. `release` - perform a release by tagging the current code, updating the deploy-info.edn file, and creating a PR from a development branch to a production branch. This is quite specific to the author's GitHub workflow and may have limited utility for others.
 
 ## Using the library
 
@@ -41,7 +41,7 @@ Express a git dependency in your `deps.edn`:
 
 ### Requiring the namespace
 
-In your namespace(s):
+In your build tool namespace(s):
 
 ```clojure
 (ns your.namespace

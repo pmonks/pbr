@@ -42,8 +42,8 @@
             [clojure.pprint          :as pp]
             [clojure.data.xml        :as xml]
             [clojure.tools.build.api :as b]
-            [camel-snake-kebab.core  :as csk]
-            [org.corfield.build      :as bb]))
+            [camel-snake-kebab.core  :as csk]))
+;            [org.corfield.build      :as bb]))
 
 ; Lame... 🙄
 (defmethod print-method java.time.Instant [^java.time.Instant inst writer]
@@ -87,7 +87,9 @@
 ; ---------- BUILD TASK FUNCTIONS ----------
 
 (defn deploy-info
-  "Writes out a deploy-info EDN file, containing at least :hash and :date keys, and possibly also a :tag key.  opts may include a :deploy-info-file key (defaults to \"./resources/deploy-info.edn\")"
+  "Writes out a deploy-info EDN file, containing at least :hash and :date keys, and possibly also a :tag key.  opts includes:
+
+  :deploy-info-file -- opt: the name of the file to write to (defaults to \"./resources/deploy-info.edn\")"
   [opts]
   (ensure-command "git")
   (let [file-name   (get opts :deploy-info-file "./resources/deploy-info.edn")
@@ -115,7 +117,7 @@
     :else                          (str elem)))
 
 (defn pom
-  "Writes out a pom file. opts may include:
+  "Writes out a pom file. opts includes:
 
   :lib       -- opt: a symbol identifying your project e.g. 'org.github.pmonks/pbr
   :version   -- opt: a string containing the version of your project e.g. \"1.0.0-SNAPSHOT\"
@@ -128,8 +130,8 @@
                         (when (:version opts) {:version (:version opts)})
                         (:pom opts))   ; Merge user-supplied values last, so that they always take precedence
         pom-out  [(pom-keyword :project) {:xmlns                         "http://maven.apache.org/POM/4.0.0"
-                                         (keyword "xmlns:xsi")          "http://www.w3.org/2001/XMLSchema-instance"
-                                         (keyword "xsi:schemaLocation") "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"}
+                                          (keyword "xmlns:xsi")          "http://www.w3.org/2001/XMLSchema-instance"
+                                          (keyword "xsi:schemaLocation") "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"}
                    (concat [[(pom-keyword :model-version) "4.0.0"]]
                             (build-pom pom-in))]
         pom-xml  (xml/sexp-as-element pom-out)]
@@ -141,4 +143,89 @@
 ;      (b/write-pom (merge (assoc opts :src-pom pom-file)
 ;                          (when-not (:basis     opts) {:basis     (bb/default-basis)})
 ;                          (when-not (:class-dir opts) {:class-dir (bb/default-class-dir)})))))
+  opts)
+
+(defn check-release
+  "Check that a release can be made from the current directory, with the given opts."
+  [opts]
+  ; Check for the command line tools we need
+  (ensure-command "git")
+  (ensure-command "hub")
+
+  ; Check that opts map is properly populated
+  (when-not (:version opts) (throw (ex-info ":version not provided" opts)))
+  (when-not (:lib opts)     (throw (ex-info ":lib not provided" opts)))
+
+  ; Check status of working directory
+  (let [dev-branch     (get opts :dev-branch "dev")
+        current-branch (s/trim (:out (exec "git branch --show-current" {:out :capture})))]
+    (when-not (= dev-branch current-branch)
+      (throw (ex-info (str "Must be on branch '" dev-branch "' to prepare a release, but current branch is '" current-branch "'.") {}))))
+
+  (let [git-status (exec "git status --short" {:out :capture})]
+    (when (or (not (s/blank? (:out git-status)))
+              (not (s/blank? (:err git-status))))
+      (throw (ex-info (str "Working directory is not clean:\n" (:out git-status) "Please commit, revert, or stash these changes before preparing a release.") git-status))))
+
+  opts)
+
+(defn release
+  "Release a new version of the code via a PR to main. opts includes:
+
+  :lib         -- req: a symbol identifying your project e.g. 'org.github.pmonks/pbr
+  :version     -- req: a string containing the version of your project e.g. \"1.0.0-SNAPSHOT\"
+  :dev-branch  -- opt: the name of the development branch containing the changes to be PRed (defaults to \"dev\")
+  :prod-branch -- opt: the name of the production branch where the PR is to be sent (defaults to \"main\")
+  :pr-desc     -- opt: a format string used for the PR description with two %s values passed in (%1$s = lib, %2$s = version) (defaults to \"%1$s release v%2$s. See commit log for details of what's included in this release.\")
+  -- all opts from the (deploy-info) task --"
+  [opts]
+  (when-not (:version opts) (throw (ex-info ":version not provided" opts)))
+  (when-not (:lib opts)     (throw (ex-info ":lib not provided" opts)))
+
+  (let [lib         (:lib opts)
+        version     (:version opts)
+        tag-name    (str "v" version)
+        dev-branch  (get opts :dev-branch "dev")
+        prod-branch (get opts :prod-branch "main")]
+
+    (println (str "ℹ️ Preparing to release " lib " " tag-name "..."))
+
+    ; Ensure working directory is up to date with prod branch
+    (println "ℹ️ Updating working directory...")
+    (git "fetch" "origin" (str prod-branch ":" prod-branch))
+    (git "merge" prod-branch)
+    (git "pull")
+
+    (println "ℹ️ Checking that a release can be made...")
+    (check-release opts)
+
+    (println (str "ℹ️ All good; press any key to continue or Ctrl+C to abort..."))
+    (flush)
+    (read-line)
+
+    (println "ℹ️ Tagging release as" (str tag-name "..."))
+    (git "tag" "-f" "-a" tag-name "-m" (str "Release " tag-name))
+
+    (println "ℹ️ Updating deploy-info...")
+    (deploy-info opts)
+    (git "commit" "-m" (str ":gem: Release " tag-name) (get opts :deploy-info-file "./resources/deploy-info.edn"))
+
+    (println "ℹ️ Pushing deploy-info and tag...")
+    (git "push")
+    (git "push" "origin" "-f" "--tags")
+
+    (println "ℹ️ Creating pull request...")
+    (let [pr-desc-fmt (get opts :pr-desc "%1$s release v%2$s. See commit log for details of what's included in this release.")]
+      (exec ["hub" "pull-request" "--browse" "-f"
+             "-m" (str "Release v" version)
+             "-m" (format pr-desc-fmt lib version)
+             "-h" dev-branch "-b" prod-branch]))
+
+    (println "ℹ️ After the PR has been merged, it is highly recommended to:\n"
+             "  1. git fetch origin " (str prod-branch ":" prod-branch) "\n"
+             "  2. git merge " prod-branch "\n"
+             "  3. git pull\n"
+             "  4. git push")
+
+    (println "⏹ Done."))
   opts)
