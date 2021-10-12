@@ -218,7 +218,7 @@
     (let [pr-desc-fmt (get opts :pr-desc "%1$s release v%2$s. See commit log for details of what's included in this release.")]
       (exec ["hub" "pull-request" "--browse" "-f"
              "-m" (str "Release v" version)
-             "-m" (format pr-desc-fmt lib version)
+             "-m" (format pr-desc-fmt (str lib) (str version))
              "-h" dev-branch "-b" prod-branch]))
 
     (println "ℹ️ After the PR has been merged, it is highly recommended to:\n"
