@@ -184,11 +184,12 @@
   (when-not (:version opts) (throw (ex-info ":version not provided" (into {} opts))))
   (when-not (:lib opts)     (throw (ex-info ":lib not provided" (into {} opts))))
 
-  (let [lib         (:lib opts)
-        version     (:version opts)
-        tag-name    (str "v" version)
-        dev-branch  (get opts :dev-branch "dev")
-        prod-branch (get opts :prod-branch "main")]
+  (let [lib              (:lib opts)
+        version          (:version opts)
+        tag-name         (str "v" version)
+        dev-branch       (get opts :dev-branch "dev")
+        prod-branch      (get opts :prod-branch "main")
+        deploy-info-file (get opts :deploy-info-file "./resources/deploy-info.edn")]
 
     (println (str "ℹ️ Preparing to release " lib " " tag-name "..."))
 
@@ -208,11 +209,11 @@
     (println "ℹ️ Tagging release as" (str tag-name "..."))
     (git "tag" "-f" "-a" tag-name "-m" (str "Release " tag-name))
 
-    (println "ℹ️ Updating deploy-info...")
+    (println "ℹ️ Updating " (str deploy-info-file "..."))
     (deploy-info opts)
-    (git "commit" "-m" (str ":gem: Release " tag-name) (get opts :deploy-info-file "./resources/deploy-info.edn"))
+    (git "commit" "-m" (str ":gem: Release " tag-name) deploy-info-file)
 
-    (println "ℹ️ Pushing deploy-info and tag...")
+    (println "ℹ️ Pushing " deploy-info-file " and tag...")
     (git "push")
     (git "push" "origin" "-f" "--tags")
 
