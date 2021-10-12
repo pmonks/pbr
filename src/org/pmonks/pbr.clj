@@ -209,11 +209,11 @@
     (println "ℹ️ Tagging release as" (str tag-name "..."))
     (git "tag" "-f" "-a" tag-name "-m" (str "Release " tag-name))
 
-    (println "ℹ️ Updating " (str deploy-info-file "..."))
+    (println "ℹ️ Updating" (str deploy-info-file "..."))
     (deploy-info opts)
     (git "commit" "-m" (str ":gem: Release " tag-name) deploy-info-file)
 
-    (println "ℹ️ Pushing " deploy-info-file " and tag...")
+    (println "ℹ️ Pushing" deploy-info-file "and tag" (str tag-name "..."))
     (git "push")
     (git "push" "origin" "-f" "--tags")
 
@@ -225,8 +225,8 @@
              "-h" dev-branch "-b" prod-branch]))
 
     (println "ℹ️ After the PR has been merged, it is highly recommended to:\n"
-             "  1. git fetch origin " (str prod-branch ":" prod-branch) "\n"
-             "  2. git merge " prod-branch "\n"
+             "  1. git fetch origin" (str prod-branch ":" prod-branch) "\n"
+             "  2. git merge" prod-branch "\n"
              "  3. git pull\n"
              "  4. git push")
 
