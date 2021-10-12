@@ -31,9 +31,16 @@
   deploy-info    -- opt: :deploy-info-file (defaults to \"./resources/deploy-info.edn\")
   pom            -- opt: :lib a symbol identifying your project e.g. 'org.github.pmonks/pbr
                          :version a string containing the version of your project e.g. \"1.0.0-SNAPSHOT\"
-                         :pom-file the name of the file to write to (defaults to \"./pom.xml\"
-                         :write-pom a flag determining whether to invoke the tools.build `write-pom` fn after generating the pom (note: it probably doesn't do what you're expecting...)
+                         :pom-file the name of the file to write to (defaults to \"./pom.xml\")
+                         :write-pom a flag determining whether to invoke \"clj -Spom\" after generating the basic pom (i.e. adding dependencies and repositories from your deps.edn file)
                          :pom a map containing other POM elements (see https://maven.apache.org/pom.html for details).
+  check-release  -- as for the release task --
+  release        -- req: :lib a symbol identifying your project e.g. 'org.github.pmonks/pbr
+                         :version a string containing the version of your project e.g. \"1.0.0-SNAPSHOT\"
+                    opt: :dev-branch the name of the development branch containing the changes to be PRed (defaults to \"dev\")
+                         :prod-branch the name of the production branch where the PR is to be sent (defaults to \"main\")
+                         :pr-desc a format string used for the PR description with two %s values passed in (%1$s = lib, %2$s = version) (defaults to \"%1$s release v%2$s. See commit log for details of what's included in this release.\")
+                         -- all opts from the deploy-info task --
 
   All of the above build tasks return the opts hash map they were passed
   (unlike some of the functions in clojure.tools.build.api)."
@@ -43,9 +50,8 @@
             [clojure.data.xml        :as xml]
             [clojure.tools.build.api :as b]
             [camel-snake-kebab.core  :as csk]))
-;            [org.corfield.build      :as bb]))
 
-; Lame... 🙄
+; Since v1.10 this should be in core...
 (defmethod print-method java.time.Instant [^java.time.Instant inst writer]
   (print-method (java.util.Date/from inst) writer))
 
@@ -122,7 +128,7 @@
   :lib       -- opt: a symbol identifying your project e.g. 'org.github.pmonks/pbr
   :version   -- opt: a string containing the version of your project e.g. \"1.0.0-SNAPSHOT\"
   :pom-file  -- opt: the name of the file to write to (defaults to \"./pom.xml\")
-  :write-pom -- opt: a flag determining whether to invoke \"clj -Spom\" generating the basic pom (i.e. adding dependencies and repositories from your deps.edn file)
+  :write-pom -- opt: a flag determining whether to invoke \"clj -Spom\" after generating the basic pom (i.e. adding dependencies and repositories from your deps.edn file)
   :pom       -- opt: a map containing other POM elements (see https://maven.apache.org/pom.html for details)."
   [opts]
   (let [pom-file (get opts :pom-file "./pom.xml")
@@ -138,11 +144,7 @@
     (with-open [pom-writer (io/writer pom-file)]
       (xml/emit pom-xml pom-writer :encoding "UTF8"))
     (when (:write-pom opts)
-      (exec "clojure -Srepro -Spom")))
-; Because tools.build/write-pom is nowhere as useful as clojure -Spom and the latter doesn't have an API...
-;      (b/write-pom (merge (assoc opts :src-pom pom-file)
-;                          (when-not (:basis     opts) {:basis     (bb/default-basis)})
-;                          (when-not (:class-dir opts) {:class-dir (bb/default-class-dir)})))))
+      (exec "clojure -Srepro -Spom")))   ; tools.build/write-pom is nowhere as useful as clojure -Spom but the latter doesn't have an API so we just exec it instead...
   opts)
 
 (defn check-release
