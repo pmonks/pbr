@@ -87,9 +87,10 @@
 ; ---------- BUILD TASK FUNCTIONS ----------
 
 (defn deploy-info
-  "Writes out a deploy-info EDN file, containing at least :hash and :date keys, and possibly also a :tag key.  opts may include a :deploy-info-file key (defaults to \"resources.deploy-info.edn\")"
+  "Writes out a deploy-info EDN file, containing at least :hash and :date keys, and possibly also a :tag key.  opts may include a :deploy-info-file key (defaults to \"./resources/deploy-info.edn\")"
   [opts]
-  (let [file-name   (get opts :deploy-info-file "resources/deploy-info.edn")
+  (ensure-command "git")
+  (let [file-name   (get opts :deploy-info-file "./resources/deploy-info.edn")
         deploy-info (into {:hash (git "show" "-s" "--format=%H")
                            :date (java.time.Instant/now)}
                           (try {:tag (git "describe" "--tags" "--exact-match")} (catch clojure.lang.ExceptionInfo _ nil)))]
@@ -135,7 +136,9 @@
     (with-open [pom-writer (io/writer pom-file)]
       (xml/emit pom-xml pom-writer :encoding "UTF8"))
     (when (:write-pom opts)
-      (b/write-pom (merge (assoc opts :src-pom pom-file)
-                          (when-not (:basis     opts) {:basis     (bb/default-basis)})
-                          (when-not (:class-dir opts) {:class-dir (bb/default-class-dir)})))))
+      (exec "clojure -Srepro -Spom")))
+; Because tools.build/write-pom is nowhere as useful as clojure -Spom and the latter doesn't have an API...
+;      (b/write-pom (merge (assoc opts :src-pom pom-file)
+;                          (when-not (:basis     opts) {:basis     (bb/default-basis)})
+;                          (when-not (:class-dir opts) {:class-dir (bb/default-class-dir)})))))
   opts)
