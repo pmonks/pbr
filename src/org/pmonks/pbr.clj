@@ -81,7 +81,7 @@
 (defn git
   "Execute git with the given args, capturing and returning the output."
   [& args]
-  (s/trim (:out (exec (concat ["git"] args) {:out :capture}))))
+  (s/trim (str (:out (exec (concat ["git"] args) {:out :capture})))))
 
 
 ; ---------- BUILD TASK FUNCTIONS ----------
