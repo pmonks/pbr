@@ -22,10 +22,12 @@
 For more information, run:
 
 clojure -A:deps -T:build help/doc"
-  (:require [org.corfield.build :as bb]))
+  (:require [clojure.tools.build.api :as b]
+            [org.corfield.build      :as bb]
+            [org.pmonks.pbr          :as pbr]))
 
 (def lib       'org.github.pmonks/pbr)
-(def version   (format "1.0.%s" (.format (java.text.SimpleDateFormat. "yyyyMMdd") (java.util.Date.))))
+(def version   (format "1.0.%s" (b/git-count-revs nil)))
 
 ; Utility fns
 (defn- set-opts
@@ -74,3 +76,8 @@ clojure -A:deps -T:build help/doc"
     (outdated)
 ;    (check)    ; Removed until https://github.com/athos/clj-check/issues/4 is fixed
     (lint)))
+
+(defn licenses
+  "Attempts to determine all licenses used by all dependencies in the project."
+  [opts]
+  (pbr/licenses opts))

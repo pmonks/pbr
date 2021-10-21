@@ -44,12 +44,15 @@
 
   All of the above build tasks return the opts hash map they were passed
   (unlike some of the functions in clojure.tools.build.api)."
-  (:require [clojure.string          :as s]
-            [clojure.java.io         :as io]
-            [clojure.pprint          :as pp]
-            [clojure.data.xml        :as xml]
-            [clojure.tools.build.api :as b]
-            [camel-snake-kebab.core  :as csk]))
+  (:require [clojure.string           :as s]
+            [clojure.java.io          :as io]
+            [clojure.pprint           :as pp]
+            [clojure.data.xml         :as xml]
+            [clojure.tools.deps.alpha :as d]
+            [clojure.tools.build.api  :as b]
+            [org.corfield.build       :as bb]
+            [camel-snake-kebab.core   :as csk]
+            [org.pmonks.licenses      :as lic]))
 
 ; Since v1.10 this should be in core...
 (defmethod print-method java.time.Instant [^java.time.Instant inst writer]
@@ -146,6 +149,32 @@
     (when (:write-pom opts)
       (exec "clojure -Srepro -Spom")))   ; tools.build/write-pom is nowhere as useful as clojure -Spom but the latter doesn't have an API so we just exec it instead...
   opts)
+
+(defn licenses
+  "Lists all licenses used transitively by the project.
+
+  :output  -- opt: output format, one of :summary, :detailed (defaults to :summary)
+  :verbose -- opt: boolean controlling whether to emit verbose output or not (defaults to false)"
+  [opts]
+  (let [basis        (bb/default-basis)
+        lib-map      (d/resolve-deps basis {})
+        _            (d/prep-libs! lib-map {:action :prep :log :info} {})  ; Make sure everything is "prepped" (downloaded locally) before we start looking for licenses
+        verbose      (get opts :verbose false)
+        dep-licenses (into {} (for [[k v] lib-map] (lic/dep-licenses verbose k v)))]
+    (case (get opts :output :summary)
+      :summary (let [freqs    (frequencies (filter identity (mapcat :licenses (vals dep-licenses))))
+                     licenses (seq (sort (keys freqs)))]
+                 (println "Licenses in upstream dependencies (with count):")
+                 (if licenses
+                   (doall (map #(println "  *" % (str "(" (get freqs %) ")")) licenses))
+                   (println "  <no licenses found>")))
+      :details (println "⚠️ NOT YET IMPLEMENTED"))   ;####TODO!!!!
+    (let [deps-without-licenses (seq (sort (keys (remove #(:licenses (val %)) dep-licenses))))]
+      (when deps-without-licenses
+        (println "These dependencies do not appear to include licensing information in their published artifacts:")
+        (doall (map (partial println "  *") deps-without-licenses))
+        (println "Please raise a bug here and include the dep name: https://github.com/pmonks/pbr/issues/new?assignees=&labels=&template=Bug_report.md")))
+    opts))
 
 (defn check-release
   "Check that a release can be made from the current directory, with the given opts."
