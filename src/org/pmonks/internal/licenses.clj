@@ -25,10 +25,7 @@
             [clojure.data.zip.xml     :as zx]
             [org.pmonks.internal.spdx :as spdx]))
 
-(def ^:private fallbacks (try
-                           (edn/read (java.io.PushbackReader. (io/reader (io/resource "resources/fallbacks.edn"))))
-                           (catch Exception _   ; Ignore load failures to appease Eastwood...
-                             nil)))
+(def ^:private fallbacks (edn/read (java.io.PushbackReader. (io/reader (io/resource "org/pmonks/internal/fallbacks.edn")))))
 
 (defmulti ^:private filename
   "Returns just the name component of the given file or path string."
@@ -50,7 +47,7 @@
   [dep name]
   (if-let [spdx-expr (spdx/guess name)]
     spdx-expr
-    (println "⚠️ In dep" (str "'" dep "',") "the license string" (str "'" name "'") "had no SPDX equivalent.")))
+    (println "⚠️ The license text" (str "'" name "',") "found in dep" (str "'" dep "',")  "has no SPDX equivalent.")))
 
 (defmulti licenses-from-file
   "Attempts to determine the license(s) for the given file."

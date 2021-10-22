@@ -166,7 +166,7 @@
     (case (get opts :output :summary)
       :summary (let [freqs    (frequencies (filter identity (mapcat :licenses (vals dep-licenses))))
                      licenses (seq (sort (keys freqs)))]
-                 (println "Licenses in upstream dependencies (with count):")
+                 (println "Licenses in upstream dependencies (occurrences):")
                  (if licenses
                    (doall (map #(println "  *" % (str "(" (get freqs %) ")")) licenses))
                    (println "  <no licenses found>")))

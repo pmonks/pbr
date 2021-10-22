@@ -16,8 +16,7 @@
 ; SPDX-License-Identifier: Apache-2.0
 ;
 
-{:paths ["src" "resources"]
- :deps
+{:deps
    {org.clojure/data.xml                {:mvn/version "0.2.0-alpha6"}
     org.clojure/data.zip                {:mvn/version "1.0.0"}
 ;    org.spdx/java-spdx-library          {:mvn/version "1.0.8"}
@@ -45,12 +44,12 @@
     ; clj -M:kondo
     :kondo
       {:extra-deps {clj-kondo/clj-kondo {:mvn/version "2021.10.19"}}
-       :main-opts  ["-m" "clj-kondo.main" "--lint" "src" "resources"]}
+       :main-opts  ["-m" "clj-kondo.main" "--lint" "src"]}
 
     ; clj -M:eastwood
     :eastwood
       {:extra-deps {jonase/eastwood {:mvn/version "0.9.9"}}
-       :main-opts  ["-m" "eastwood.lint" "{:source-paths,[\"src\",\"resources\"]}"]}
+       :main-opts  ["-m" "eastwood.lint" "{:source-paths,[\"src\"]}"]}
 
     ; clj -M:outdated
     :outdated
