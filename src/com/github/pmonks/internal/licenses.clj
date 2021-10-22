@@ -16,15 +16,15 @@
 ; SPDX-License-Identifier: Apache-2.0
 ;
 
-(ns org.pmonks.internal.licenses
-  (:require [clojure.string           :as s]
-            [clojure.java.io          :as io]
-            [clojure.edn              :as edn]
-            [clojure.data.xml         :as xml]
-            [xml-in.core              :as xi]
-            [org.pmonks.internal.spdx :as spdx]))
+(ns com.github.pmonks.internal.licenses
+  (:require [clojure.string                  :as s]
+            [clojure.java.io                 :as io]
+            [clojure.edn                     :as edn]
+            [clojure.data.xml                :as xml]
+            [xml-in.core                     :as xi]
+            [com.github.pmonks.internal.spdx :as spdx]))
 
-(def ^:private fallbacks (edn/read (java.io.PushbackReader. (io/reader (io/resource "org/pmonks/internal/fallbacks.edn")))))
+(def ^:private fallbacks (edn/read (java.io.PushbackReader. (io/reader (io/resource "com/github/pmonks/internal/fallbacks.edn")))))
 
 (defmulti ^:private filename
   "Returns just the name component of the given file or path string."

@@ -41,8 +41,7 @@ Coming soon.  For now, best to [browse the source](https://github.com/pmonks/pbr
 Express a git dependency in your `deps.edn`:
 
 ```edn
-{:deps {org.github.pmonks/pbr {:git/url "https://github.com/pmonks/pbr.git"
-                               :git/sha "LATEST_GIT_SHA"}}}   ; Note: best to use the latest SHA until such time as this is deployed to Clojars
+{:deps {com.github.pmonks/pbr {:git/sha "LATEST_GIT_SHA"}}}   ; Note: best to use the latest SHA until such time as this is deployed to Clojars
 ```
 
 ### Requiring the namespace
@@ -51,18 +50,18 @@ In your build tool namespace(s):
 
 ```clojure
 (ns your.namespace
-  (:require [org.pmonks.pbr :as pbr]))
+  (:require [com.github.pmonks.pbr :as pbr]))
 ```
 
 Require either or both of the included namespaces at the REPL:
 
 ```clojure
-(require '[org.pmonks.pbr :as pbr])
+(require '[com.github.pmonks.pbr :as pbr])
 ```
 
 ### Worked example
 
-For a worked example of using the library, see [futbot's build script](https://github.com/pmonks/pbr/blob/main/build.clj).
+For a worked example of using the library, see [futbot's build script](https://github.com/pmonks/futbot/blob/main/build.clj).
 
 ## Why "PBR"?
 
@@ -75,6 +74,12 @@ Because this code is cheap and nasty, and will give you a headache if you consum
 [Bug Tracker](https://github.com/pmonks/pbr/issues)
 
 [Code of Conduct](https://github.com/pmonks/pbr/blob/main/.github/CODE_OF_CONDUCT.md)
+
+### Developer Workflow
+
+The `pbr` source repository has two permanent branches: `main` and `dev`.  **All development must occur either in branch `dev`, or (preferably) in feature branches off of `dev`.**  All PRs must also be submitted against `dev`; the `main` branch is **only** updated from `dev` via PRs created by the core development team.  All other changes submitted to `main` will be rejected.
+
+This model allows otherwise unrelated changes to be batched up in the `dev` branch, integration tested there, and then released en masse to the `main` branch.
 
 ## License
 

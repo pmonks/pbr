@@ -16,7 +16,7 @@
 ; SPDX-License-Identifier: Apache-2.0
 ;
 
-(ns org.pmonks.internal.spdx
+(ns com.github.pmonks.internal.spdx
   (:require [clojure.string :as s]
             [clojure.set    :as set]
             [cheshire.core  :as json]))

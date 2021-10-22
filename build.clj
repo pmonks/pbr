@@ -24,17 +24,24 @@ For more information, run:
 clojure -A:deps -T:build help/doc"
   (:require [clojure.tools.build.api :as b]
             [org.corfield.build      :as bb]
-            [org.pmonks.pbr          :as pbr]))
+            [com.github.pmonks.pbr   :as pbr]))
 
-(def lib       'org.github.pmonks/pbr)
+(def lib       'com.github.pmonks/pbr)
 (def version   (format "1.0.%s" (b/git-count-revs nil)))
 
 ; Utility fns
 (defn- set-opts
   [opts]
   (assoc opts
-         :lib     lib
-         :version version))
+         :lib       lib
+         :version   version
+         :write-pom true
+         :pom       {:description      "Personal Build Resources for Clojure tools.build projects"
+                     :url              "https://github.com/pmonks/pbr"
+                     :licenses         [:license   {:name "Apache License 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}]
+                     :developers       [:developer {:id "pmonks" :name "Peter Monks" :email "pmonks+pbr@gmail.com"}]
+                     :scm              {:url "https://github.com/pmonks/pbr" :connection "scm:git:git://github.com/pmonks/pbr.git" :developer-connection "scm:git:ssh://git@github.com/pmonks/pbr.git"}
+                     :issue-management {:system "github" :url "https://github.com/pmonks/pbr/issues"}}))
 
 ; Build tasks
 (defn clean

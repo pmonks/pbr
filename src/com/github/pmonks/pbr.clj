@@ -16,7 +16,7 @@
 ; SPDX-License-Identifier: Apache-2.0
 ;
 
-(ns org.pmonks.pbr
+(ns com.github.pmonks.pbr
   "Peter's Build Resources.
 
   The following convenience fns are provided:
@@ -46,15 +46,15 @@
 
   All of the above build tasks return the opts hash map they were passed
   (unlike some of the functions in clojure.tools.build.api)."
-  (:require [clojure.string               :as s]
-            [clojure.java.io              :as io]
-            [clojure.pprint               :as pp]
-            [clojure.data.xml             :as xml]
-            [clojure.tools.deps.alpha     :as d]
-            [clojure.tools.build.api      :as b]
-            [org.corfield.build           :as bb]
-            [camel-snake-kebab.core       :as csk]
-            [org.pmonks.internal.licenses :as lic]))
+  (:require [clojure.string                      :as s]
+            [clojure.java.io                     :as io]
+            [clojure.pprint                      :as pp]
+            [clojure.data.xml                    :as xml]
+            [clojure.tools.deps.alpha            :as d]
+            [clojure.tools.build.api             :as b]
+            [org.corfield.build                  :as bb]
+            [camel-snake-kebab.core              :as csk]
+            [com.github.pmonks.internal.licenses :as lic]))
 
 ; Since v1.10 this should be in core...
 (defmethod print-method java.time.Instant [^java.time.Instant inst writer]
