@@ -20,9 +20,8 @@
   (:require [clojure.string           :as s]
             [clojure.java.io          :as io]
             [clojure.edn              :as edn]
-            [clojure.zip              :as zip]
             [clojure.data.xml         :as xml]
-            [clojure.data.zip.xml     :as zx]
+            [xml-in.core              :as xi]
             [org.pmonks.internal.spdx :as spdx]))
 
 (def ^:private fallbacks (edn/read (java.io.PushbackReader. (io/reader (io/resource "org/pmonks/internal/fallbacks.edn")))))
@@ -49,31 +48,40 @@
     spdx-expr
     (println "⚠️ The license text" (str "'" name "',") "found in dep" (str "'" dep "',")  "has no SPDX equivalent.")))
 
+(defn- lookup-license-url
+  [dep url]
+  (if-let [spdx-expr (spdx/license-url->spdx-id url)]
+    spdx-expr
+    (println "⚠️ The license url" (str "'" url "',") "found in dep" (str "'" dep "',")  "does not map to a SPDX identifier.")))
+
 (defmulti licenses-from-file
   "Attempts to determine the license(s) for the given file."
-  (fn [_ name _] (s/lower-case (filename name))))
+  (fn [_ _ name _] (s/lower-case (filename name))))
+
+(xml/alias-uri 'pom "http://maven.apache.org/POM/4.0.0")
 
 (defmethod licenses-from-file "pom.xml"
-  [dep _ input-stream]
-  (when-let [pom-licenses (seq (filter #(not (s/blank? %))
-                                       (zx/xml-> (zip/xml-zip (xml/parse input-stream))
-                                                 (keyword "xmlns.http%3A%2F%2Fmaven.apache.org%2FPOM%2F4.0.0" "project")
-                                                 (keyword "xmlns.http%3A%2F%2Fmaven.apache.org%2FPOM%2F4.0.0" "licenses")
-                                                 (keyword "xmlns.http%3A%2F%2Fmaven.apache.org%2FPOM%2F4.0.0" "license")
-                                                 (keyword "xmlns.http%3A%2F%2Fmaven.apache.org%2FPOM%2F4.0.0" "name")
-                                                 zx/text)))]
-    (seq (distinct (map (partial lookup-license-name dep) pom-licenses)))))
+  [verbose dep _ input-stream]
+  (let [pom-xml (xml/parse input-stream)]
+    (if-let [pom-licenses (seq
+                            (distinct
+                              (filter identity
+                                      (concat (map (partial lookup-license-name dep) (xi/find-all pom-xml [::pom/project ::pom/licenses ::pom/license ::pom/name]))
+                                              (map (partial lookup-license-name dep) (xi/find-all pom-xml [:project      :licenses      :license      :name]))
+                                              (map (partial lookup-license-url  dep) (xi/find-all pom-xml [::pom/project ::pom/licenses :pom/:license ::pom/url]))
+                                              (map (partial lookup-license-url  dep) (xi/find-all pom-xml [:project      :licenses      :license      :url]))))))]
+      pom-licenses
+      (when verbose (println "ℹ️" dep "has a pom.xml file but it does not contain a <licenses> element")))))
 
 (defmethod licenses-from-file "license.spdx"
-;  [dep name input-stream]
-  [_ name _]
-  ;####TODO!!!!  TREAT THE FILE AS AN SPDX FILE
-(println "⚠️ Processing" name "files is not yet implemented.") (flush)
+  [_ _ name _]
+  (println "⚠️ Processing" (str "'" name "'") "files is not yet implemented.")
+  (flush)
   nil)
 
 ; Note: ideally this should use the mechanism described at https://spdx.dev/license-list/matching-guidelines/
 (defmethod licenses-from-file :default
-  [dep _ input-stream]
+  [_ dep _ input-stream]
   (let [rdr         (io/reader input-stream)    ; Note: we don't wrap this in "with-open", since the input-stream we're handed is closed by the calling fns
         first-lines (s/trim (s/join " " (take 2 (remove s/blank? (map s/trim (line-seq rdr))))))]  ; Take the first two non-blank lines, since many licenses put the name on line 1, and the version on line 2
     [(lookup-license-name dep first-lines)]))
@@ -94,10 +102,10 @@
            entry         (.getNextEntry zip)]
       (if entry
         (if (probable-license-file? entry)
-          (recur (doall (concat licenses (licenses-from-file dep (filename entry) zip))) (concat license-files [(.getName entry)]) (.getNextEntry zip))
+          (recur (doall (concat licenses (licenses-from-file verbose dep (filename entry) zip))) (concat license-files [(.getName entry)]) (.getNextEntry zip))
           (recur licenses license-files (.getNextEntry zip)))
         (do
-          (when verbose (println "ℹ️" jar-file "contains" (count license-files) "probable license file(s):" (s/join ", " license-files)))
+          (when verbose (println "ℹ️" dep (str "(" jar-file ")") "contains" (count license-files) "probable license file(s):" (s/join ", " license-files)))
           licenses)))))
 
 (defmulti dep-licenses
@@ -119,7 +127,9 @@
   [verbose dep info]
   (let [license-files (seq (filter probable-license-file? (file-seq (io/file (:deps/root info)))))
         _             (when verbose (println "ℹ️" dep "contains" (count license-files) "probable license file(s):" (s/join ", " license-files)))
-        licenses      (if-let [licenses (seq (distinct (filter #(not (s/blank? %)) (mapcat #(with-open [is (io/input-stream %)] (licenses-from-file dep (filename %) is)) license-files))))]
+        licenses      (if-let [licenses (seq (distinct (filter #(not (s/blank? %))
+                                                               (mapcat #(with-open [is (io/input-stream %)] (licenses-from-file verbose dep (filename %) is))
+                                                                       license-files))))]
                         licenses
                         (get-in fallbacks [dep :licenses]))]
     (when verbose (println "ℹ️" dep "contains" (count licenses) "license(s):" (s/join ", " licenses)))

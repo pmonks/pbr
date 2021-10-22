@@ -175,7 +175,7 @@
       (when deps-without-licenses
         (println "These dependencies do not appear to include licensing information in their published artifacts:")
         (doall (map (partial println "  *") deps-without-licenses))
-        (println "Please raise a bug here and include the dep name: https://github.com/pmonks/pbr/issues/new?assignees=&labels=&template=Bug_report.md")))
+        (println "Please raise a bug at https://github.com/pmonks/pbr/issues/new?assignees=&labels=&template=Bug_report.md and include this message.")))
     opts))
 
 (defn check-release
