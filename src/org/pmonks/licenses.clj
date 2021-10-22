@@ -25,7 +25,10 @@
             [clojure.data.zip.xml     :as zx]
             [org.pmonks.internal.spdx :as spdx]))
 
-(def ^:private overrides (edn/read (java.io.PushbackReader. (io/reader (io/resource "resources/overrides.edn")))))
+(def ^:private fallbacks (try
+                           (edn/read (java.io.PushbackReader. (io/reader (io/resource "resources/fallbacks.edn"))))
+                           (catch Exception _   ; Ignore load failures to appease Eastwood...
+                             nil)))
 
 (defmulti ^:private filename
   "Returns just the name component of the given file or path string."
@@ -55,7 +58,7 @@
 
 (defmethod licenses-from-file "pom.xml"
   [dep _ input-stream]
-  (if-let [pom-licenses (seq (filter #(not (s/blank? %))
+  (when-let [pom-licenses (seq (filter #(not (s/blank? %))
                                        (zx/xml-> (zip/xml-zip (xml/parse input-stream))
                                                  (keyword "xmlns.http%3A%2F%2Fmaven.apache.org%2FPOM%2F4.0.0" "project")
                                                  (keyword "xmlns.http%3A%2F%2Fmaven.apache.org%2FPOM%2F4.0.0" "licenses")
@@ -65,9 +68,10 @@
     (seq (distinct (map (partial lookup-license-name dep) pom-licenses)))))
 
 (defmethod licenses-from-file "license.spdx"
-  [dep name input-stream]
+;  [dep name input-stream]
+  [_ name _]
   ;####TODO!!!!  TREAT THE FILE AS AN SPDX FILE
-(println "⚠️ Processing" name "files not yet implemented.") (flush)
+(println "⚠️ Processing" name "files is not yet implemented.") (flush)
   nil)
 
 ; Note: ideally this should use the mechanism described at https://spdx.dev/license-list/matching-guidelines/
@@ -109,7 +113,7 @@
   (let [jar-files (:paths info)
         licenses  (if-let [licenses (seq (distinct (filter #(not (s/blank? %)) (mapcat (partial jar-licenses dep verbose) jar-files))))]
                     licenses
-                    (get-in overrides [dep :licenses]))]
+                    (get-in fallbacks [dep :licenses]))]
     (when verbose (println "ℹ️" dep "contains" (count licenses) "license(s):" (s/join ", " licenses)))
     [dep (merge info (when licenses {:licenses licenses}))]))
 
@@ -120,7 +124,7 @@
         _             (when verbose (println "ℹ️" dep "contains" (count license-files) "probable license file(s):" (s/join ", " license-files)))
         licenses      (if-let [licenses (seq (distinct (filter #(not (s/blank? %)) (mapcat #(with-open [is (io/input-stream %)] (licenses-from-file dep (filename %) is)) license-files))))]
                         licenses
-                        (get-in overrides [dep :licenses]))]
+                        (get-in fallbacks [dep :licenses]))]
     (when verbose (println "ℹ️" dep "contains" (count licenses) "license(s):" (s/join ", " licenses)))
     [dep (merge info (when licenses {:licenses licenses}))]))
 
