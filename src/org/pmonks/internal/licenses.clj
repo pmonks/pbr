@@ -67,8 +67,9 @@
                             (distinct
                               (filter identity
                                       (concat (map (partial lookup-license-name dep) (xi/find-all pom-xml [::pom/project ::pom/licenses ::pom/license ::pom/name]))
-                                              (map (partial lookup-license-name dep) (xi/find-all pom-xml [:project      :licenses      :license      :name]))
                                               (map (partial lookup-license-url  dep) (xi/find-all pom-xml [::pom/project ::pom/licenses :pom/:license ::pom/url]))
+                                              ; Note: a few rare pom.xml files are missing an xmlns declation (e.g. software.amazon.ion/ion-java) - the following two lines will catch those
+                                              (map (partial lookup-license-name dep) (xi/find-all pom-xml [:project      :licenses      :license      :name]))
                                               (map (partial lookup-license-url  dep) (xi/find-all pom-xml [:project      :licenses      :license      :url]))))))]
       pom-licenses
       (when verbose (println "ℹ️" dep "has a pom.xml file but it does not contain a <licenses> element")))))
