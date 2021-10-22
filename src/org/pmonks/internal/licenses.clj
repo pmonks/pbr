@@ -16,7 +16,7 @@
 ; SPDX-License-Identifier: Apache-2.0
 ;
 
-(ns org.pmonks.licenses
+(ns org.pmonks.internal.licenses
   (:require [clojure.string           :as s]
             [clojure.java.io          :as io]
             [clojure.edn              :as edn]

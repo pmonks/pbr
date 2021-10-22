@@ -34,6 +34,8 @@
                          :pom-file the name of the file to write to (defaults to \"./pom.xml\")
                          :write-pom a flag determining whether to invoke \"clj -Spom\" after generating the basic pom (i.e. adding dependencies and repositories from your deps.edn file)
                          :pom a map containing other POM elements (see https://maven.apache.org/pom.html for details).
+  licenses       -- opt: :output output format, one of :summary, :detailed (defaults to :summary)
+                         :verbose boolean controlling whether to emit verbose output or not (defaults to false)
   check-release  -- as for the release task --
   release        -- req: :lib a symbol identifying your project e.g. 'org.github.pmonks/pbr
                          :version a string containing the version of your project e.g. \"1.0.0-SNAPSHOT\"
@@ -44,15 +46,15 @@
 
   All of the above build tasks return the opts hash map they were passed
   (unlike some of the functions in clojure.tools.build.api)."
-  (:require [clojure.string           :as s]
-            [clojure.java.io          :as io]
-            [clojure.pprint           :as pp]
-            [clojure.data.xml         :as xml]
-            [clojure.tools.deps.alpha :as d]
-            [clojure.tools.build.api  :as b]
-            [org.corfield.build       :as bb]
-            [camel-snake-kebab.core   :as csk]
-            [org.pmonks.licenses      :as lic]))
+  (:require [clojure.string               :as s]
+            [clojure.java.io              :as io]
+            [clojure.pprint               :as pp]
+            [clojure.data.xml             :as xml]
+            [clojure.tools.deps.alpha     :as d]
+            [clojure.tools.build.api      :as b]
+            [org.corfield.build           :as bb]
+            [camel-snake-kebab.core       :as csk]
+            [org.pmonks.internal.licenses :as lic]))
 
 ; Since v1.10 this should be in core...
 (defmethod print-method java.time.Instant [^java.time.Instant inst writer]
