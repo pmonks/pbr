@@ -1,4 +1,9 @@
-[![Build](https://github.com/pmonks/pbr/workflows/build/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Abuild) [![Lint](https://github.com/pmonks/pbr/workflows/lint/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Alint) [![Dependencies](https://github.com/pmonks/pbr/workflows/dependencies/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies) [![Open Issues](https://img.shields.io/github/issues/pmonks/discljord-utils.svg)](https://github.com/pmonks/pbr/issues) [![License](https://img.shields.io/github/license/pmonks/discljord-utils.svg)](https://github.com/pmonks/pbr/blob/main/LICENSE)
+| | | | |
+|---:|:---:|:---:|:---:|
+| [**main**](https://github.com/pmonks/pbr/tree/main) | [![Build](https://github.com/pmonks/pbr/workflows/build/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Abuild) | [![Lint](https://github.com/pmonks/pbr/workflows/lint/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Alint) | [![Dependencies](https://github.com/pmonks/pbr/workflows/dependencies/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies) |
+| [**dev**](https://github.com/pmonks/pbr/tree/dev)  | [![Build](https://github.com/pmonks/pbr/workflows/build/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Abuild) | [![Lint](https://github.com/pmonks/pbr/workflows/lint/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Alint) | [![Dependencies](https://github.com/pmonks/pbr/workflows/dependencies/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies) |
+
+[![Open Issues](https://img.shields.io/github/issues/pmonks/discljord-utils.svg)](https://github.com/pmonks/pbr/issues) [![License](https://img.shields.io/github/license/pmonks/discljord-utils.svg)](https://github.com/pmonks/pbr/blob/main/LICENSE)
 
 
 <img alt="Ice cold can of hangover-inducing rubbish beer" align="right" width="25%" src="https://pabstblueribbon.com/wp-content/uploads/2020/10/pbr-org.png">
@@ -57,7 +62,7 @@ Require either or both of the included namespaces at the REPL:
 
 ### Worked example
 
-For a worked example of using the library, see [futbot's build script](https://github.com/pmonks/futbot/blob/main/build.clj).
+For a worked example of using the library, see [futbot's build script](https://github.com/pmonks/pbr/blob/main/build.clj).
 
 ## Why "PBR"?
 
