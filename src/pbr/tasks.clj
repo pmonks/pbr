@@ -63,16 +63,17 @@
 (defn deploy-info
   "Writes out a deploy-info EDN file, containing at least :hash and :date keys, and possibly also a :tag key.  opts includes:
 
-  :deploy-info-file -- opt: the name of the file to write to (defaults to \"./resources/deploy-info.edn\")"
+  :deploy-info-file -- req: the name of the file to write to (e.g. \"./resources/deploy-info.edn\")"
   [opts]
   (ensure-command "git")
-  (let [file-name   (get opts :deploy-info-file "./resources/deploy-info.edn")
-        deploy-info (into {:hash (git "show" "-s" "--format=%H")
-                           :date (java.time.Instant/now)}
-                          (try {:tag (git "describe" "--tags" "--exact-match")} (catch clojure.lang.ExceptionInfo _ nil)))]
-    (io/make-parents file-name)
-    (with-open [w (io/writer (io/file file-name))]
-      (pp/pprint deploy-info w)))
+  (if-let [file-name (:deploy-info-file opts)]
+    (let [deploy-info (into {:hash (git "show" "-s" "--format=%H")
+                             :date (java.time.Instant/now)}
+                            (try {:tag (git "describe" "--tags" "--exact-match")} (catch clojure.lang.ExceptionInfo _ nil)))]
+      (io/make-parents file-name)
+      (with-open [w (io/writer (io/file file-name))]
+        (pp/pprint deploy-info w)))
+    (throw (ex-info ":deploy-info-file not provided" (into {} opts))))
   opts)
 
 (defn- pom-keyword
@@ -183,7 +184,7 @@
   :dev-branch  -- opt: the name of the development branch containing the changes to be PRed (defaults to \"dev\")
   :prod-branch -- opt: the name of the production branch where the PR is to be sent (defaults to \"main\")
   :pr-desc     -- opt: a format string used for the PR description with two %s values passed in (%1$s = lib, %2$s = version) (defaults to \"%1$s release v%2$s. See commit log for details of what's included in this release.\")
-  -- all opts from the (deploy-info) task --"
+  -- opts from the (deploy-info) task, if you wish to generate deploy-info --"
   [opts]
   (when-not (:version opts) (throw (ex-info ":version not provided" (into {} opts))))
   (when-not (:lib opts)     (throw (ex-info ":lib not provided" (into {} opts))))
@@ -193,7 +194,7 @@
         tag-name         (str "v" version)
         dev-branch       (get opts :dev-branch "dev")
         prod-branch      (get opts :prod-branch "main")
-        deploy-info-file (get opts :deploy-info-file "./resources/deploy-info.edn")]
+        deploy-info-file (:deploy-info-file opts)]
 
     (println (str "ℹ️ Preparing to release " lib " " tag-name "..."))
 
@@ -213,9 +214,11 @@
     (println "ℹ️ Tagging release as" (str tag-name "..."))
     (git "tag" "-f" "-a" tag-name "-m" (str "Release " tag-name))
 
-    (println "ℹ️ Updating" (str deploy-info-file "..."))
-    (deploy-info opts)
-    (git "commit" "-m" (str ":gem: Release " tag-name) deploy-info-file)
+    (when deploy-info-file
+      (println "ℹ️ Updating" (str deploy-info-file "..."))
+      (deploy-info opts)
+      (git "add" deploy-info-file)  ; Add the file just in case it's never existed before - this is no-op if it's already in the index
+      (git "commit" "-m" (str ":gem: Release " tag-name) deploy-info-file))
 
     (println "ℹ️ Pushing" deploy-info-file "and tag" (str tag-name "..."))
     (git "push")
