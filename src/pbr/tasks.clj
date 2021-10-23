@@ -220,7 +220,7 @@
       (git "add" deploy-info-file)  ; Add the file just in case it's never existed before - this is no-op if it's already in the index
       (git "commit" "-m" (str ":gem: Release " tag-name) deploy-info-file))
 
-    (println "ℹ️ Pushing" deploy-info-file "and tag" (str tag-name "..."))
+    (println "ℹ️ Pushing tag" (str tag-name "..."))
     (git "push")
     (git "push" "origin" "-f" "--tags")
 
