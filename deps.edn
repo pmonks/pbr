@@ -18,14 +18,18 @@
 
 {:deps
    {org.clojure/data.xml                {:mvn/version "0.2.0-alpha6"}
+    cheshire/cheshire                   {:mvn/version "5.10.1"}
     camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.2"}
+    tolitius/xml-in                     {:mvn/version "0.1.1"}
+;    org.spdx/java-spdx-library          {:mvn/version "1.0.8"}
     io.github.seancorfield/build-clj    {:git/tag "v0.5.2" :git/sha "8f75b81088b9809ec3cfc34e951036b3975007fd"}}
  :aliases
    {; ---- TOOL ALIASES ----
 
     ; clj -T:build <taskname>
     :build
-      {:deps       {io.github.seancorfield/build-clj {:git/tag "v0.5.2" :git/sha "8f75b81088b9809ec3cfc34e951036b3975007fd"}}
+      {:deps       {org.github.pmonks/pbr {:local/root "."}         ; Sneaky self-dependency...
+                    org.slf4j/slf4j-api   {:mvn/version "1.7.32"}}  ; Something pulls in an ancient version of this dep, which causes failures without this here...
        :ns-default build}
 
 
@@ -39,7 +43,7 @@
 
     ; clj -M:kondo
     :kondo
-      {:extra-deps {clj-kondo/clj-kondo {:mvn/version "2021.09.25"}}
+      {:extra-deps {clj-kondo/clj-kondo {:mvn/version "2021.10.19"}}
        :main-opts  ["-m" "clj-kondo.main" "--lint" "src"]}
 
     ; clj -M:eastwood

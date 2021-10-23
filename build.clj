@@ -22,17 +22,26 @@
 For more information, run:
 
 clojure -A:deps -T:build help/doc"
-  (:require [org.corfield.build :as bb]))
+  (:require [clojure.tools.build.api :as b]
+            [org.corfield.build      :as bb]
+            [pbr.tasks               :as pbr]))
 
-(def lib       'org.github.pmonks/pbr)
-(def version   (format "1.0.%s" (.format (java.text.SimpleDateFormat. "yyyyMMdd") (java.util.Date.))))
+(def lib       'com.github.pmonks/pbr)
+(def version   (format "1.0.%s" (b/git-count-revs nil)))
 
 ; Utility fns
 (defn- set-opts
   [opts]
   (assoc opts
-         :lib     lib
-         :version version))
+         :lib       lib
+         :version   version
+         :write-pom true
+         :pom       {:description      "Peter's Build Resources for Clojure tools.build projects"
+                     :url              "https://github.com/pmonks/pbr"
+                     :licenses         [:license   {:name "Apache License 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}]
+                     :developers       [:developer {:id "pmonks" :name "Peter Monks" :email "pmonks+pbr@gmail.com"}]
+                     :scm              {:url "https://github.com/pmonks/pbr" :connection "scm:git:git://github.com/pmonks/pbr.git" :developer-connection "scm:git:ssh://git@github.com/pmonks/pbr.git"}
+                     :issue-management {:system "github" :url "https://github.com/pmonks/pbr/issues"}}))
 
 ; Build tasks
 (defn clean
@@ -74,3 +83,23 @@ clojure -A:deps -T:build help/doc"
     (outdated)
 ;    (check)    ; Removed until https://github.com/athos/clj-check/issues/4 is fixed
     (lint)))
+
+(defn licenses
+  "Attempts to determine all licenses used by all dependencies in the project."
+  [opts]
+  (pbr/licenses opts))
+
+(defn check-release
+  "Check that a release can be done from the current directory."
+  [opts]
+  (-> opts
+      (set-opts)
+      (ci)
+      (pbr/check-release)))
+
+(defn release
+  "Release a new version of the library."
+  [opts]
+  (-> opts
+      (set-opts)
+      (pbr/release)))

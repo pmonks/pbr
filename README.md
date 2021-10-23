@@ -1,4 +1,9 @@
-[![Build](https://github.com/pmonks/pbr/workflows/build/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Abuild) [![Lint](https://github.com/pmonks/pbr/workflows/lint/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Alint) [![Dependencies](https://github.com/pmonks/pbr/workflows/dependencies/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies) [![Open Issues](https://img.shields.io/github/issues/pmonks/discljord-utils.svg)](https://github.com/pmonks/pbr/issues) [![License](https://img.shields.io/github/license/pmonks/discljord-utils.svg)](https://github.com/pmonks/pbr/blob/main/LICENSE)
+| | | | |
+|---:|:---:|:---:|:---:|
+| [**main**](https://github.com/pmonks/pbr/tree/main) | [![Build](https://github.com/pmonks/pbr/workflows/build/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Abuild) | [![Lint](https://github.com/pmonks/pbr/workflows/lint/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Alint) | [![Dependencies](https://github.com/pmonks/pbr/workflows/dependencies/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies) |
+| [**dev**](https://github.com/pmonks/pbr/tree/dev)  | [![Build](https://github.com/pmonks/pbr/workflows/build/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Abuild) | [![Lint](https://github.com/pmonks/pbr/workflows/lint/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Alint) | [![Dependencies](https://github.com/pmonks/pbr/workflows/dependencies/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies) |
+
+[![Open Issues](https://img.shields.io/github/issues/pmonks/discljord-utils.svg)](https://github.com/pmonks/pbr/issues) [![License](https://img.shields.io/github/license/pmonks/discljord-utils.svg)](https://github.com/pmonks/pbr/blob/main/LICENSE)
 
 
 <img alt="Ice cold can of hangover-inducing rubbish beer" align="right" width="25%" src="https://pabstblueribbon.com/wp-content/uploads/2020/10/pbr-org.png">
@@ -28,30 +33,32 @@ Coming soon.  For now, best to [browse the source](https://github.com/pmonks/pbr
 
 1. `deploy-info` - generate an EDN file containing deployment info for your code (build date/time and git commit & tag).
 2. `pom` - generate a comprehensive `pom.xml` file from EDN (which can come from anywhere - stored in your `deps.edn` or a separate file, or synthesised on the fly in your build tool script).
-3. `release` - perform a release by tagging the current code, updating the deploy-info.edn file, and creating a PR from a development branch to a production branch. This is quite specific to the author's GitHub workflow and may have limited utility for others.
+3. `licenses` - attempt to determine the licenses used by all transitive dependencies of the project
+4. `release` - perform a release by tagging the current code, updating the deploy-info.edn file, and creating a PR from a development branch to a production branch. This is quite specific to the author's GitHub workflow and may have limited utility for others.
 
 ## Using the library
 
 Express a git dependency in your `deps.edn`:
 
 ```edn
-{:deps {org.github.pmonks/pbr {:git/url "https://github.com/pmonks/pbr.git"
-                               :git/sha "LATEST_GIT_SHA"}}}   ; Note: best to use the latest SHA until such time as this is deployed to Clojars
+{:deps {com.github.pmonks/pbr {:git/sha "LATEST_GIT_SHA"}}}   ; Note: best to use the latest SHA until such time as this is deployed to Clojars
 ```
 
-### Requiring the namespace
+### Requiring the namespaces
 
 In your build tool namespace(s):
 
 ```clojure
-(ns your.namespace
-  (:require [org.pmonks.pbr :as pbr]))
+(ns your.build.namespace
+  (:require [pbr.tasks       :as pbr]
+            [pbr.convenience :as pbrc]))
 ```
 
 Require either or both of the included namespaces at the REPL:
 
 ```clojure
-(require '[org.pmonks.pbr :as pbr])
+(require '[pbr.tasks       :as pbr])
+(require '[pbr.convenience :as pbrc])
 ```
 
 ### Worked example
@@ -69,6 +76,12 @@ Because this code is cheap and nasty, and will give you a headache if you consum
 [Bug Tracker](https://github.com/pmonks/pbr/issues)
 
 [Code of Conduct](https://github.com/pmonks/pbr/blob/main/.github/CODE_OF_CONDUCT.md)
+
+### Developer Workflow
+
+The `pbr` source repository has two permanent branches: `main` and `dev`.  **All development must occur either in branch `dev`, or (preferably) in feature branches off of `dev`.**  All PRs must also be submitted against `dev`; the `main` branch is **only** updated from `dev` via PRs created by the core development team.  All other changes submitted to `main` will be rejected.
+
+This model allows otherwise unrelated changes to be batched up in the `dev` branch, integration tested there, and then released en masse to the `main` branch.
 
 ## License
 

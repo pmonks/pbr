@@ -16,7 +16,7 @@
 ; SPDX-License-Identifier: Apache-2.0
 ;
 
-(ns org.pmonks.pbr
+(ns pbr.tasks
   "Peter's Build Resources.
 
   The following convenience fns are provided:
@@ -34,6 +34,8 @@
                          :pom-file the name of the file to write to (defaults to \"./pom.xml\")
                          :write-pom a flag determining whether to invoke \"clj -Spom\" after generating the basic pom (i.e. adding dependencies and repositories from your deps.edn file)
                          :pom a map containing other POM elements (see https://maven.apache.org/pom.html for details).
+  licenses       -- opt: :output output format, one of :summary, :detailed (defaults to :summary)
+                         :verbose boolean controlling whether to emit verbose output or not (defaults to false)
   check-release  -- as for the release task --
   release        -- req: :lib a symbol identifying your project e.g. 'org.github.pmonks/pbr
                          :version a string containing the version of your project e.g. \"1.0.0-SNAPSHOT\"
@@ -44,67 +46,34 @@
 
   All of the above build tasks return the opts hash map they were passed
   (unlike some of the functions in clojure.tools.build.api)."
-  (:require [clojure.string          :as s]
-            [clojure.java.io         :as io]
-            [clojure.pprint          :as pp]
-            [clojure.data.xml        :as xml]
-            [clojure.tools.build.api :as b]
-            [camel-snake-kebab.core  :as csk]))
+  (:require [clojure.string           :as s]
+            [clojure.java.io          :as io]
+            [clojure.pprint           :as pp]
+            [clojure.data.xml         :as xml]
+            [clojure.tools.deps.alpha :as d]
+            [org.corfield.build       :as bb]
+            [camel-snake-kebab.core   :as csk]
+            [pbr.convenience          :as pbrc :refer [ensure-command exec git]]
+            [pbr.licenses             :as lic]))
 
 ; Since v1.10 this should be in core...
 (defmethod print-method java.time.Instant [^java.time.Instant inst writer]
   (print-method (java.util.Date/from inst) writer))
 
-; ---------- CONVENIENCE FUNCTIONS ----------
-
-(defmulti exec
-  "Executes the given command line, expressed as either a string or a sequential (vector or list), optionally with other clojure.tools.build.api/process options as a second argument.
-
-  Throws ex-info on non-zero status code."
-  (fn [& args] (sequential? (first args))))
-
-(defmethod exec true
-  ([command-line] (exec command-line nil))
-  ([command-line opts]
-    (let [result (b/process (into {:command-args command-line} opts))]
-      (if (not= 0 (:exit result))
-        (throw (ex-info (str "Command '" (s/join " " command-line) "' failed (" (:exit result) ").") result))
-        result))))
-
-(defmethod exec false
-  ([command-line] (exec command-line nil))
-  ([command-line opts]
-    (exec (s/split command-line #"\s+") opts)))
-
-(defn ensure-command
-  "Ensures that the given command is available (note: POSIX only)."
-  [command]
-  (try
-    (exec ["command" "-v" command] {:out :capture :err :capture})
-    (catch clojure.lang.ExceptionInfo _
-      (throw (ex-info (str "Command " command " was not found.") {})))))
-
-(defn git
-  "Execute git with the given args, capturing and returning the output."
-  [& args]
-  (s/trim (str (:out (exec (concat ["git"] args) {:out :capture})))))
-
-
-; ---------- BUILD TASK FUNCTIONS ----------
-
 (defn deploy-info
   "Writes out a deploy-info EDN file, containing at least :hash and :date keys, and possibly also a :tag key.  opts includes:
 
-  :deploy-info-file -- opt: the name of the file to write to (defaults to \"./resources/deploy-info.edn\")"
+  :deploy-info-file -- req: the name of the file to write to (e.g. \"./resources/deploy-info.edn\")"
   [opts]
   (ensure-command "git")
-  (let [file-name   (get opts :deploy-info-file "./resources/deploy-info.edn")
-        deploy-info (into {:hash (git "show" "-s" "--format=%H")
-                           :date (java.time.Instant/now)}
-                          (try {:tag (git "describe" "--tags" "--exact-match")} (catch clojure.lang.ExceptionInfo _ nil)))]
-    (io/make-parents file-name)
-    (with-open [w (io/writer (io/file file-name))]
-      (pp/pprint deploy-info w)))
+  (if-let [file-name (:deploy-info-file opts)]
+    (let [deploy-info (into {:hash (git "show" "-s" "--format=%H")
+                             :date (java.time.Instant/now)}
+                            (try {:tag (git "describe" "--tags" "--exact-match")} (catch clojure.lang.ExceptionInfo _ nil)))]
+      (io/make-parents file-name)
+      (with-open [w (io/writer (io/file file-name))]
+        (pp/pprint deploy-info w)))
+    (throw (ex-info ":deploy-info-file not provided" (into {} opts))))
   opts)
 
 (defn- pom-keyword
@@ -147,6 +116,42 @@
       (exec "clojure -Srepro -Spom")))   ; tools.build/write-pom is nowhere as useful as clojure -Spom but the latter doesn't have an API so we just exec it instead...
   opts)
 
+(defn licenses
+  "Lists all licenses used transitively by the project.
+
+  :output  -- opt: output format, one of :summary, :detailed, :edn (defaults to :summary)
+  :verbose -- opt: boolean controlling whether to emit verbose output or not (defaults to false)"
+  [opts]
+  (let [basis        (bb/default-basis)
+        lib-map      (d/resolve-deps basis {})
+        _            (d/prep-libs! lib-map {:action :prep :log :info} {})  ; Make sure everything is "prepped" (downloaded locally) before we start looking for licenses
+        verbose      (get opts :verbose false)
+        dep-licenses (into {} (for [[k v] lib-map] (lic/dep-licenses verbose k v)))]
+    (case (get opts :output :summary)
+      :summary  (let [freqs    (frequencies (filter identity (mapcat :licenses (vals dep-licenses))))
+                      licenses (seq (sort (keys freqs)))]
+                  (println "Licenses in upstream dependencies (occurrences):")
+                  (if licenses
+                    (doall (map #(println "  *" % (str "(" (get freqs %) ")")) licenses))
+                    (println "  <no licenses found>")))
+      :detailed (let [direct-deps     (into {} (remove (fn [[_ v]] (seq (:dependents v))) dep-licenses))
+                      transitive-deps (into {} (filter (fn [[_ v]] (seq (:dependents v))) dep-licenses))]
+                  (println "Direct dependencies:")
+                  (if direct-deps
+                    (doall (for [[k v] (sort-by key direct-deps)] (println "  *" (str k ":") (s/join ", " (:licenses v)))))
+                    (println "  - none -"))
+                  (println "\nTransitive dependencies:")
+                  (if transitive-deps
+                    (doall (for [[k v] (sort-by key transitive-deps)] (println "  *" (str k ":") (s/join ", " (:licenses v)))))
+                    (println "  - none -")))
+      :edn      (pp/pprint dep-licenses))
+    (let [deps-without-licenses (seq (sort (keys (remove #(:licenses (val %)) dep-licenses))))]
+      (when deps-without-licenses
+        (println "These dependencies do not appear to include licensing information in their published artifacts:")
+        (doall (map (partial println "  *") deps-without-licenses))
+        (println "Please raise a bug at https://github.com/pmonks/pbr/issues/new?assignees=&labels=&template=Bug_report.md and include this message.")))
+    opts))
+
 (defn check-release
   "Check that a release can be made from the current directory, with the given opts."
   [opts]
@@ -179,7 +184,7 @@
   :dev-branch  -- opt: the name of the development branch containing the changes to be PRed (defaults to \"dev\")
   :prod-branch -- opt: the name of the production branch where the PR is to be sent (defaults to \"main\")
   :pr-desc     -- opt: a format string used for the PR description with two %s values passed in (%1$s = lib, %2$s = version) (defaults to \"%1$s release v%2$s. See commit log for details of what's included in this release.\")
-  -- all opts from the (deploy-info) task --"
+  -- opts from the (deploy-info) task, if you wish to generate deploy-info --"
   [opts]
   (when-not (:version opts) (throw (ex-info ":version not provided" (into {} opts))))
   (when-not (:lib opts)     (throw (ex-info ":lib not provided" (into {} opts))))
@@ -189,7 +194,7 @@
         tag-name         (str "v" version)
         dev-branch       (get opts :dev-branch "dev")
         prod-branch      (get opts :prod-branch "main")
-        deploy-info-file (get opts :deploy-info-file "./resources/deploy-info.edn")]
+        deploy-info-file (:deploy-info-file opts)]
 
     (println (str "ℹ️ Preparing to release " lib " " tag-name "..."))
 
@@ -209,9 +214,11 @@
     (println "ℹ️ Tagging release as" (str tag-name "..."))
     (git "tag" "-f" "-a" tag-name "-m" (str "Release " tag-name))
 
-    (println "ℹ️ Updating" (str deploy-info-file "..."))
-    (deploy-info opts)
-    (git "commit" "-m" (str ":gem: Release " tag-name) deploy-info-file)
+    (when deploy-info-file
+      (println "ℹ️ Updating" (str deploy-info-file "..."))
+      (deploy-info opts)
+      (git "add" deploy-info-file)  ; Add the file just in case it's never existed before - this is no-op if it's already in the index
+      (git "commit" "-m" (str ":gem: Release " tag-name) deploy-info-file))
 
     (println "ℹ️ Pushing" deploy-info-file "and tag" (str tag-name "..."))
     (git "push")
