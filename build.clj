@@ -88,3 +88,18 @@ clojure -A:deps -T:build help/doc"
   "Attempts to determine all licenses used by all dependencies in the project."
   [opts]
   (pbr/licenses opts))
+
+(defn check-release
+  "Check that a release can be done from the current directory."
+  [opts]
+  (-> opts
+      (set-opts)
+      (ci)
+      (pbr/check-release)))
+
+(defn release
+  "Release a new version of the library."
+  [opts]
+  (-> opts
+      (set-opts)
+      (pbr/release)))
