@@ -24,7 +24,7 @@
             [xml-in.core      :as xi]
             [pbr.spdx         :as spdx]))
 
-(def ^:private fallbacks (edn/read (java.io.PushbackReader. (io/reader (io/resource "pbr/fallbacks.edn")))))
+(def ^:private fallbacks (edn/read-string (slurp "https://cdn.jsdelivr.net/gh/pmonks/pbr@data/fallbacks.edn")))
 
 (defmulti ^:private filename
   "Returns just the name component of the given file or path string."
