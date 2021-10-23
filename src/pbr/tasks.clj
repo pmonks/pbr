@@ -127,13 +127,23 @@
         verbose      (get opts :verbose false)
         dep-licenses (into {} (for [[k v] lib-map] (lic/dep-licenses verbose k v)))]
     (case (get opts :output :summary)
-      :summary (let [freqs    (frequencies (filter identity (mapcat :licenses (vals dep-licenses))))
-                     licenses (seq (sort (keys freqs)))]
-                 (println "Licenses in upstream dependencies (occurrences):")
-                 (if licenses
-                   (doall (map #(println "  *" % (str "(" (get freqs %) ")")) licenses))
-                   (println "  <no licenses found>")))
-      :details (println "⚠️ NOT YET IMPLEMENTED"))   ;####TODO!!!!
+      :summary  (let [freqs    (frequencies (filter identity (mapcat :licenses (vals dep-licenses))))
+                      licenses (seq (sort (keys freqs)))]
+                  (println "Licenses in upstream dependencies (occurrences):")
+                  (if licenses
+                    (doall (map #(println "  *" % (str "(" (get freqs %) ")")) licenses))
+                    (println "  <no licenses found>")))
+      :detailed (let [direct-deps     (into {} (remove (fn [[_ v]] (seq (:dependents v))) dep-licenses))
+                      transitive-deps (into {} (filter (fn [[_ v]] (seq (:dependents v))) dep-licenses))]
+                  (println "Direct dependencies:")
+                  (if direct-deps
+                    (doall (for [[k v] (sort-by key direct-deps)] (println "  *" (str k ":") (s/join ", " (:licenses v)))))
+                    (println "  - none -"))
+                  (println "\nTransitive dependencies:")
+                  (if transitive-deps
+                    (doall (for [[k v] (sort-by key transitive-deps)] (println "  *" (str k ":") (s/join ", " (:licenses v)))))
+                    (println "  - none -")))
+      :edn      (pp/pprint dep-licenses))
     (let [deps-without-licenses (seq (sort (keys (remove #(:licenses (val %)) dep-licenses))))]
       (when deps-without-licenses
         (println "These dependencies do not appear to include licensing information in their published artifacts:")
