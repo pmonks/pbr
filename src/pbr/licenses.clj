@@ -91,7 +91,7 @@
         first-lines (s/trim (s/join " " (take 2 (remove s/blank? (map s/trim (line-seq rdr))))))]  ; Take the first two non-blank lines, since many licenses put the name on line 1, and the version on line 2
     [(lookup-license-name verbose dep first-lines)]))
 
-(def ^:private probable-license-filenames #{"license.spdx" "pom.xml" "license" "license.txt" "copying"})   ;####TODO: consider "license.md" and #".+\.spdx" (see https://github.com/spdx/spdx-maven-plugin for why the latter is important)...
+(def ^:private probable-license-filenames #{"pom.xml" "license" "license.txt" "copying"})   ;####TODO: consider "license.md" and #".+\.spdx" (see https://github.com/spdx/spdx-maven-plugin for why the latter is important)...
 
 (defn- probable-license-file?
   "Returns true if the given file is a probable license file, false otherwise."
