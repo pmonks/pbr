@@ -17,9 +17,10 @@
 ;
 
 (ns pbr.spdx
-  (:require [clojure.string :as s]
-            [clojure.set    :as set]
-            [cheshire.core  :as json]))
+  (:require [clojure.string  :as s]
+            [clojure.set     :as set]
+            [clojure.reflect :as cr]
+            [cheshire.core   :as json]))
 
 (defn clojurise-json-key
   "Converts JSON string keys (e.g. \"fullName\") to Clojure keyword keys (e.g. :full-name)."
@@ -64,7 +65,12 @@
                }))
 
 (def ^:private spdx-license-list-uri "https://cdn.jsdelivr.net/gh/spdx/license-list-data/json/licenses.json")
-(def ^:private spdx-license-list     (json/parse-string (slurp spdx-license-list-uri) clojurise-json-key))
+(def ^:private spdx-license-list     (try
+                                       (json/parse-string (slurp spdx-license-list-uri) clojurise-json-key)
+                                       (catch Exception e
+                                         (throw (ex-info (str "Unexpected " (cr/typename (type e)) " while reading " spdx-license-list-uri ". Please check your internet connection and try again.") {})))))
+
+; Alternative indexes into the SPDX list
 (def ^:private spdx-name-to-id       (apply merge (map #(hash-map (s/lower-case (:name %)) (:license-id %)) (:licenses spdx-license-list))))
 (def ^:private spdx-url-to-id        (into {} (for [lic (:licenses spdx-license-list) url (:see-also lic)] (hash-map (s/lower-case url) (:license-id lic)))))
 
