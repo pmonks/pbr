@@ -16,11 +16,10 @@
 ; SPDX-License-Identifier: Apache-2.0
 ;
 
-(ns com.github.pmonks.internal.spdx
+(ns pbr.spdx
   (:require [clojure.string :as s]
             [clojure.set    :as set]
             [cheshire.core  :as json]))
-
 
 (defn clojurise-json-key
   "Converts JSON string keys (e.g. \"fullName\") to Clojure keyword keys (e.g. :full-name)."

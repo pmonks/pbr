@@ -16,15 +16,15 @@
 ; SPDX-License-Identifier: Apache-2.0
 ;
 
-(ns com.github.pmonks.internal.licenses
-  (:require [clojure.string                  :as s]
-            [clojure.java.io                 :as io]
-            [clojure.edn                     :as edn]
-            [clojure.data.xml                :as xml]
-            [xml-in.core                     :as xi]
-            [com.github.pmonks.internal.spdx :as spdx]))
+(ns pbr.licenses
+  (:require [clojure.string   :as s]
+            [clojure.java.io  :as io]
+            [clojure.edn      :as edn]
+            [clojure.data.xml :as xml]
+            [xml-in.core      :as xi]
+            [pbr.spdx         :as spdx]))
 
-(def ^:private fallbacks (edn/read (java.io.PushbackReader. (io/reader (io/resource "com/github/pmonks/internal/fallbacks.edn")))))
+(def ^:private fallbacks (edn/read (java.io.PushbackReader. (io/reader (io/resource "pbr/fallbacks.edn")))))
 
 (defmulti ^:private filename
   "Returns just the name component of the given file or path string."
@@ -36,7 +36,7 @@
 
 (defmethod filename java.lang.String
   [s]
-  (last (s/split s #"/")))   ; TODO: use java.io.File/separatorChar here
+  (last (s/split s #"/")))   ; TODO: consider using (re-pattern (str java.io.File/separatorChar)) here, though ZIP files always use "/" regardless of platform...
 
 (defmethod filename java.util.zip.ZipEntry
   [^java.util.zip.ZipEntry ze]

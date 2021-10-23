@@ -16,7 +16,7 @@
 ; SPDX-License-Identifier: Apache-2.0
 ;
 
-(ns com.github.pmonks.pbr
+(ns pbr.tasks
   "Peter's Build Resources.
 
   The following convenience fns are provided:
@@ -46,56 +46,19 @@
 
   All of the above build tasks return the opts hash map they were passed
   (unlike some of the functions in clojure.tools.build.api)."
-  (:require [clojure.string                      :as s]
-            [clojure.java.io                     :as io]
-            [clojure.pprint                      :as pp]
-            [clojure.data.xml                    :as xml]
-            [clojure.tools.deps.alpha            :as d]
-            [clojure.tools.build.api             :as b]
-            [org.corfield.build                  :as bb]
-            [camel-snake-kebab.core              :as csk]
-            [com.github.pmonks.internal.licenses :as lic]))
+  (:require [clojure.string           :as s]
+            [clojure.java.io          :as io]
+            [clojure.pprint           :as pp]
+            [clojure.data.xml         :as xml]
+            [clojure.tools.deps.alpha :as d]
+            [org.corfield.build       :as bb]
+            [camel-snake-kebab.core   :as csk]
+            [pbr.convenience          :as pbrc :refer [ensure-command exec git]]
+            [pbr.licenses             :as lic]))
 
 ; Since v1.10 this should be in core...
 (defmethod print-method java.time.Instant [^java.time.Instant inst writer]
   (print-method (java.util.Date/from inst) writer))
-
-; ---------- CONVENIENCE FUNCTIONS ----------
-
-(defmulti exec
-  "Executes the given command line, expressed as either a string or a sequential (vector or list), optionally with other clojure.tools.build.api/process options as a second argument.
-
-  Throws ex-info on non-zero status code."
-  (fn [& args] (sequential? (first args))))
-
-(defmethod exec true
-  ([command-line] (exec command-line nil))
-  ([command-line opts]
-    (let [result (b/process (into {:command-args command-line} opts))]
-      (if (not= 0 (:exit result))
-        (throw (ex-info (str "Command '" (s/join " " command-line) "' failed (" (:exit result) ").") result))
-        result))))
-
-(defmethod exec false
-  ([command-line] (exec command-line nil))
-  ([command-line opts]
-    (exec (s/split command-line #"\s+") opts)))
-
-(defn ensure-command
-  "Ensures that the given command is available (note: POSIX only)."
-  [command]
-  (try
-    (exec ["command" "-v" command] {:out :capture :err :capture})
-    (catch clojure.lang.ExceptionInfo _
-      (throw (ex-info (str "Command " command " was not found.") {})))))
-
-(defn git
-  "Execute git with the given args, capturing and returning the output."
-  [& args]
-  (s/trim (str (:out (exec (concat ["git"] args) {:out :capture})))))
-
-
-; ---------- BUILD TASK FUNCTIONS ----------
 
 (defn deploy-info
   "Writes out a deploy-info EDN file, containing at least :hash and :date keys, and possibly also a :tag key.  opts includes:
@@ -155,7 +118,7 @@
 (defn licenses
   "Lists all licenses used transitively by the project.
 
-  :output  -- opt: output format, one of :summary, :detailed (defaults to :summary)
+  :output  -- opt: output format, one of :summary, :detailed, :edn (defaults to :summary)
   :verbose -- opt: boolean controlling whether to emit verbose output or not (defaults to false)"
   [opts]
   (let [basis        (bb/default-basis)

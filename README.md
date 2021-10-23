@@ -44,19 +44,21 @@ Express a git dependency in your `deps.edn`:
 {:deps {com.github.pmonks/pbr {:git/sha "LATEST_GIT_SHA"}}}   ; Note: best to use the latest SHA until such time as this is deployed to Clojars
 ```
 
-### Requiring the namespace
+### Requiring the namespaces
 
 In your build tool namespace(s):
 
 ```clojure
-(ns your.namespace
-  (:require [com.github.pmonks.pbr :as pbr]))
+(ns your.build.namespace
+  (:require [pbr.tasks       :as pbr]
+            [pbr.convenience :as pbrc]))
 ```
 
 Require either or both of the included namespaces at the REPL:
 
 ```clojure
-(require '[com.github.pmonks.pbr :as pbr])
+(require '[pbr.tasks       :as pbr])
+(require '[pbr.convenience :as pbrc])
 ```
 
 ### Worked example
