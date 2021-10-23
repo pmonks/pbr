@@ -17,6 +17,13 @@
 ;
 
 (ns pbr.convenience
+  "Peter's Build Resources.
+
+  The following convenience fns are provided:
+
+  exec           -- req: string or [strings]
+  ensure-command -- req: command-name (string)
+  git            -- opt: arguments to git (vararg strings)"
   (:require [clojure.string          :as s]
             [clojure.tools.build.api :as b]))
 
@@ -48,6 +55,6 @@
       (throw (ex-info (str "Command " command " was not found.") {})))))
 
 (defn git
-  "Execute git with the given args, capturing and returning the output."
+  "Execute git with the given args, capturing and returning the output (stdout only)."
   [& args]
   (s/trim (str (:out (exec (concat ["git"] args) {:out :capture})))))
