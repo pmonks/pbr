@@ -1,9 +1,9 @@
 | | | | |
-|---:|:---:|:---:|:---:|
-| [**main**](https://github.com/pmonks/pbr/tree/main) | [![Build](https://github.com/pmonks/pbr/workflows/build/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Abuild) | [![Lint](https://github.com/pmonks/pbr/workflows/lint/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Alint) | [![Dependencies](https://github.com/pmonks/pbr/workflows/dependencies/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies) |
-| [**dev**](https://github.com/pmonks/pbr/tree/dev)  | [![Build](https://github.com/pmonks/pbr/workflows/build/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Abuild) | [![Lint](https://github.com/pmonks/pbr/workflows/lint/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Alint) | [![Dependencies](https://github.com/pmonks/pbr/workflows/dependencies/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies) |
+|---:|:---:|:---:|
+| [**main**](https://github.com/pmonks/pbr/tree/main) | [![Lint](https://github.com/pmonks/pbr/workflows/lint/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Alint) | [![Dependencies](https://github.com/pmonks/pbr/workflows/dependencies/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies) |
+| [**dev**](https://github.com/pmonks/pbr/tree/dev)  | [![Lint](https://github.com/pmonks/pbr/workflows/lint/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Alint) | [![Dependencies](https://github.com/pmonks/pbr/workflows/dependencies/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies) |
 
-[![Open Issues](https://img.shields.io/github/issues/pmonks/discljord-utils.svg)](https://github.com/pmonks/pbr/issues) [![License](https://img.shields.io/github/license/pmonks/discljord-utils.svg)](https://github.com/pmonks/pbr/blob/main/LICENSE)
+[![Latest Version](https://img.shields.io/clojars/v/com.github.pmonks/pbr)](https://clojars.org/com.github.pmonks/pbr/) [![Open Issues](https://img.shields.io/github/issues/pmonks/discljord-utils.svg)](https://github.com/pmonks/pbr/issues) [![License](https://img.shields.io/github/license/pmonks/discljord-utils.svg)](https://github.com/pmonks/pbr/blob/main/LICENSE)
 
 
 <img alt="Ice cold can of hangover-inducing rubbish beer" align="right" width="25%" src="https://pabstblueribbon.com/wp-content/uploads/2020/10/pbr-org.png">
@@ -38,10 +38,10 @@ These can be used independently; use of the convenience functions does not requi
 
 ## Using the library
 
-Express a git dependency in your `deps.edn`:
+Express a maven dependency in your `deps.edn`:
 
 ```edn
-{:deps {com.github.pmonks/pbr {:git/sha "LATEST_GIT_SHA"}}}   ; Note: best to use the latest SHA until such time as this is deployed to Clojars
+{:deps {com.github.pmonks/pbr {:mvn/version "LATEST_VERSION_ON_CLOJARS"}}}
 ```
 
 ### Requiring the namespaces
