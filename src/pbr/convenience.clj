@@ -31,6 +31,8 @@
   "Executes the given command line, expressed as either a string or a sequential (vector or list), optionally with other clojure.tools.build.api/process options as a second argument.
 
   Throws ex-info on non-zero status code."
+  {:arglists '([command-line]
+               [command-line opts])}
   (fn [& args] (sequential? (first args))))
 
 (defmethod exec true
