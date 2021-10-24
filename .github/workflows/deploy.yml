@@ -1,0 +1,29 @@
+name: deploy
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Java LTS
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: 11
+
+      - name: Install Clojure CLI
+        uses: DeLaGuardo/setup-clojure@3.5
+        with:
+          tools-deps: latest
+
+      - name: Build JAR and deploy to Clojars
+        env:
+          CLOJAR_USERNAME: ${{ secrets.CLOJAR_USERNAME }}
+          CLOJAR_PASSWORD: ${{ secrets.CLOJAR_PASSWORD }}
+        run: clojure -Srepro -J-Dclojure.main.report=stderr -T:build deploy
