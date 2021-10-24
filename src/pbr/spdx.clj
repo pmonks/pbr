@@ -17,54 +17,19 @@
 ;
 
 (ns pbr.spdx
-  (:require [clojure.string :as s]
-            [clojure.set    :as set]
-            [cheshire.core  :as json]))
-
-(defn clojurise-json-key
-  "Converts JSON string keys (e.g. \"fullName\") to Clojure keyword keys (e.g. :full-name)."
-  [k]
-  (keyword
-    (s/replace
-      (s/join "-"
-              (map s/lower-case
-                   (s/split k #"(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])")))
-      "_"
-      "-")))
-
-(defn mapfonk
-  "Returns a new map where f has been applied to all of the keys of m."
-  [f m]
-  (when m
-    (into {}
-          (for [[k v] m]
-            [(f k) v]))))
-
-(defn escape-re
-  [s]
-  (s/escape s {\< "\\<"
-               \( "\\("
-               \[ "\\["
-               \{ "\\{"
-               \\ "\\\\"
-               \^ "\\^"
-               \- "\\-"
-               \= "\\="
-               \$ "\\$"
-               \! "\\!"
-               \| "\\|"
-               \] "\\]"
-               \} "\\}"
-               \) "\\)"
-               \? "\\?"
-               \* "\\*"
-               \+ "\\+"
-               \. "\\."
-               \> "\\>"
-               }))
+  (:require [clojure.string  :as s]
+            [clojure.set     :as set]
+            [clojure.reflect :as cr]
+            [cheshire.core   :as json]
+            [pbr.utils       :as u]))
 
 (def ^:private spdx-license-list-uri "https://cdn.jsdelivr.net/gh/spdx/license-list-data/json/licenses.json")
-(def ^:private spdx-license-list     (json/parse-string (slurp spdx-license-list-uri) clojurise-json-key))
+(def ^:private spdx-license-list     (try
+                                       (json/parse-string (slurp spdx-license-list-uri) u/clojurise-json-key)
+                                       (catch Exception e
+                                         (throw (ex-info (str "Unexpected " (cr/typename (type e)) " while reading " spdx-license-list-uri ". Please check your internet connection and try again.") {})))))
+
+; Alternative indexes into the SPDX list
 (def ^:private spdx-name-to-id       (apply merge (map #(hash-map (s/lower-case (:name %)) (:license-id %)) (:licenses spdx-license-list))))
 (def ^:private spdx-url-to-id        (into {} (for [lic (:licenses spdx-license-list) url (:see-also lic)] (hash-map (s/lower-case url) (:license-id lic)))))
 
@@ -96,7 +61,7 @@
   (set/map-invert spdx-name-to-id))
 
 (def ^:private aliases
-  (merge (mapfonk #(re-pattern (escape-re (s/lower-case (s/replace % " only" "")))) spdx-name-to-id)   ; Start with all of the official license names
+  (merge (u/mapfonk #(re-pattern (u/escape-re (s/lower-case (s/replace % " only" "")))) spdx-name-to-id)   ; Start with all of the official license names
          {; Identifiers:
           #"apache( software)? license(s)?(,)? version 2\.0"      "Apache-2.0"
           #"apache 2(\.0)?"                                       "Apache-2.0"
@@ -130,4 +95,3 @@
             (if (re-find f ltext)
               (get aliases f)
               (recur (first r) (rest r)))))))))
-

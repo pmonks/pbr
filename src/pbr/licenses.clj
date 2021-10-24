@@ -19,12 +19,17 @@
 (ns pbr.licenses
   (:require [clojure.string   :as s]
             [clojure.java.io  :as io]
+            [clojure.reflect  :as cr]
             [clojure.edn      :as edn]
             [clojure.data.xml :as xml]
             [xml-in.core      :as xi]
             [pbr.spdx         :as spdx]))
 
-(def ^:private fallbacks (edn/read-string (slurp "https://cdn.jsdelivr.net/gh/pmonks/pbr@data/fallbacks.edn")))
+(def ^:private fallbacks-uri "https://cdn.jsdelivr.net/gh/pmonks/pbr@data/fallbacks.edn")
+(def ^:private fallbacks (try
+                           (edn/read-string (slurp fallbacks-uri))
+                           (catch Exception e
+                             (throw (ex-info (str "Unexpected " (cr/typename (type e)) " while reading " fallbacks-uri ". Please check your internet connection and try again.") {})))))
 
 (defmulti ^:private filename
   "Returns just the name component of the given file or path string."
@@ -65,12 +70,11 @@
   (let [pom-xml (xml/parse input-stream)]
     (if-let [pom-licenses (seq
                             (distinct
-                              (filter identity
-                                      (concat (map (partial lookup-license-name verbose dep) (xi/find-all pom-xml [::pom/project ::pom/licenses ::pom/license ::pom/name]))
-                                              (map (partial lookup-license-url  verbose dep) (xi/find-all pom-xml [::pom/project ::pom/licenses :pom/:license ::pom/url]))
-                                              ; Note: a few rare pom.xml files are missing an xmlns declation (e.g. software.amazon.ion/ion-java) - the following two lines will catch those
-                                              (map (partial lookup-license-name verbose dep) (xi/find-all pom-xml [:project      :licenses      :license      :name]))
-                                              (map (partial lookup-license-url  verbose dep) (xi/find-all pom-xml [:project      :licenses      :license      :url]))))))]
+                              (concat (keep (partial lookup-license-name verbose dep) (xi/find-all pom-xml [::pom/project ::pom/licenses ::pom/license ::pom/name]))
+                                      (keep (partial lookup-license-url  verbose dep) (xi/find-all pom-xml [::pom/project ::pom/licenses ::pom/license ::pom/url]))
+                                      ; Note: a few rare pom.xml files are missing an xmlns declation (e.g. software.amazon.ion/ion-java) - the following two lines will catch those
+                                      (keep (partial lookup-license-name verbose dep) (xi/find-all pom-xml [:project      :licenses      :license      :name]))
+                                      (keep (partial lookup-license-url  verbose dep) (xi/find-all pom-xml [:project      :licenses      :license      :url])))))]
       pom-licenses
       (when verbose (println "ℹ️" dep "has a pom.xml file but it does not contain a <licenses> element")))))
 
@@ -87,7 +91,7 @@
         first-lines (s/trim (s/join " " (take 2 (remove s/blank? (map s/trim (line-seq rdr))))))]  ; Take the first two non-blank lines, since many licenses put the name on line 1, and the version on line 2
     [(lookup-license-name verbose dep first-lines)]))
 
-(def ^:private probable-license-filenames #{"license.spdx" "pom.xml" "license" "license.txt" "copying"})   ;####TODO: consider "license.md" and #".+\.spdx" (see https://github.com/spdx/spdx-maven-plugin for why the latter is important)...
+(def ^:private probable-license-filenames #{"pom.xml" "license" "license.txt" "copying"})   ;####TODO: consider "license.md" and #".+\.spdx" (see https://github.com/spdx/spdx-maven-plugin for why the latter is important)...
 
 (defn- probable-license-file?
   "Returns true if the given file is a probable license file, false otherwise."

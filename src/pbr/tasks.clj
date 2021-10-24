@@ -19,12 +19,6 @@
 (ns pbr.tasks
   "Peter's Build Resources.
 
-  The following convenience fns are provided:
-
-  exec           -- req: string or [strings]
-  ensure-command -- req: command-name (string)
-  git            -- opt: arguments to git (vararg strings)
-
   The following build task functions are provided, with the
   specified required and optional hash map options:
 

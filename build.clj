@@ -23,6 +23,7 @@ For more information, run:
 
 clojure -A:deps -T:build help/doc"
   (:require [clojure.tools.build.api :as b]
+            [codox.main              :as codox]
             [org.corfield.build      :as bb]
             [pbr.tasks               :as pbr]))
 
@@ -41,7 +42,9 @@ clojure -A:deps -T:build help/doc"
                      :licenses         [:license   {:name "Apache License 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}]
                      :developers       [:developer {:id "pmonks" :name "Peter Monks" :email "pmonks+pbr@gmail.com"}]
                      :scm              {:url "https://github.com/pmonks/pbr" :connection "scm:git:git://github.com/pmonks/pbr.git" :developer-connection "scm:git:ssh://git@github.com/pmonks/pbr.git"}
-                     :issue-management {:system "github" :url "https://github.com/pmonks/pbr/issues"}}))
+                     :issue-management {:system "github" :url "https://github.com/pmonks/pbr/issues"}}
+         :codox     {:source-paths ["src"]
+                     :source-uri   "https://github.com/pmonks/pbr/blob/main/{filepath}#L{line}"}))
 
 ; Build tasks
 (defn clean
@@ -103,3 +106,9 @@ clojure -A:deps -T:build help/doc"
   (-> opts
       (set-opts)
       (pbr/release)))
+
+(defn docs
+  "Generates codox documentation"
+  [opts]
+  (codox/generate-docs (into (:codox (set-opts nil))
+                             opts)))

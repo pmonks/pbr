@@ -29,6 +29,7 @@
     ; clj -T:build <taskname>
     :build
       {:deps       {org.github.pmonks/pbr {:local/root "."}         ; Sneaky self-dependency...
+                    codox/codox           {:mvn/version "0.10.7"}
                     org.slf4j/slf4j-api   {:mvn/version "1.7.32"}}  ; Something pulls in an ancient version of this dep, which causes failures without this here...
        :ns-default build}
 
@@ -55,4 +56,5 @@
     :outdated
       {:extra-deps {com.github.liquidz/antq {:mvn/version "1.1.0"}}
        :main-opts  ["-m" "antq.core"]}
+
    }}
