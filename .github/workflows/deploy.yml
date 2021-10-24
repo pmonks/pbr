@@ -25,6 +25,6 @@ jobs:
 
       - name: Build JAR and deploy to Clojars
         env:
-          CLOJAR_USERNAME: ${{ secrets.CLOJARS_USERNAME }}
-          CLOJAR_PASSWORD: ${{ secrets.CLOJARS_PASSWORD }}
+          CLOJARS_USERNAME: ${{ secrets.CLOJARS_USERNAME }}
+          CLOJARS_PASSWORD: ${{ secrets.CLOJARS_PASSWORD }}
         run: clojure -Srepro -J-Dclojure.main.report=stderr -T:build deploy
