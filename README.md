@@ -38,11 +38,17 @@ These can be used independently; use of the convenience functions does not requi
 
 ## Using the library
 
-Express a maven dependency in your `deps.edn`:
+Express a maven dependency in your `deps.edn`, for a build tool alias:
 
 ```edn
-{:deps {com.github.pmonks/pbr {:mvn/version "LATEST_VERSION_ON_CLOJARS"}}}
+ :aliases
+    :build
+      {:deps       {io.github.seancorfield/build-clj {:git/tag     "v0.5.2" :git/sha "8f75b81"}
+                    com.github.pmonks/pbr            {:mvn/version "LATEST_CLOJARS_VERSION"}}
+       :ns-default build}
 ```
+
+Note that you must express an explicit dependency on `io.github.seancorfield/build-clj`, as that project [doesn't publish artifacts to Clojars yet](https://github.com/seancorfield/build-clj/issues/11), and transitive dependencies that only have git coordinates are not supported by tools.deps yet.
 
 ### Requiring the namespaces
 
