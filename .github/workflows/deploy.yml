@@ -11,6 +11,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0    # Make sure we get the full history, or else the version number gets screwed up
 
       - name: Install Java LTS
         uses: actions/setup-java@v2
