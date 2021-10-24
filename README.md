@@ -83,6 +83,23 @@ The `pbr` source repository has two permanent branches: `main` and `dev`.  **All
 
 This model allows otherwise unrelated changes to be batched up in the `dev` branch, integration tested there, and then released en masse to the `main` branch.
 
+#### FAQ
+
+Q. Does PBR use itself for build tasks?
+A. Why yes it does!  You can see how it sneakily references itself [here](https://github.com/pmonks/pbr/blob/main/deps.edn#L31).
+
+Q. How comprehensive is the license task?
+A. While it makes a pretty good effort to find license information included in the published artifacts for a project's dependencies, and [falls back](https://github.com/pmonks/pbr/blob/data/fallbacks.edn) on manually verified information when necessary, this code is no substitute for a "real" software license compliance tool.
+
+Q. The license task say "Unable to determine licenses for these dependencies" and then asks me to raise a bug report. Why?
+A. If an artifact contains no identifiable license information, the logic falls back on a [manually maintained list of dependency -> licenses](https://github.com/pmonks/pbr/blob/data/fallbacks.edn).  That message appears when there is no identifiable license information in the artifact AND the dependency has no fallback information either.  By raising a bug including the deps(s) that the tool listed, you give the author an opportunity to add those dep(s) to manually determine the licenses for those dep(s) and update the fallback list accordingly.
+
+Q. When the fallback list is updated, will I need to update my new version of PBR to get it?
+A. No - the fallback list is retrieved at runtime, so any updates to it will be picked up soon after they are made by all versions of PBR.
+
+Q. Doesn't that mean that PBR requires an internet connection in order to function?
+A. Yes indeed.
+
 ## License
 
 Copyright © 2021 Peter Monks
