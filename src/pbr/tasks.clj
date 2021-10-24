@@ -141,9 +141,9 @@
       :edn      (pp/pprint dep-licenses))
     (let [deps-without-licenses (seq (sort (keys (remove #(:licenses (val %)) dep-licenses))))]
       (when deps-without-licenses
-        (println "These dependencies do not appear to include licensing information in their published artifacts:")
+        (println "Unable to determine licenses for these dependencies:")
         (doall (map (partial println "  *") deps-without-licenses))
-        (println "Please raise a bug at https://github.com/pmonks/pbr/issues/new?assignees=&labels=&template=Bug_report.md and include this message.")))
+        (println "Please raise a bug at https://github.com/pmonks/pbr/issues/new?assignees=&labels=&template=Bug_report.md and include this list of dependencies.")))
     opts))
 
 (defn check-release

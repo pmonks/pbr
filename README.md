@@ -1,9 +1,9 @@
 | | | | |
-|---:|:---:|:---:|:---:|
-| [**main**](https://github.com/pmonks/pbr/tree/main) | [![Build](https://github.com/pmonks/pbr/workflows/build/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Abuild) | [![Lint](https://github.com/pmonks/pbr/workflows/lint/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Alint) | [![Dependencies](https://github.com/pmonks/pbr/workflows/dependencies/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies) |
-| [**dev**](https://github.com/pmonks/pbr/tree/dev)  | [![Build](https://github.com/pmonks/pbr/workflows/build/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Abuild) | [![Lint](https://github.com/pmonks/pbr/workflows/lint/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Alint) | [![Dependencies](https://github.com/pmonks/pbr/workflows/dependencies/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies) |
+|---:|:---:|:---:|
+| [**main**](https://github.com/pmonks/pbr/tree/main) | [![Lint](https://github.com/pmonks/pbr/workflows/lint/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Alint) | [![Dependencies](https://github.com/pmonks/pbr/workflows/dependencies/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies) |
+| [**dev**](https://github.com/pmonks/pbr/tree/dev)  | [![Lint](https://github.com/pmonks/pbr/workflows/lint/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Alint) | [![Dependencies](https://github.com/pmonks/pbr/workflows/dependencies/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies) |
 
-[![Open Issues](https://img.shields.io/github/issues/pmonks/discljord-utils.svg)](https://github.com/pmonks/pbr/issues) [![License](https://img.shields.io/github/license/pmonks/discljord-utils.svg)](https://github.com/pmonks/pbr/blob/main/LICENSE)
+[![Latest Version](https://img.shields.io/clojars/v/com.github.pmonks/pbr)](https://clojars.org/com.github.pmonks/pbr/) [![Open Issues](https://img.shields.io/github/issues/pmonks/discljord-utils.svg)](https://github.com/pmonks/pbr/issues) [![License](https://img.shields.io/github/license/pmonks/discljord-utils.svg)](https://github.com/pmonks/pbr/blob/main/LICENSE)
 
 
 <img alt="Ice cold can of hangover-inducing rubbish beer" align="right" width="25%" src="https://pabstblueribbon.com/wp-content/uploads/2020/10/pbr-org.png">
@@ -38,10 +38,10 @@ These can be used independently; use of the convenience functions does not requi
 
 ## Using the library
 
-Express a git dependency in your `deps.edn`:
+Express a maven dependency in your `deps.edn`:
 
 ```edn
-{:deps {com.github.pmonks/pbr {:git/sha "LATEST_GIT_SHA"}}}   ; Note: best to use the latest SHA until such time as this is deployed to Clojars
+{:deps {com.github.pmonks/pbr {:mvn/version "LATEST_VERSION_ON_CLOJARS"}}}
 ```
 
 ### Requiring the namespaces
@@ -82,6 +82,23 @@ Because this code is cheap and nasty, and will give you a headache if you consum
 The `pbr` source repository has two permanent branches: `main` and `dev`.  **All development must occur either in branch `dev`, or (preferably) in feature branches off of `dev`.**  All PRs must also be submitted against `dev`; the `main` branch is **only** updated from `dev` via PRs created by the core development team.  All other changes submitted to `main` will be rejected.
 
 This model allows otherwise unrelated changes to be batched up in the `dev` branch, integration tested there, and then released en masse to the `main` branch.
+
+#### FAQ
+
+Q. Does PBR use itself for build tasks?
+A. Why yes it does!  You can see how it sneakily references itself [here](https://github.com/pmonks/pbr/blob/main/deps.edn#L31).
+
+Q. How comprehensive is the license task?
+A. While it makes a pretty good effort to find license information included in the published artifacts for a project's dependencies, and [falls back](https://github.com/pmonks/pbr/blob/data/fallbacks.edn) on manually verified information when necessary, this code is no substitute for a "real" software license compliance tool.
+
+Q. The license task say "Unable to determine licenses for these dependencies" and then asks me to raise a bug report. Why?
+A. If an artifact contains no identifiable license information, the logic falls back on a [manually maintained list of dependency -> licenses](https://github.com/pmonks/pbr/blob/data/fallbacks.edn).  That message appears when there is no identifiable license information in the artifact AND the dependency has no fallback information either.  By raising a bug including the deps(s) that the tool listed, you give the author an opportunity to add those dep(s) to manually determine the licenses for those dep(s) and update the fallback list accordingly.
+
+Q. When the fallback list is updated, will I need to update my new version of PBR to get it?
+A. No - the fallback list is retrieved at runtime, so any updates to it will be picked up soon after they are made by all versions of PBR.
+
+Q. Doesn't that mean that PBR requires an internet connection in order to function?
+A. Yes indeed.
 
 ## License
 
