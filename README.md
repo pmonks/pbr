@@ -21,20 +21,20 @@ These can be used independently; use of the convenience functions does not requi
 
 ### API Documentation
 
-Coming soon.  For now, best to [browse the source](https://github.com/pmonks/pbr/tree/main/src) and/or make liberal use of the `doc` fn at the REPL.
+[API documentation is available here](https://pmonks.github.io/pbr/).
 
 ### Convenience functions 
 
 1. `exec` - more convenient / opinionated version of tools.build's [`process` function](https://clojure.github.io/tools.build/clojure.tools.build.api.html#var-process).
 2. `ensure-command` - ensure that a binary exists for the given command (note: POSIX only).
-3. `git` - easily invoke a git command.
+3. `git` - easily invoke a git command and obtain its output
 
 ### Build tasks
 
-1. `deploy-info` - generate an EDN file containing deployment info for your code (build date/time and git commit & tag).
+1. `deploy-info` - generate an EDN file containing deployment info for your code (build date/time and git commit SHA & (optionally) tag).
 2. `pom` - generate a comprehensive `pom.xml` file from EDN (which can come from anywhere - stored in your `deps.edn` or a separate file, or synthesised on the fly in your build tool script).
-3. `licenses` - attempt to determine the licenses used by all transitive dependencies of the project
-4. `release` - perform a release by tagging the current code, updating the deploy-info.edn file, and creating a PR from a development branch to a production branch. This is quite specific to the author's GitHub workflow and may have limited utility for others.
+3. `licenses` - attempt to display the licenses used by all transitive dependencies of the project
+4. `release` - perform a release by tagging the current code, optionally updating the deploy-info.edn file, and creating a PR from a development branch to a production branch. This is quite specific to the author's GitHub workflow and may have limited utility for others.
 
 ## Using the library
 
