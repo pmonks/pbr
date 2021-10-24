@@ -17,7 +17,7 @@
 ;
 
 (ns pbr.tasks
-  "Peter's Build Resources.
+  "Standard implementations of common tools.build tasks.
 
   The following build task functions are provided, with the
   specified required and optional hash map options:

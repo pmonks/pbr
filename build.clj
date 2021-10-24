@@ -107,6 +107,22 @@ clojure -A:deps -T:build help/doc"
       (set-opts)
       (pbr/release)))
 
+(defn jar
+  "Generates a library JAR for the project."
+  [opts]
+  (-> opts
+      (set-opts)
+      (pbr/pom)
+      (bb/jar)))
+
+(defn deploy
+  "Deploys the library JAR to Clojars."
+  [opts]
+  (-> opts
+      (set-opts)
+      (jar)
+      (bb/deploy)))
+
 (defn docs
   "Generates codox documentation"
   [opts]
