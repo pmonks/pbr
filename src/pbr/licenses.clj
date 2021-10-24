@@ -71,7 +71,7 @@
     (if-let [pom-licenses (seq
                             (distinct
                               (concat (keep (partial lookup-license-name verbose dep) (xi/find-all pom-xml [::pom/project ::pom/licenses ::pom/license ::pom/name]))
-                                      (keep (partial lookup-license-url  verbose dep) (xi/find-all pom-xml [::pom/project ::pom/licenses :pom/:license ::pom/url]))
+                                      (keep (partial lookup-license-url  verbose dep) (xi/find-all pom-xml [::pom/project ::pom/licenses ::pom/license ::pom/url]))
                                       ; Note: a few rare pom.xml files are missing an xmlns declation (e.g. software.amazon.ion/ion-java) - the following two lines will catch those
                                       (keep (partial lookup-license-name verbose dep) (xi/find-all pom-xml [:project      :licenses      :license      :name]))
                                       (keep (partial lookup-license-url  verbose dep) (xi/find-all pom-xml [:project      :licenses      :license      :url])))))]
