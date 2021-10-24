@@ -17,6 +17,7 @@
 ;
 
 (ns pbr.spdx
+  "SPDX license information handling logic."
   (:require [clojure.string  :as s]
             [clojure.set     :as set]
             [clojure.reflect :as cr]

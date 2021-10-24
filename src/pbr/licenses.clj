@@ -17,6 +17,7 @@
 ;
 
 (ns pbr.licenses
+  "Logic for discovering licenses in tools.deps dependencies."
   (:require [clojure.string   :as s]
             [clojure.java.io  :as io]
             [clojure.reflect  :as cr]

@@ -17,13 +17,7 @@
 ;
 
 (ns pbr.convenience
-  "Peter's Build Resources.
-
-  The following convenience fns are provided:
-
-  exec           -- req: string or [strings]
-  ensure-command -- req: command-name (string)
-  git            -- opt: arguments to git (vararg strings)"
+  "Convenience fns for tools.build scripts."
   (:require [clojure.string          :as s]
             [clojure.tools.build.api :as b]))
 
