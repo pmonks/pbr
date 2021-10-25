@@ -123,7 +123,8 @@ clojure -A:deps -T:build help/doc"
   (let [current-branch (pbrc/git-branch)]
     (if (= current-branch "main")
       (let [deploy-opts (assoc (set-opts opts) :version (pbrc/git-nearest-tag))]
-        (jar       deploy-opts)
+        (pbr/pom   deploy-opts)  ; Note: we can't simply call (pom) again here, since it clobbers our custom deploy-opts
+        (bb/jar    deploy-opts)  ; Note: we can't simply call (jar) again here, since it clobbers our custom deploy-opts
         (bb/deploy deploy-opts))
       (throw (ex-info (str "deploy task must be run from 'main' branch (current branch is '" current-branch "').") (into {} opts))))))
 
