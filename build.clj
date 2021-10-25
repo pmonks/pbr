@@ -123,6 +123,7 @@ clojure -A:deps -T:build help/doc"
   (let [current-branch (pbrc/git-branch)]
     (if (= current-branch "main")
       (let [deploy-opts (assoc (set-opts opts) :version (pbrc/git-nearest-tag))]
+        (println "ℹ️ Deploying" (:lib deploy-opts) "version" (:version deploy-opts) "to Clojars.")
         (pbr/pom   deploy-opts)  ; Note: we can't simply call (pom) again here, since it clobbers our custom deploy-opts
         (bb/jar    deploy-opts)  ; Note: we can't simply call (jar) again here, since it clobbers our custom deploy-opts
         (bb/deploy deploy-opts))
