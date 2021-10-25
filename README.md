@@ -28,6 +28,7 @@ These can be used independently; use of the convenience functions does not requi
 1. `exec` - more convenient / opinionated version of tools.build's [`process` function](https://clojure.github.io/tools.build/clojure.tools.build.api.html#var-process).
 2. `ensure-command` - ensure that a binary exists for the given command (note: POSIX only).
 3. `git` - easily invoke a git command and obtain its output
+4. `git-*` - various common git commands
 
 ### Build tasks
 
