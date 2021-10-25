@@ -25,7 +25,8 @@ clojure -A:deps -T:build help/doc"
   (:require [clojure.tools.build.api :as b]
             [codox.main              :as codox]
             [org.corfield.build      :as bb]
-            [pbr.tasks               :as pbr]))
+            [pbr.tasks               :as pbr]
+            [pbr.convenience         :as pbrc]))
 
 (def lib       'com.github.pmonks/pbr)
 (def version   (format "1.0.%s" (b/git-count-revs nil)))
@@ -119,10 +120,12 @@ clojure -A:deps -T:build help/doc"
 (defn deploy
   "Deploys the library JAR to Clojars."
   [opts]
-  (-> opts
-      (set-opts)
-      (jar)
-      (bb/deploy)))
+  (let [current-branch (pbrc/git-branch)]
+    (if (= current-branch "main")
+      (let [deploy-opts (assoc (set-opts opts) :version (pbrc/git-nearest-tag))]
+        (jar       deploy-opts)
+        (bb/deploy deploy-opts))
+      (throw (ex-info (str "deploy task must be run from 'main' branch (current branch is '" current-branch "').") (into {} opts))))))
 
 (defn docs
   "Generates codox documentation"

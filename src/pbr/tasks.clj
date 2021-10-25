@@ -185,12 +185,11 @@
 
   (let [lib              (:lib opts)
         version          (:version opts)
-        tag-name         (str "v" version)
         dev-branch       (get opts :dev-branch "dev")
         prod-branch      (get opts :prod-branch "main")
         deploy-info-file (:deploy-info-file opts)]
 
-    (println (str "ℹ️ Preparing to release " lib " " tag-name "..."))
+    (println (str "ℹ️ Preparing to release " lib " " version "..."))
 
     ; Ensure working directory is up to date with prod branch
     (println "ℹ️ Updating working directory...")
@@ -205,16 +204,16 @@
     (flush)
     (read-line)
 
-    (println "ℹ️ Tagging release as" (str tag-name "..."))
-    (git "tag" "-f" "-a" tag-name "-m" (str "Release " tag-name))
+    (println "ℹ️ Tagging release as" (str version "..."))
+    (git "tag" "-f" "-a" version "-m" (str "Release " version))
 
     (when deploy-info-file
       (println "ℹ️ Updating" (str deploy-info-file "..."))
       (deploy-info opts)
       (git "add" deploy-info-file)  ; Add the file just in case it's never existed before - this is no-op if it's already in the index
-      (git "commit" "-m" (str ":gem: Release " tag-name) deploy-info-file))
+      (git "commit" "-m" (str ":gem: Release " version) deploy-info-file))
 
-    (println "ℹ️ Pushing tag" tag-name (str "(" (git "rev-list" "-n" "1" tag-name) ")..."))
+    (println "ℹ️ Pushing tag" version (str "(" (git "rev-list" "-n" "1" version) ")..."))
     (git "push")
     (git "push" "origin" "-f" "--tags")
 

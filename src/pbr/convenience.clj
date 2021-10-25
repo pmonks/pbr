@@ -54,3 +54,13 @@
   "Execute git with the given args, capturing and returning the output (stdout only)."
   [& args]
   (s/trim (str (:out (exec (concat ["git"] args) {:out :capture})))))
+
+(defn git-branch
+  "The current git branch."
+  []
+  (git "branch" "--show-current"))
+
+(defn git-nearest-tag
+  "The nearest tag to the current commit."
+  []
+  (git "describe" "--abbrev=0"))
