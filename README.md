@@ -3,10 +3,23 @@
 | [**main**](https://github.com/pmonks/pbr/tree/main) | [![Lint](https://github.com/pmonks/pbr/workflows/lint/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Alint) | [![Dependencies](https://github.com/pmonks/pbr/workflows/dependencies/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies) |
 | [**dev**](https://github.com/pmonks/pbr/tree/dev)  | [![Lint](https://github.com/pmonks/pbr/workflows/lint/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Alint) | [![Dependencies](https://github.com/pmonks/pbr/workflows/dependencies/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies) |
 
-[![Latest Version](https://img.shields.io/clojars/v/com.github.pmonks/pbr)](https://clojars.org/com.github.pmonks/pbr/) [![Open Issues](https://img.shields.io/github/issues/pmonks/discljord-utils.svg)](https://github.com/pmonks/pbr/issues) [![License](https://img.shields.io/github/license/pmonks/discljord-utils.svg)](https://github.com/pmonks/pbr/blob/main/LICENSE)
+[![Latest Version](https://img.shields.io/clojars/v/com.github.pmonks/pbr)](https://clojars.org/com.github.pmonks/pbr/) [![Open Issues](https://img.shields.io/github/issues/pmonks/pbr.svg)](https://github.com/pmonks/pbr/issues) [![License](https://img.shields.io/github/license/pmonks/pbr.svg)](https://github.com/pmonks/pbr/blob/main/LICENSE)
 
 
 <img alt="Ice cold can of hangover-inducing rubbish beer" align="right" width="25%" src="https://pabstblueribbon.com/wp-content/uploads/2020/10/pbr-org.png">
+
+# ⚠️ IMPENDING BREAKAGE WARNING! ⚠️
+
+**In the spirit of faciliating reuse and contribution via smaller, cohesive libraries, I've decided to split this library into several independent tools.build-based mini-libraries:**
+
+**These new artifacts will be:**
+
+* **[com.github.pmonks/tools-convenience](https://github.com/pmonks/tools-convenience/) - the contents of the `pbr.convenience` ns**
+* **[com.github.pmonks/tools-pom](https://github.com/pmonks/tools-pom/) - pom.xml-related tasks**
+* **[com.github.pmonks/tools-licenses](https://github.com/pmonks/tools-licenses/) - license-related tasks**
+
+**I expect all four repositories (the 3 listed above, as well as this one) to be in a state of chaos for some or all of the week of October 25th, 2021, but am endeavouring to complete the refactoring work by Friday October 29th, 2021.  My sincerest apologies for any disruption this causes you in the interim, and for the switching costs of moving to the new dependencies once the work is complete!**
+
 
 # PBR - Peter's Build Resources
 
@@ -28,6 +41,7 @@ These can be used independently; use of the convenience functions does not requi
 1. `exec` - more convenient / opinionated version of tools.build's [`process` function](https://clojure.github.io/tools.build/clojure.tools.build.api.html#var-process).
 2. `ensure-command` - ensure that a binary exists for the given command (note: POSIX only).
 3. `git` - easily invoke a git command and obtain its output
+4. `git-*` - various common git commands
 
 ### Build tasks
 
