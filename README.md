@@ -8,6 +8,19 @@
 
 <img alt="Ice cold can of hangover-inducing rubbish beer" align="right" width="25%" src="https://pabstblueribbon.com/wp-content/uploads/2020/10/pbr-org.png">
 
+# ⚠️ IMPENDING BREAKAGE WARNING! ⚠️
+
+**In the spirit of faciliating reuse and contribution via smaller, cohesive libraries, I've decided to split this library into several independent tools.build-based mini-libraries:**
+
+**These new artifacts will be:**
+
+* **[com.github.pmonks/tools-convenience](https://github.com/pmonks/tools-convenience/) - the contents of the `pbr.convenience` ns**
+* **[com.github.pmonks/tools-pom](https://github.com/pmonks/tools-pom/) - pom.xml-related tasks**
+* **[com.github.pmonks/tools-licenses](https://github.com/pmonks/tools-licenses/) - license-related tasks**
+
+**I expect all four repositories (the 3 listed above, as well as this one) to be in a state of chaos for some or all of the week of October 25th, 2021, but am endeavouring to complete the refactoring work by Friday October 29th, 2021.  My sincerest apologies for any disruption this causes you in the interim, and for the switching costs of moving to the new dependencies once the work is complete!**
+
+
 # PBR - Peter's Build Resources
 
 A little library that extends Sean Corfield's [`build-clj`](https://github.com/IGJoshua/discljord) build tool library with:
