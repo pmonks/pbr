@@ -45,7 +45,6 @@
 
   :deploy-info-file -- req: the name of the file to write to (e.g. \"./resources/deploy-info.edn\")"
   [opts]
-  (tc/ensure-command "git")
   (if-let [file-name (:deploy-info-file opts)]
     (let [deploy-info (merge {:hash (tc/git-current-commit)
                               :date (java.time.Instant/now)}
@@ -60,7 +59,6 @@
   "Check that a release can be made from the current directory, with the given opts."
   [opts]
   ; Check for the command line tools we need
-  (tc/ensure-command "git")
   (tc/ensure-command "hub")
 
   ; Check that opts map is properly populated

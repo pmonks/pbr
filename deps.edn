@@ -18,18 +18,18 @@
 
 {:deps
    {io.github.seancorfield/build-clj    {:git/tag "v0.5.2" :git/sha "8f75b81"}
-    com.github.pmonks/tools-convenience {:mvn/version "1.0.19"}
-    com.github.pmonks/tools-pom         {:mvn/version "1.0.14"}
-    com.github.pmonks/tools-licenses    {:mvn/version "1.0.13"}}
+    com.github.pmonks/tools-convenience {:mvn/version "1.0.28"}
+    com.github.pmonks/tools-pom         {:mvn/version "1.0.17"}
+    com.github.pmonks/tools-licenses    {:mvn/version "1.0.17"}}
  :aliases
    {; ---- TOOL ALIASES ----
 
     ; clj -T:build <taskname>
     :build
-      {:deps       {com.github.pmonks/tools-convenience {:mvn/version "1.0.19"}
-                    com.github.pmonks/tools-pom         {:mvn/version "1.0.14"}
-                    com.github.pmonks/tools-licenses    {:mvn/version "1.0.13"}
-                    com.github.pmonks/pbr               {:local/root "."}}         ; Sneaky self-dependency...
+      {:deps       {com.github.pmonks/tools-convenience {:mvn/version "1.0.28"}
+                    com.github.pmonks/tools-pom         {:mvn/version "1.0.17"}
+                    com.github.pmonks/tools-licenses    {:mvn/version "1.0.17"}
+                    com.github.pmonks/pbr               {:local/root "."}}
        :ns-default build}
 
 
