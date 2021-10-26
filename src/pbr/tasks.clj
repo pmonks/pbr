@@ -23,13 +23,6 @@
   specified required and optional hash map options:
 
   deploy-info    -- opt: :deploy-info-file (defaults to \"./resources/deploy-info.edn\")
-  pom            -- opt: :lib a symbol identifying your project e.g. 'org.github.pmonks/pbr
-                         :version a string containing the version of your project e.g. \"1.0.0-SNAPSHOT\"
-                         :pom-file the name of the file to write to (defaults to \"./pom.xml\")
-                         :write-pom a flag determining whether to invoke \"clj -Spom\" after generating the basic pom (i.e. adding dependencies and repositories from your deps.edn file)
-                         :pom a map containing other POM elements (see https://maven.apache.org/pom.html for details).
-  licenses       -- opt: :output output format, one of :summary, :detailed (defaults to :summary)
-                         :verbose boolean controlling whether to emit verbose output or not (defaults to false)
   check-release  -- as for the release task --
   release        -- req: :lib a symbol identifying your project e.g. 'org.github.pmonks/pbr
                          :version a string containing the version of your project e.g. \"1.0.0-SNAPSHOT\"
@@ -40,118 +33,35 @@
 
   All of the above build tasks return the opts hash map they were passed
   (unlike some of the functions in clojure.tools.build.api)."
-  (:require [clojure.string           :as s]
-            [clojure.java.io          :as io]
-            [clojure.pprint           :as pp]
-            [clojure.data.xml         :as xml]
-            [clojure.tools.deps.alpha :as d]
-            [org.corfield.build       :as bb]
-            [camel-snake-kebab.core   :as csk]
-            [pbr.convenience          :as pbrc :refer [ensure-command exec git]]
-            [pbr.licenses             :as lic]))
-
-; Since v1.10 this should be in core...
-(defmethod print-method java.time.Instant [^java.time.Instant inst writer]
-  (print-method (java.util.Date/from inst) writer))
+  (:require [clojure.string        :as s]
+            [clojure.java.io       :as io]
+            [clojure.pprint        :as pp]
+            [org.corfield.build    :as bb]
+            [tools-convenience.api :as tc :refer [exec git]]
+            [tools-pom.tasks       :as pom]))
 
 (defn deploy-info
   "Writes out a deploy-info EDN file, containing at least :hash and :date keys, and possibly also a :tag key.  opts includes:
 
   :deploy-info-file -- req: the name of the file to write to (e.g. \"./resources/deploy-info.edn\")"
   [opts]
-  (ensure-command "git")
+  (tc/ensure-command "git")
   (if-let [file-name (:deploy-info-file opts)]
-    (let [deploy-info (into {:hash (git "show" "-s" "--format=%H")
-                             :date (java.time.Instant/now)}
-                            (try {:tag (git "describe" "--tags" "--exact-match")} (catch clojure.lang.ExceptionInfo _ nil)))]
+    (let [deploy-info (merge {:hash (tc/git-current-commit)
+                              :date (java.time.Instant/now)}
+                              (when-let [tag (try (tc/git-nearest-tag) (catch clojure.lang.ExceptionInfo _ nil))] {:tag tag}))]
       (io/make-parents file-name)
       (with-open [w (io/writer (io/file file-name))]
         (pp/pprint deploy-info w)))
     (throw (ex-info ":deploy-info-file not provided" (into {} opts))))
   opts)
 
-(defn- pom-keyword
-  "Converts a regular Clojure keyword into a POM-compatible keyword."
-  [kw]
-  (keyword "xmlns.http%3A%2F%2Fmaven.apache.org%2FPOM%2F4.0.0" (csk/->camelCase (name kw))))
-
-(defn- build-pom
-  "Converts the given 'element' into a POM structure in clojure.data.xml compatible EDN format."
-  [elem]
-  (cond
-    (map-entry?  elem)             [(pom-keyword (key elem)) (build-pom (val elem))]
-    (map?        elem)             (map build-pom elem)
-    (sequential? elem)             (mapcat #(hash-map (pom-keyword (first elem)) (build-pom %)) (rest elem))
-    (= java.util.Date (type elem)) (str (.toInstant ^java.util.Date elem))
-    :else                          (str elem)))
-
-(defn pom
-  "Writes out a pom file. opts includes:
-
-  :lib       -- opt: a symbol identifying your project e.g. 'org.github.pmonks/pbr
-  :version   -- opt: a string containing the version of your project e.g. \"1.0.0-SNAPSHOT\"
-  :pom-file  -- opt: the name of the file to write to (defaults to \"./pom.xml\")
-  :write-pom -- opt: a flag determining whether to invoke \"clj -Spom\" after generating the basic pom (i.e. adding dependencies and repositories from your deps.edn file)
-  :pom       -- opt: a map containing other POM elements (see https://maven.apache.org/pom.html for details)."
-  [opts]
-  (let [pom-file (get opts :pom-file "./pom.xml")
-        pom-in   (merge (when (:lib     opts) {:group-id (namespace (:lib opts)) :artifact-id (name (:lib opts)) :name (name (:lib opts))})
-                        (when (:version opts) {:version (:version opts)})
-                        (:pom opts))   ; Merge user-supplied values last, so that they always take precedence
-        pom-out  [(pom-keyword :project) {:xmlns                         "http://maven.apache.org/POM/4.0.0"
-                                          (keyword "xmlns:xsi")          "http://www.w3.org/2001/XMLSchema-instance"
-                                          (keyword "xsi:schemaLocation") "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"}
-                   (concat [[(pom-keyword :model-version) "4.0.0"]]
-                            (build-pom pom-in))]
-        pom-xml  (xml/sexp-as-element pom-out)]
-    (with-open [pom-writer (io/writer pom-file)]
-      (xml/emit pom-xml pom-writer :encoding "UTF8"))
-    (when (:write-pom opts)
-      (exec "clojure -Srepro -Spom")))   ; tools.build/write-pom is nowhere as useful as clojure -Spom but the latter doesn't have an API so we just exec it instead...
-  opts)
-
-(defn licenses
-  "Lists all licenses used transitively by the project.
-
-  :output  -- opt: output format, one of :summary, :detailed, :edn (defaults to :summary)
-  :verbose -- opt: boolean controlling whether to emit verbose output or not (defaults to false)"
-  [opts]
-  (let [basis        (bb/default-basis)
-        lib-map      (d/resolve-deps basis {})
-        _            (d/prep-libs! lib-map {:action :prep :log :info} {})  ; Make sure everything is "prepped" (downloaded locally) before we start looking for licenses
-        verbose      (get opts :verbose false)
-        dep-licenses (into {} (for [[k v] lib-map] (lic/dep-licenses verbose k v)))]
-    (case (get opts :output :summary)
-      :summary  (let [freqs    (frequencies (filter identity (mapcat :licenses (vals dep-licenses))))
-                      licenses (seq (sort (keys freqs)))]
-                  (println "Licenses in upstream dependencies (occurrences):")
-                  (if licenses
-                    (doall (map #(println "  *" % (str "(" (get freqs %) ")")) licenses))
-                    (println "  <no licenses found>")))
-      :detailed (let [direct-deps     (into {} (remove (fn [[_ v]] (seq (:dependents v))) dep-licenses))
-                      transitive-deps (into {} (filter (fn [[_ v]] (seq (:dependents v))) dep-licenses))]
-                  (println "Direct dependencies:")
-                  (if direct-deps
-                    (doall (for [[k v] (sort-by key direct-deps)] (println "  *" (str k ":") (s/join ", " (:licenses v)))))
-                    (println "  - none -"))
-                  (println "\nTransitive dependencies:")
-                  (if transitive-deps
-                    (doall (for [[k v] (sort-by key transitive-deps)] (println "  *" (str k ":") (s/join ", " (:licenses v)))))
-                    (println "  - none -")))
-      :edn      (pp/pprint dep-licenses))
-    (let [deps-without-licenses (seq (sort (keys (remove #(:licenses (val %)) dep-licenses))))]
-      (when deps-without-licenses
-        (println "Unable to determine licenses for these dependencies:")
-        (doall (map (partial println "  *") deps-without-licenses))
-        (println "Please raise a bug at https://github.com/pmonks/pbr/issues/new?assignees=&labels=&template=Bug_report.md and include this list of dependencies.")))
-    opts))
-
 (defn check-release
   "Check that a release can be made from the current directory, with the given opts."
   [opts]
   ; Check for the command line tools we need
-  (ensure-command "git")
-  (ensure-command "hub")
+  (tc/ensure-command "git")
+  (tc/ensure-command "hub")
 
   ; Check that opts map is properly populated
   (when-not (:version opts) (throw (ex-info ":version not provided" (into {} opts))))
@@ -159,11 +69,11 @@
 
   ; Check status of working directory
   (let [dev-branch     (get opts :dev-branch "dev")
-        current-branch (s/trim (:out (exec "git branch --show-current" {:out :capture})))]
+        current-branch (tc/git-current-branch)]
     (when-not (= dev-branch current-branch)
       (throw (ex-info (str "Must be on branch '" dev-branch "' to prepare a release, but current branch is '" current-branch "'.") {}))))
 
-  (let [git-status (exec "git status --short" {:out :capture})]
+  (let [git-status (git "status" "--short")]
     (when (or (not (s/blank? (:out git-status)))
               (not (s/blank? (:err git-status))))
       (throw (ex-info (str "Working directory is not clean:\n" (:out git-status) "Please commit, revert, or stash these changes before preparing a release.") git-status))))
@@ -213,11 +123,11 @@
       (git "add" deploy-info-file)  ; Add the file just in case it's never existed before - this is no-op if it's already in the index
       (git "commit" "-m" (str ":gem: Release " version) deploy-info-file))
 
-    (println "ℹ️ Pushing tag" version (str "(" (git "rev-list" "-n" "1" version) ")..."))
+    (println "ℹ️ Pushing tag" version (str "(" (tc/git-tag-commit version) ")..."))
     (git "push")
     (git "push" "origin" "-f" "--tags")
 
-    (println "ℹ️ Creating pull request...")
+    (println "ℹ️ Creating 'release' pull request from" dev-branch " to " prod-branch "...")
     (let [pr-desc-fmt (get opts :pr-desc "%1$s release v%2$s. See commit log for details of what's included in this release.")]
       (exec ["hub" "pull-request" "--browse" "-f"
              "-m" (str "Release v" version)
@@ -231,4 +141,25 @@
              "  4. git push")
 
     (println "⏹ Done."))
+  opts)
+
+(defn deploy
+  "Builds and deploys the library's artifacts (pom.xml, JAR) to Clojars (or elsewhere), from the 'production' branch. opts includes:
+
+  :prod-branch -- opt: the name of the production branch where the deployment is to be initiated from (defaults to \"main\")
+  -- opts from the pom task, though note that :write-pom and :validate-pom are forced to true --
+  -- opts from the build-clj/jar task --
+  -- opts from the build-clj/deploy task (i.e. deps-deploy) --"
+  [opts]
+  (let [current-branch (tc/git-current-branch)
+        main-branch    (get opts :prod-branch "main")]
+    (if (= current-branch main-branch)
+      (let [deploy-opts (assoc opts :version      (tc/git-nearest-tag)
+                                    :write-pom    true
+                                    :validate-pom true)]
+        (println "ℹ️ Deploying" (:lib deploy-opts) "version" (:version deploy-opts) "to Clojars.")
+        (pom/pom   deploy-opts)
+        (bb/jar    deploy-opts)
+        (bb/deploy deploy-opts))
+      (throw (ex-info (str "deploy task must be run from '" main-branch "' branch (current branch is '" current-branch "').") (into {} opts)))))
   opts)

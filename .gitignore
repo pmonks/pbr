@@ -15,8 +15,6 @@ uberjar/
 /config.edn
 .rebel_readline_history
 .eastwood
-titles-*.edn
-daily-schedule-*.pdf
 attic
 resources/logback-test.xml
 .clj-kondo/.cache
