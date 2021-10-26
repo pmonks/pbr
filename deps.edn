@@ -17,20 +17,21 @@
 ;
 
 {:deps
-   {org.clojure/data.xml                {:mvn/version "0.2.0-alpha6"}
-    cheshire/cheshire                   {:mvn/version "5.10.1"}
-    camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.2"}
-    tolitius/xml-in                     {:mvn/version "0.1.1"}
-;    org.spdx/java-spdx-library          {:mvn/version "1.0.8"}
-    io.github.seancorfield/build-clj    {:git/tag "v0.5.2" :git/sha "8f75b81"}}
+   {io.github.seancorfield/build-clj    {:git/tag "v0.5.2" :git/sha "8f75b81"}
+    com.github.pmonks/tools-convenience {:mvn/version "1.0.19"}
+    com.github.pmonks/tools-pom         {:mvn/version "1.0.14"}
+    com.github.pmonks/tools-licenses    {:mvn/version "1.0.13"}}
  :aliases
    {; ---- TOOL ALIASES ----
 
     ; clj -T:build <taskname>
     :build
-      {:deps       {com.github.pmonks/pbr {:local/root "."}         ; Sneaky self-dependency...
-                    codox/codox           {:mvn/version "0.10.7"}
-                    org.slf4j/slf4j-api   {:mvn/version "1.7.32"}}  ; Something pulls in an ancient version of this dep, which causes failures without this here...
+      {:deps       {com.github.pmonks/tools-convenience {:mvn/version "1.0.19"}
+                    com.github.pmonks/tools-pom         {:mvn/version "1.0.14"}
+                    com.github.pmonks/tools-licenses    {:mvn/version "1.0.13"}
+                    com.github.pmonks/pbr               {:local/root "."}         ; Sneaky self-dependency...
+}
+;                    org.slf4j/slf4j-api                 {:mvn/version "1.7.32"}}  ; Something pulls in an ancient version of this dep, which causes failures without this here...
        :ns-default build}
 
 
@@ -56,4 +57,10 @@
       {:extra-deps {com.github.liquidz/antq {:mvn/version "1.1.0"}}
        :main-opts  ["-m" "antq.core"]}
 
+    ; clj -X:codox
+    :codox
+      {:extra-deps {codox/codox {:mvn/version "0.10.7"}}
+       :exec-fn    codox.main/generate-docs
+       :exec-args  {:source-paths ["src"]
+                    :source-uri   "https://github.com/pmonks/pbr/blob/main/{filepath}#L{line}"}}
    }}

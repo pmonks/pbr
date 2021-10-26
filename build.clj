@@ -23,29 +23,29 @@ For more information, run:
 
 clojure -A:deps -T:build help/doc"
   (:require [clojure.tools.build.api :as b]
-            [codox.main              :as codox]
             [org.corfield.build      :as bb]
-            [pbr.tasks               :as pbr]
-            [pbr.convenience         :as pbrc]))
+            [tools-convenience.api   :as tc]
+            [tools-pom.tasks         :as pom]
+            [tools-licenses.tasks    :as lic]
+            [pbr.tasks               :as pbr]))
 
 (def lib       'com.github.pmonks/pbr)
-(def version   (format "1.0.%s" (b/git-count-revs nil)))
+(def version   (format "2.0.%s" (b/git-count-revs nil)))
 
 ; Utility fns
 (defn- set-opts
   [opts]
   (assoc opts
-         :lib       lib
-         :version   version
-         :write-pom true
-         :pom       {:description      "Peter's Build Resources for Clojure tools.build projects"
-                     :url              "https://github.com/pmonks/pbr"
-                     :licenses         [:license   {:name "Apache License 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}]
-                     :developers       [:developer {:id "pmonks" :name "Peter Monks" :email "pmonks+pbr@gmail.com"}]
-                     :scm              {:url "https://github.com/pmonks/pbr" :connection "scm:git:git://github.com/pmonks/pbr.git" :developer-connection "scm:git:ssh://git@github.com/pmonks/pbr.git"}
-                     :issue-management {:system "github" :url "https://github.com/pmonks/pbr/issues"}}
-         :codox     {:source-paths ["src"]
-                     :source-uri   "https://github.com/pmonks/pbr/blob/main/{filepath}#L{line}"}))
+         :lib          lib
+         :version      version
+         :write-pom    true
+         :validate-pom true
+         :pom          {:description      "Peter's Build Resources for Clojure tools.build projects."
+                        :url              "https://github.com/pmonks/pbr"
+                        :licenses         [:license   {:name "Apache License 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}]
+                        :developers       [:developer {:id "pmonks" :name "Peter Monks" :email "pmonks+pbr@gmail.com"}]
+                        :scm              {:url "https://github.com/pmonks/pbr" :connection "scm:git:git://github.com/pmonks/pbr.git" :developer-connection "scm:git:ssh://git@github.com/pmonks/pbr.git"}
+                        :issue-management {:system "github" :url "https://github.com/pmonks/pbr/issues"}}))
 
 ; Build tasks
 (defn clean
@@ -89,9 +89,11 @@ clojure -A:deps -T:build help/doc"
     (lint)))
 
 (defn licenses
-  "Attempts to determine all licenses used by all dependencies in the project."
+  "Attempts to list all licenses for the transitive set of dependencies of the project, using SPDX license expressions."
   [opts]
-  (pbr/licenses opts))
+  (-> opts
+    (set-opts)
+    (lic/licenses)))
 
 (defn check-release
   "Check that a release can be done from the current directory."
@@ -110,27 +112,22 @@ clojure -A:deps -T:build help/doc"
       (pbr/release)))
 
 (defn jar
-  "Generates a library JAR for the project."
+  "Generates a PBR library JAR for the project."
   [opts]
   (-> opts
       (set-opts)
-      (pbr/pom)
+      (pom/pom)
       (bb/jar)))
 
 (defn deploy
-  "Deploys the library JAR to Clojars."
+  "Deploys the PBR library JAR to Clojars."
   [opts]
-  (let [current-branch (pbrc/git-branch)]
-    (if (= current-branch "main")
-      (let [deploy-opts (assoc (set-opts opts) :version (pbrc/git-nearest-tag))]
-        (println "ℹ️ Deploying" (:lib deploy-opts) "version" (:version deploy-opts) "to Clojars.")
-        (pbr/pom   deploy-opts)  ; Note: we can't simply call (pom) again here, since it clobbers our custom deploy-opts
-        (bb/jar    deploy-opts)  ; Note: we can't simply call (jar) again here, since it clobbers our custom deploy-opts
-        (bb/deploy deploy-opts))
-      (throw (ex-info (str "deploy task must be run from 'main' branch (current branch is '" current-branch "').") (into {} opts))))))
+  (-> opts
+      (set-opts)
+      (pbr/deploy)))
 
 (defn docs
   "Generates codox documentation"
-  [opts]
-  (codox/generate-docs (into (:codox (set-opts nil))
-                             opts)))
+  [_]
+  (tc/ensure-command "clojure")
+  (tc/exec "clojure -Srepro -X:codox"))
