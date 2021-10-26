@@ -29,7 +29,7 @@
       {:deps       {com.github.pmonks/tools-convenience {:mvn/version "1.0.28"}
                     com.github.pmonks/tools-pom         {:mvn/version "1.0.17"}
                     com.github.pmonks/tools-licenses    {:mvn/version "1.0.17"}
-                    com.github.pmonks/pbr               {:local/root "."}}         ; Sneaky self-dependency...
+                    com.github.pmonks/pbr               {:local/root "."}}
        :ns-default build}
 
 
