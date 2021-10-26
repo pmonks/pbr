@@ -29,9 +29,7 @@
       {:deps       {com.github.pmonks/tools-convenience {:mvn/version "1.0.19"}
                     com.github.pmonks/tools-pom         {:mvn/version "1.0.14"}
                     com.github.pmonks/tools-licenses    {:mvn/version "1.0.13"}
-                    com.github.pmonks/pbr               {:local/root "."}         ; Sneaky self-dependency...
-}
-;                    org.slf4j/slf4j-api                 {:mvn/version "1.7.32"}}  ; Something pulls in an ancient version of this dep, which causes failures without this here...
+                    com.github.pmonks/pbr               {:local/root "."}}         ; Sneaky self-dependency...
        :ns-default build}
 
 
