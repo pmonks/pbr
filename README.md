@@ -65,7 +65,7 @@ For a worked example of using the library, see [futbot's build script](https://g
 **A.** Because this code is cheap and nasty, and will give you a headache if you consume too much of it.
 
 **Q.** Does PBR use itself for its own build tasks?  
-**A.** Why yes it does!  You can see how it sneakily references itself [here](https://github.com/pmonks/pbr/blob/main/deps.edn#L31).
+**A.** Why yes it does!  You can see how it sneakily references itself [here](https://github.com/pmonks/pbr/blob/main/deps.edn#L32).
 
 ## Contributor Information
 
