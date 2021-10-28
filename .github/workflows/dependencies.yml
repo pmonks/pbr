@@ -2,7 +2,7 @@ name: dependencies
 on:
   push:
   schedule:
-    - cron: '0 21 * * *'
+    - cron: '15 0 * * 0'   # Once per week, at 15 past midnight on Sunday - see https://crontab.guru/#15_0_*_*_0
 jobs:
   antq:
     runs-on: ubuntu-latest
