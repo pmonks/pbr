@@ -21,7 +21,7 @@ All of the above build tasks return the opts hash map they were passed
 :prod-branch -- opt: the name of the production branch where the deployment is to be initiated from (defaults to "main")
 -- opts from the pom task, though note that :write-pom and :validate-pom are forced to true --
 -- opts from the build-clj/jar task --
--- opts from the build-clj/deploy task (i.e. deps-deploy) --</pre></div><div class="src-link"><a href="https://github.com/pmonks/pbr/blob/main/src/pbr/tasks.clj#L144">view source</a></div></div><div class="public anchor" id="var-deploy-info"><h3>deploy-info</h3><div class="usage"><code>(deploy-info opts)</code></div><div class="doc"><pre class="plaintext">Writes out a deploy-info EDN file, containing at least :hash and :date keys, and possibly also a :tag key.  opts includes:
+-- opts from the build-clj/deploy task (i.e. deps-deploy) --</pre></div><div class="src-link"><a href="https://github.com/pmonks/pbr/blob/main/src/pbr/tasks.clj#L143">view source</a></div></div><div class="public anchor" id="var-deploy-info"><h3>deploy-info</h3><div class="usage"><code>(deploy-info opts)</code></div><div class="doc"><pre class="plaintext">Writes out a deploy-info EDN file, containing at least :hash and :date keys, and possibly also a :tag key.  opts includes:
 
 :deploy-info-file -- req: the name of the file to write to (e.g. "./resources/deploy-info.edn")</pre></div><div class="src-link"><a href="https://github.com/pmonks/pbr/blob/main/src/pbr/tasks.clj#L43">view source</a></div></div><div class="public anchor" id="var-release"><h3>release</h3><div class="usage"><code>(release opts)</code></div><div class="doc"><pre class="plaintext">Release a new version of the code via a PR to main. opts includes:
 
@@ -30,4 +30,4 @@ All of the above build tasks return the opts hash map they were passed
 :dev-branch  -- opt: the name of the development branch containing the changes to be PRed (defaults to "dev")
 :prod-branch -- opt: the name of the production branch where the PR is to be sent (defaults to "main")
 :pr-desc     -- opt: a format string used for the PR description with two %s values passed in (%1$s = lib, %2$s = version) (defaults to "%1$s release v%2$s. See commit log for details of what's included in this release.")
--- opts from the (deploy-info) task, if you wish to generate deploy-info --</pre></div><div class="src-link"><a href="https://github.com/pmonks/pbr/blob/main/src/pbr/tasks.clj#L81">view source</a></div></div></div></body></html>
+-- opts from the (deploy-info) task, if you wish to generate deploy-info --</pre></div><div class="src-link"><a href="https://github.com/pmonks/pbr/blob/main/src/pbr/tasks.clj#L80">view source</a></div></div></div></body></html>
