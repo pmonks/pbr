@@ -72,9 +72,8 @@
       (throw (ex-info (str "Must be on branch '" dev-branch "' to prepare a release, but current branch is '" current-branch "'.") {}))))
 
   (let [git-status (git "status" "--short")]
-    (when (or (not (s/blank? (:out git-status)))
-              (not (s/blank? (:err git-status))))
-      (throw (ex-info (str "Working directory is not clean:\n" (:out git-status) "Please commit, revert, or stash these changes before preparing a release.") git-status))))
+    (when (not (s/blank? git-status))
+      (throw (ex-info (str "Working directory is not clean:\n " git-status "\nPlease commit, revert, or stash these changes before preparing a release.") {}))))
 
   opts)
 
