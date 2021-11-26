@@ -17,18 +17,19 @@
 ;
 
 {:deps
-   {io.github.seancorfield/build-clj    {:git/tag "v0.5.2" :git/sha "8f75b81"}
-    com.github.pmonks/tools-convenience {:mvn/version "1.0.33"}
-    com.github.pmonks/tools-pom         {:mvn/version "1.0.31"}
-    com.github.pmonks/tools-licenses    {:mvn/version "1.0.43"}}
+   {io.github.clojure/tools.build       {:git/tag "v0.6.8" :git/sha "d79ae84"}
+    io.github.seancorfield/build-clj    {:git/tag "v0.5.4" :git/sha "bc9c0cc"}
+    com.github.pmonks/tools-convenience {:mvn/version "1.0.46"}
+    com.github.pmonks/tools-pom         {:mvn/version "1.0.42"}
+    com.github.pmonks/tools-licenses    {:mvn/version "1.0.53"}}
  :aliases
    {; ---- TOOL ALIASES ----
 
     ; clj -T:build <taskname>
     :build
-      {:deps       {com.github.pmonks/tools-convenience {:mvn/version "1.0.33"}
-                    com.github.pmonks/tools-pom         {:mvn/version "1.0.31"}
-                    com.github.pmonks/tools-licenses    {:mvn/version "1.0.43"}
+      {:deps       {com.github.pmonks/tools-convenience {:mvn/version "1.0.46"}
+                    com.github.pmonks/tools-pom         {:mvn/version "1.0.42"}
+                    com.github.pmonks/tools-licenses    {:mvn/version "1.0.53"}
                     com.github.pmonks/pbr               {:local/root "."}}
        :ns-default build}
 
@@ -52,7 +53,7 @@
 
     ; clj -M:outdated
     :outdated
-      {:extra-deps {com.github.liquidz/antq {:mvn/version "1.2.0"}}
+      {:extra-deps {com.github.liquidz/antq {:mvn/version "1.3.0"}}
        :main-opts  ["-m" "antq.core" "--skip=pom"]}
 
     ; clj -X:codox
