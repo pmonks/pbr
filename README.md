@@ -24,6 +24,26 @@ If you're looking for the convenience functions, and the pom.xml and license tas
 
 PBR provides a default `./build.clj` script that provides all of the tasks I typically need in my build scripts.  It allows customisation by loading a `./pbr.clj` file, which must contain a `set-opts` fn where various project specific opts can be set.  You can look at [PBR's own `pbr.clj` file](https://github.com/pmonks/pbr/blob/main/pbr.clj) for an idea of what this must contain.
 
+Tasks can be listed by running `clojure -A:deps -T:build help/doc`, and are:
+
+* `check` -  Check the code by compiling it.
+* `check-asf-policy` - Checks this project's dependencies' licenses against the ASF's 3rd party license policy (https://www.apache.org/legal/resolved.html).
+* `check-release` - Check that a release can be done from the current directory.
+* `ci` - Run the CI pipeline.
+* `clean` - Clean up the project.
+* `deploy` - Deploys the library JAR to Clojars.
+* `docs` - Generates codox documentation
+* `eastwood` - Run the eastwood linter.
+* `install` - Install the library locally e.g. so it can be tested by downstream dependencies
+* `jar` - Generates a library JAR for the project.
+* `kondo` - Run the clj-kondo linter.
+* `licenses` - Attempts to list all licenses for the transitive set of dependencies of the project, using SPDX license expressions.
+* `lint` - Run all linters.
+* `outdated` - Check for outdated dependencies.
+* `release` - Release a new version of the library.
+* `test` - Run the tests.
+* `uber` - Create an uber jar.
+
 This script also assumes your `deps.edn` includes _at least_ the following aliases:
 
 ```edn
