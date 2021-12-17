@@ -16,36 +16,29 @@
 ; SPDX-License-Identifier: Apache-2.0
 ;
 
+#_{:clj-kondo/ignore [:unused-namespace]}   ; Because there are various namespaces the pbr script may want to use
 (ns build
-  "Build script for PBR.
+  "PBR generic build script.
 
 For more information, run:
 
 clojure -A:deps -T:build help/doc"
-  (:require [clojure.tools.build.api :as b]
+  (:refer-clojure :exclude [test])
+  (:require [clojure.string          :as s]
+            [clojure.set             :as set]
+            [clojure.pprint          :as pp]
+            [clojure.java.io         :as io]
+            [clojure.java.shell      :as sh]
+            [clojure.tools.build.api :as b]
             [org.corfield.build      :as bb]
             [tools-convenience.api   :as tc]
             [tools-pom.tasks         :as pom]
             [tools-licenses.tasks    :as lic]
             [pbr.tasks               :as pbr]))
 
-(def lib       'com.github.pmonks/pbr)
-(def version   (format "2.0.%s" (b/git-count-revs nil)))
+(declare set-opts)
 
-; Utility fns
-(defn- set-opts
-  [opts]
-  (assoc opts
-         :lib          lib
-         :version      version
-         :write-pom    true
-         :validate-pom true
-         :pom          {:description      "Peter's Build Resources for Clojure tools.build projects."
-                        :url              "https://github.com/pmonks/pbr"
-                        :licenses         [:license   {:name "Apache License 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}]
-                        :developers       [:developer {:id "pmonks" :name "Peter Monks" :email "pmonks+pbr@gmail.com"}]
-                        :scm              {:url "https://github.com/pmonks/pbr" :connection "scm:git:git://github.com/pmonks/pbr.git" :developer-connection "scm:git:ssh://git@github.com/pmonks/pbr.git"}
-                        :issue-management {:system "github" :url "https://github.com/pmonks/pbr/issues"}}))
+(load-file "./pbr.clj")
 
 ; Build tasks
 (defn clean
@@ -62,6 +55,11 @@ clojure -A:deps -T:build help/doc"
   "Check for outdated dependencies."
   [opts]
   (bb/run-task (set-opts opts) [:outdated]))
+
+(defn test
+  "Run the tests."
+  [opts]
+  (bb/run-tests (set-opts opts)))
 
 (defn kondo
   "Run the clj-kondo linter."
@@ -84,8 +82,9 @@ clojure -A:deps -T:build help/doc"
   "Run the CI pipeline."
   [opts]
   (let [opts (set-opts opts)]
-    (try (outdated opts) (catch clojure.lang.ExceptionInfo _))  ; Report errors here as warnings
-    (try (check    opts) (catch clojure.lang.ExceptionInfo _))  ; Ignore errors until https://github.com/athos/clj-check/issues/4 is fixed
+    (outdated opts)
+    (try (check opts) (catch Exception _))   ; Ignore errors until https://github.com/athos/clj-check/issues/4 is fixed
+    (test opts)
     (lint opts)))
 
 (defn licenses
@@ -119,15 +118,29 @@ clojure -A:deps -T:build help/doc"
       (pbr/release)))
 
 (defn jar
-  "Generates a PBR library JAR for the project."
+  "Generates a library JAR for the project."
   [opts]
   (-> opts
       (set-opts)
       (pom/pom)
       (bb/jar)))
 
+(defn uber
+  "Create an uber jar."
+  [opts]
+  (-> opts
+      (set-opts)
+      (pom/pom)
+      (bb/uber)))
+
+(defn install
+  "Install the library locally e.g. so it can be tested by downstream dependencies"
+  [opts]
+  (jar opts)
+  (bb/install (set-opts opts)))
+
 (defn deploy
-  "Deploys the PBR library JAR to Clojars."
+  "Deploys the library JAR to Clojars."
   [opts]
   (-> opts
       (set-opts)
