@@ -22,6 +22,7 @@
 For more information, run:
 
 clojure -A:deps -T:build help/doc"
+  (:refer-clojure :exclude [test])
   (:require [clojure.tools.build.api :as b]
             [org.corfield.build      :as bb]
             [tools-convenience.api   :as tc]
@@ -63,6 +64,11 @@ clojure -A:deps -T:build help/doc"
   [opts]
   (bb/run-task (set-opts opts) [:outdated]))
 
+(defn test
+  "Run the tests."
+  [opts]
+  (bb/run-tests (set-opts opts)))
+
 (defn kondo
   "Run the clj-kondo linter."
   [opts]
@@ -84,9 +90,10 @@ clojure -A:deps -T:build help/doc"
   "Run the CI pipeline."
   [opts]
   (let [opts (set-opts opts)]
-    (try (outdated opts) (catch clojure.lang.ExceptionInfo _))  ; Report errors here as warnings
-    (try (check    opts) (catch clojure.lang.ExceptionInfo _))  ; Ignore errors until https://github.com/athos/clj-check/issues/4 is fixed
-    (lint opts)))
+    (outdated opts)
+    (check    opts)
+    (test     opts)
+    (lint     opts)))
 
 (defn licenses
   "Attempts to list all licenses for the transitive set of dependencies of the project, using SPDX license expressions."
@@ -119,15 +126,21 @@ clojure -A:deps -T:build help/doc"
       (pbr/release)))
 
 (defn jar
-  "Generates a PBR library JAR for the project."
+  "Generates a library JAR for the project."
   [opts]
   (-> opts
       (set-opts)
       (pom/pom)
       (bb/jar)))
 
+(defn install
+  "Install the library locally e.g. so it can be tested by downstream dependencies"
+  [opts]
+  (jar opts)
+  (bb/install (set-opts opts)))
+
 (defn deploy
-  "Deploys the PBR library JAR to Clojars."
+  "Deploys the library JAR to Clojars."
   [opts]
   (-> opts
       (set-opts)
