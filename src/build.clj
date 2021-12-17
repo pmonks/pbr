@@ -40,10 +40,6 @@ clojure -A:deps -T:build help/doc"
 
 (load-file "./pbr.clj")
 
-(let [default-opts (set-opts {})]
-  (println)
-  (println "Build script for" (:lib default-opts) (:version default-opts)))
-
 ; Build tasks
 (defn clean
   "Clean up the project."
