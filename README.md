@@ -22,7 +22,63 @@ If you're looking for the convenience functions, and the pom.xml and license tas
 
 ### Build script
 
-PBR provides a default `./build.clj` script that provides all of the tasks I typically need in my build scripts.  It allows customisation by loading a `./pbr.clj` file, which must contains a `set-opts` fn where various project specific opts can be set.  You can look at [PBR's own `pbr.clj` file](https://github.com/pmonks/pbr/blob/main/pbr.clj) for an idea of what this must contain.
+PBR provides a default `./build.clj` script that provides all of the tasks I typically need in my build scripts.  It allows customisation by loading a `./pbr.clj` file, which must contain a `set-opts` fn where various project specific opts can be set.  You can look at [PBR's own `pbr.clj` file](https://github.com/pmonks/pbr/blob/main/pbr.clj) for an idea of what this must contain.
+
+This script also assumes your `deps.edn` includes _at least_ the following aliases:
+
+```edn
+{:deps
+   {
+    ; Your project's dependencies
+   }
+ :aliases
+   {; ---- TOOL ALIASES ----
+
+    ; clj -T:build <taskname>
+    :build
+      {:deps       {io.github.seancorfield/build-clj {:git/tag "v0.6.3" :git/sha "9b8e09b"}
+                    com.github.pmonks/pbr            {:mvn/version "LATEST_CLOJARS_VERSION"}}
+       :ns-default build}
+
+
+    ; ---- MAIN FUNCTION ALIASES ----
+
+    ; clj -M:check
+    :check
+      {:extra-deps {com.github.athos/clj-check {:git/sha "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"}}
+       :main-opts  ["-m" "clj-check.check"]}
+
+    ; clj -M:test or clj -X:test
+    :test {:extra-paths ["test"]
+           :extra-deps  {io.github.cognitect-labs/test-runner {:git/tag "v0.5.0" :git/sha "b3fd0d2"}}
+           :main-opts   ["-m" "cognitect.test-runner"]
+           :exec-fn     cognitect.test-runner.api/test}
+
+    ; clj -M:kondo
+    :kondo
+      {:extra-deps {clj-kondo/clj-kondo {:mvn/version "2021.12.16"}}
+       :main-opts  ["-m" "clj-kondo.main" "--lint" "src"]}
+
+    ; clj -M:eastwood
+    :eastwood
+      {:extra-deps {jonase/eastwood {:mvn/version "1.0.0"}}
+       :main-opts  ["-m" "eastwood.lint" "{:source-paths,[\"src\"]}"]}
+
+    ; clj -M:outdated
+    :outdated
+      {:extra-deps {com.github.liquidz/antq {:mvn/version "1.3.0"}}
+       :main-opts  ["-m" "antq.core" "--skip=pom"]}
+
+    ; clj -X:codox
+    :codox
+      {:extra-deps {codox/codox {:mvn/version "0.10.8"}}
+       :exec-fn    codox.main/generate-docs
+       :exec-args  {:source-paths ["src"]
+                    :source-uri   "https://github.com/pmonks/pbr/blob/main/{filepath}#L{line}"}}
+   }}
+```
+
+If you fail to include some of these aliases, PBR _will_ break.  Note also that you must express an explicit dependency on `io.github.seancorfield/build-clj` in your build alias, as that project [doesn't publish artifacts to Clojars](https://github.com/seancorfield/build-clj/issues/11), and transitive git coordinate dependencies are not supported by tools.deps.
 
 ### Additional build tasks
 
@@ -32,36 +88,13 @@ PBR also provides some additional build task fns:
 2. `release` - perform a release by tagging the current code, optionally updating the deploy-info.edn file, and creating a PR from a development branch to a production branch.
 3. `deploy` - perform a deployment by constructing a comprehensive pom.xml file, building a JAR, and deploying them to clojars.
 
-### API Documentation
+#### API Documentation
 
 [API documentation is available here](https://pmonks.github.io/pbr/).
 
-## Using the library
+#### Worked example
 
-Express a maven dependency in your `deps.edn`, for a build tool alias:
-
-```edn
- :aliases
-    :build
-      {:deps       {io.github.seancorfield/build-clj {:git/tag "v0.6.3" :git/sha "9b8e09b"}
-                    com.github.pmonks/pbr            {:mvn/version "LATEST_CLOJARS_VERSION"}}
-       :ns-default build}
-```
-
-Note that you must express an explicit dependency on `io.github.seancorfield/build-clj`, as that project [doesn't publish artifacts to Clojars yet](https://github.com/seancorfield/build-clj/issues/11), and transitive git coordinate dependencies are not supported by tools.deps.
-
-### Requiring the namespace
-
-In your build tool namespace(s):
-
-```clojure
-(ns your.build.namespace
-  (:require [pbr.tasks :as pbr]))
-```
-
-### Worked example
-
-For a worked example of using the library, see [futbot's build script](https://github.com/pmonks/futbot/blob/main/build.clj).
+For a worked example of using the library's build tasks, see [the default build script](https://github.com/pmonks/pbr/blob/main/src/build.clj).
 
 ## FAQ
 
@@ -71,7 +104,7 @@ For a worked example of using the library, see [futbot's build script](https://g
 **A.** Because this code is cheap and nasty, and will give you a headache if you consume too much of it.
 
 **Q.** Does PBR use itself for its own build tasks?  
-**A.** Why yes it does!  You can see how it sneakily references itself [here](https://github.com/pmonks/pbr/blob/main/deps.edn#L32).
+**A.** Why yes it does!  You can see how it sneakily references itself [here](https://github.com/pmonks/pbr/blob/main/deps.edn#L33).
 
 ## Contributor Information
 
