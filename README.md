@@ -20,15 +20,21 @@ If you're looking for the convenience functions, and the pom.xml and license tas
 
 ## Features
 
-### API Documentation
+### Build script
 
-[API documentation is available here](https://pmonks.github.io/pbr/).
+PBR provides a default `./build.clj` script that provides all of the tasks I typically need in my build scripts.  It allows customisation by loading a `./pbr.clj` file, which must contains a `set-opts` fn where various project specific opts can be set.  You can look at [PBR's own `pbr.clj` file](https://github.com/pmonks/pbr/blob/main/pbr.clj) for an idea of what this must contain.
 
-### Build tasks
+### Additional build tasks
+
+PBR also provides some additional build task fns:
 
 1. `deploy-info` - generate an EDN file containing deployment info for your code (build date/time and git commit SHA & (optionally) tag).
 2. `release` - perform a release by tagging the current code, optionally updating the deploy-info.edn file, and creating a PR from a development branch to a production branch.
 3. `deploy` - perform a deployment by constructing a comprehensive pom.xml file, building a JAR, and deploying them to clojars.
+
+### API Documentation
+
+[API documentation is available here](https://pmonks.github.io/pbr/).
 
 ## Using the library
 
