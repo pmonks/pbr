@@ -16,10 +16,10 @@
 ; SPDX-License-Identifier: Apache-2.0
 ;
 
-(def lib       'com.github.pmonks/pbr)
+(def lib 'com.github.pmonks/pbr)
 
 #_{:clj-kondo/ignore [:unresolved-namespace]}
-(def version   (format "2.0.%s" (b/git-count-revs nil)))
+(def version (format "2.0.%s" (b/git-count-revs nil)))
 
 ; Utility fns
 (defn set-opts
