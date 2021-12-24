@@ -117,21 +117,22 @@ clojure -A:deps -T:build help/doc"
       (set-opts)
       (pbr/release)))
 
+(defn pom
+  "Generates a comprehensive pom.xml for the project."
+  [opts]
+  (pom/pom (set-opts opts)))
+
 (defn jar
   "Generates a library JAR for the project."
   [opts]
-  (-> opts
-      (set-opts)
-      (pom/pom)
-      (bb/jar)))
+  (pom opts)
+  (bb/jar (set-opts opts)))
 
 (defn uber
   "Create an uber jar."
   [opts]
-  (-> opts
-      (set-opts)
-      (pom/pom)
-      (bb/uber)))
+  (pom opts)
+  (bb/uber (set-opts opts)))
 
 (defn install
   "Install the library locally e.g. so it can be tested by downstream dependencies"
@@ -149,5 +150,4 @@ clojure -A:deps -T:build help/doc"
 (defn docs
   "Generates codox documentation"
   [_]
-  (tc/ensure-command "clojure")
-  (tc/exec "clojure -Srepro -X:codox"))
+  (tc/clojure "-X:codox"))
