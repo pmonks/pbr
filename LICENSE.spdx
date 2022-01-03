@@ -1,7 +1,7 @@
 SPDXVersion: SPDX-2.1
 DataLicense: CC0-1.0
 Creator: Peter Monks
-PackageName: Peter's Build Resources
+PackageName: com.github.pmonks/pbr
 PackageOriginator: Peter Monks
 PackageHomePage: https://github.com/pmonks/pbr
 PackageLicenseDeclared: Apache-2.0
