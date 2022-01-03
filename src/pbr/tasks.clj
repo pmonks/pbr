@@ -112,7 +112,7 @@
     (read-line)
 
     (println "ℹ️ Tagging release as" (str version "..."))
-    (git "tag" "-f" "-a" version "-m" (str "Release " version))
+    (git "tag" "-f" "-a" version "-m" (str ":gem: Release " version))
 
     (when deploy-info-file
       (println "ℹ️ Updating" (str deploy-info-file "..."))
