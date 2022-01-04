@@ -56,7 +56,7 @@ This script also assumes your `deps.edn` includes _at least_ the following alias
 
     ; clj -T:build <taskname>
     :build
-      {:deps       {io.github.seancorfield/build-clj {:git/tag "v0.6.3" :git/sha "9b8e09b"}
+      {:deps       {io.github.seancorfield/build-clj {:git/tag "v0.6.6" :git/sha "171d5f1"}
                     com.github.pmonks/pbr            {:mvn/version "LATEST_CLOJARS_VERSION"}}
        :ns-default build}
 
