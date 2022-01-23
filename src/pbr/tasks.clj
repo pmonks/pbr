@@ -142,7 +142,7 @@
         paths         (get basis :paths ["src"])
         eastwood-opts (merge {:source-paths paths}
                              (:eastwood opts))]
-    ; Note: this should work, but doesn't... ...at least not reliably  🙄
+    ; Note: we can't do this, as it's running in the wrong classpath (i.e. the build.tool classpath, not the project classpath)
     ;(ew/eastwood eastwood-opts))
     ; So instead we revert to ye olde dynamic invocation...
     (tc/clojure "-Sdeps"
