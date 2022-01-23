@@ -159,7 +159,8 @@
   (if-let [file-name (:deploy-info-file opts)]
     (let [deploy-info (merge {:hash (tc/git-current-commit)
                               :date (java.time.Instant/now)}
-                              (when-let [tag (try (tc/git-nearest-tag) (catch clojure.lang.ExceptionInfo _ nil))] {:tag tag}))]
+                              (when-let [repo (try (tc/git-remote)      (catch clojure.lang.ExceptionInfo _ nil))] {:repo repo})
+                              (when-let [tag  (try (tc/git-nearest-tag) (catch clojure.lang.ExceptionInfo _ nil))] {:tag tag}))]
       (io/make-parents file-name)
       (with-open [w (io/writer (io/file file-name))]
         (pp/pprint deploy-info w)))
