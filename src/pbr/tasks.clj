@@ -39,17 +39,17 @@
             [antq.core             :as aq]
             [antq.upgrade          :as au]
             [clj-kondo.core        :as kd]
-            [eastwood.lint         :as ew]
+;            [eastwood.lint         :as ew]
             [codox.main            :as cx]
             [org.corfield.build    :as bb]
             [tools-convenience.api :as tc]
             [tools-pom.tasks       :as pom]))
 
-(def ver-clj-check   {:git/sha "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"}) ; Latest version of https://github.com/athos/clj-check
-(def ver-test-runner {:git/tag "v0.5.0" :git/sha "b3fd0d2"})                ; Latest version of https://github.com/cognitect-labs/test-runner
-(def ver-logback     {:mvn/version "1.2.10"})
-(def ver-slf4j       {:mvn/version "1.7.33"})
-(def ver-eastwood    {:mvn/version "1.2.0"})
+(def ^:private ver-clj-check   {:git/sha "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"}) ; Latest version of https://github.com/athos/clj-check
+(def ^:private ver-test-runner {:git/tag "v0.5.0" :git/sha "b3fd0d2"})                ; Latest version of https://github.com/cognitect-labs/test-runner
+(def ^:private ver-logback     {:mvn/version "1.2.10"})
+(def ^:private ver-slf4j       {:mvn/version "1.7.33"})
+(def ^:private ver-eastwood    {:mvn/version "1.2.0"})
 
 (defn github-url
   "Returns the base GitHub URL for the given lib (a namespaced symbol), or nil if it can't be determined."
@@ -159,7 +159,8 @@
   (if-let [file-name (:deploy-info-file opts)]
     (let [deploy-info (merge {:hash (tc/git-current-commit)
                               :date (java.time.Instant/now)}
-                              (when-let [tag (try (tc/git-nearest-tag) (catch clojure.lang.ExceptionInfo _ nil))] {:tag tag}))]
+                              (when-let [repo (try (tc/git-remote)      (catch clojure.lang.ExceptionInfo _ nil))] {:repo repo})
+                              (when-let [tag  (try (tc/git-nearest-tag) (catch clojure.lang.ExceptionInfo _ nil))] {:tag tag}))]
       (io/make-parents file-name)
       (with-open [w (io/writer (io/file file-name))]
         (pp/pprint deploy-info w)))
