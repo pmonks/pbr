@@ -49,6 +49,7 @@
 (def ver-test-runner {:git/tag "v0.5.0" :git/sha "b3fd0d2"})                ; Latest version of https://github.com/cognitect-labs/test-runner
 (def ver-logback     {:mvn/version "1.2.10"})
 (def ver-slf4j       {:mvn/version "1.7.33"})
+(def ver-eastwood    {:mvn/version "1.2.0"})
 
 (defn github-url
   "Returns the base GitHub URL for the given lib (a namespaced symbol), or nil if it can't be determined."
@@ -137,10 +138,17 @@
 
   :eastwood -- opt: a map containing eastwood-specific configuration options (see https://github.com/jonase/eastwood#running-eastwood-in-a-repl)"
   [opts]
-  (let [basis (bb/default-basis)
-        paths (get basis :paths ["src"])]
-    (ew/eastwood (merge {:source-paths paths}
-                        (:eastwood opts))))
+  (let [basis         (bb/default-basis)
+        paths         (get basis :paths ["src"])
+        eastwood-opts (merge {:source-paths paths}
+                             (:eastwood opts))]
+    ; Note: this should work, but doesn't... ...at least not reliably  🙄
+    ;(ew/eastwood eastwood-opts))
+    ; So instead we revert to ye olde dynamic invocation...
+    (tc/clojure "-Sdeps"
+                (str "{:aliases {:eastwood {:extra-deps {jonase/eastwood " (pr-str ver-eastwood) "} "
+                                           ":main-opts  [\"-m\" \"eastwood.lint\" " (pr-str eastwood-opts) "]}}}")
+                "-M:eastwood"))
   opts)
 
 (defn deploy-info
