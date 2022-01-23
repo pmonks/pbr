@@ -125,7 +125,7 @@
   opts)
 
 (defn kondo
-  "Run the clj-kondo linter.  No options."
+  "Run the clj-kondo linter. No options."
   [opts]
   (let [basis (bb/default-basis)
         paths (get basis :paths ["src"])]
@@ -133,15 +133,18 @@
   opts)
 
 (defn eastwood
-  "Run the eastwood linter.  No options."
+  "Run the eastwood linter. opts includes:
+
+  :eastwood -- opt: a map containing eastwood-specific configuration options (see https://github.com/jonase/eastwood#running-eastwood-in-a-repl)"
   [opts]
   (let [basis (bb/default-basis)
         paths (get basis :paths ["src"])]
-    (ew/-main {:source-paths paths}))    ; We could also use ew/lint, but then we'd have to roll our own output
+    (ew/eastwood (merge {:source-paths paths}
+                        (:eastwood opts))))
   opts)
 
 (defn deploy-info
-  "Writes out a deploy-info EDN file, containing at least :hash and :date keys, and possibly also a :tag key.  opts includes:
+  "Writes out a deploy-info EDN file, containing at least :hash and :date keys, and possibly also a :tag key. opts includes:
 
   :deploy-info-file -- req: the name of the file to write to (e.g. \"./resources/deploy-info.edn\")"
   [opts]
