@@ -47,6 +47,8 @@
 
 (def ver-clj-check   {:git/sha "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"}) ; Latest version of https://github.com/athos/clj-check
 (def ver-test-runner {:git/tag "v0.5.0" :git/sha "b3fd0d2"})                ; Latest version of https://github.com/cognitect-labs/test-runner
+(def ver-logback     {:mvn/version "1.2.10"})
+(def ver-slf4j       {:mvn/version "1.7.33"})
 
 (defn github-url
   "Returns the base GitHub URL for the given lib (a namespaced symbol), or nil if it can't be determined."
@@ -108,7 +110,12 @@
     ; Note: we do this this way to get around tools.deps lack of support for transitive dependencies that are git coords
     (tc/clojure "-Sdeps"
                 (str "{:aliases {:test {:extra-paths " (pr-str test-paths) " "
-                                       ":extra-deps  {io.github.cognitect-labs/test-runner " (pr-str ver-test-runner) "} "
+                                       ":extra-deps  {io.github.cognitect-labs/test-runner " (pr-str ver-test-runner) " "
+                                                      "ch.qos.logback/logback-classic " (pr-str ver-logback) " "
+                                                      "org.slf4j/slf4j-api " (pr-str ver-slf4j) " "
+                                                      "org.slf4j/jcl-over-slf4j " (pr-str ver-slf4j) " "
+                                                      "org.slf4j/log4j-over-slf4j " (pr-str ver-slf4j) " "
+                                                      "org.slf4j/jul-to-slf4j " (pr-str ver-slf4j) "} "
                                        ":main-opts   [\"-m\" \"cognitect.test-runner\"] "
                                        ":exec-fn     cognitect.test-runner.api/test}}}")
                 "-X:test"))
