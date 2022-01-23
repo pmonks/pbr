@@ -17,12 +17,12 @@
 ;
 
 #_{:clj-kondo/ignore [:unused-namespace]}   ; Because there are various namespaces each project's pbr.clj script may want to use
-(ns build
-  "PBR common build script.
+(ns pbr.build
+  "PBR turnkey build script.
 
 For more information, run:
 
-clojure -X:deps:build help/doc :ns build"
+clojure -A:deps -T:build help/doc"
   (:refer-clojure :exclude [test])
   (:require [clojure.string          :as s]
             [clojure.set             :as set]
@@ -105,7 +105,7 @@ clojure -X:deps:build help/doc :ns build"
     (lint opts)))
 
 (defn licenses
-  "Attempts to list all licenses for the transitive set of dependencies of the project, using SPDX license expressions."
+  "Attempts to list all licenses for the transitive set of dependencies of the project, as SPDX license identifiers."
   [opts]
   (-> opts
       (set-opts)

@@ -33,4 +33,4 @@
  :aliases
    {:build
       {:deps       {com.github.pmonks/pbr {:local/root "."}}
-       :ns-default build}}}
+       :ns-default pbr.build}}}
