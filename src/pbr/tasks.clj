@@ -61,14 +61,15 @@
 
 (defn check
   "Check the code by compiling it (and throwing away the result).  No options."
-  [_]
+  [opts]
   ; Note: we do this this way to get around tools.deps lack of support for transitive dependencies that are git coords
   (tc/clojure "-Sdeps"
               (str "{:aliases {:check {:extra-deps {com.github.athos/clj-check " (pr-str ver-clj-check) "} :main-opts [\"-m\" \"clj-check.check\"]}}}")
-              "-M:check"))
+              "-M:check")
+  opts)
 
 (defn- outdated-deps
-  "Determine outdated dependencies, via antq."
+  "Utility fn to determine outdated dependencies using antq."
   [opts]
   (let [user-opts (:antq opts)
         antq-opts (merge {:directory ["."]
@@ -76,7 +77,7 @@
                          user-opts
                          {:skip      (concat ["pom" "leiningen"] (:skip user-opts))})
         deps      (aq/fetch-deps antq-opts)]
-    (aq/antq antq-opts deps)))
+    (aq/antq antq-opts deps)))    ; NOTE: DO NOT RETURN opts HERE!  THIS IS NOT A BUILD TASK FN!
 
 (defn antq-outdated
   "Determine outdated dependencies, via antq.  opts includes:
@@ -85,7 +86,8 @@
   [opts]
   (let [old-deps (outdated-deps opts)]
     (when (seq old-deps)
-      (throw (ex-info "Outdated dependencies found" {:outdated-deps old-deps})))))
+      (throw (ex-info "Outdated dependencies found" {:outdated-deps old-deps}))))
+  opts)
 
 (defn antq-upgrade
   "Unconditionally upgrade any outdated dependencies, via antq.  opts includes:
@@ -94,7 +96,8 @@
   [opts]
   (let [old-deps (outdated-deps opts)]
     (when (seq old-deps)
-      (au/upgrade! old-deps true))))
+      (au/upgrade! old-deps true)))
+  opts)
 
 (defn run-tests
   "Runs unit tests (if any).  opts includes:
@@ -108,21 +111,24 @@
                                        ":extra-deps  {io.github.cognitect-labs/test-runner " (pr-str ver-test-runner) "} "
                                        ":main-opts   [\"-m\" \"cognitect.test-runner\"] "
                                        ":exec-fn     cognitect.test-runner.api/test}}}")
-                "-X:test")))
+                "-X:test"))
+  opts)
 
 (defn kondo
   "Run the clj-kondo linter.  No options."
-  [_]
+  [opts]
   (let [basis (bb/default-basis)
         paths (get basis :paths ["src"])]
-    (kd/print! (kd/run! {:lint paths}))))
+    (kd/print! (kd/run! {:lint paths})))
+  opts)
 
 (defn eastwood
   "Run the eastwood linter.  No options."
-  [_]
+  [opts]
   (let [basis (bb/default-basis)
         paths (get basis :paths ["src"])]
-    (ew/-main {:source-paths paths})))    ; We could also use ew/lint, but then we'd have to roll our own output
+    (ew/-main {:source-paths paths}))    ; We could also use ew/lint, but then we'd have to roll our own output
+  opts)
 
 (defn deploy-info
   "Writes out a deploy-info EDN file, containing at least :hash and :date keys, and possibly also a :tag key.  opts includes:
@@ -261,4 +267,5 @@
         prod-branch (get opts :prod-branch "main")]
     (cx/generate-docs (merge {:source-paths paths}
                              (when github-url {:source-uri (str github-url "/blob/" prod-branch "/{filepath}#L{line}")})
-                             (:codox opts)))))
+                             (:codox opts))))
+  opts)
