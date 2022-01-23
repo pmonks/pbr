@@ -36,9 +36,93 @@
   (:require [clojure.string        :as s]
             [clojure.java.io       :as io]
             [clojure.pprint        :as pp]
+            [antq.core             :as aq]
+            [antq.upgrade          :as au]
+            [clj-kondo.core        :as kd]
+            [eastwood.lint         :as ew]
+            [codox.main            :as cx]
             [org.corfield.build    :as bb]
-            [tools-convenience.api :as tc :refer [exec git]]
+            [tools-convenience.api :as tc]
             [tools-pom.tasks       :as pom]))
+
+(def ver-clj-check   {:git/sha "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"}) ; Latest version of https://github.com/athos/clj-check
+(def ver-test-runner {:git/tag "v0.5.0" :git/sha "b3fd0d2"})                ; Latest version of https://github.com/cognitect-labs/test-runner
+
+(defn github-url
+  "Returns the base GitHub URL for the given lib (a namespaced symbol), or nil if it can't be determined."
+  [lib]
+  (when lib
+    (let [ns (namespace lib)
+          nm (name lib)]
+      (when (and (not (s/blank? ns))
+                 (s/starts-with? ns "com.github.")
+                 (not (s/blank? nm)))
+        (str "https://github.com/" (s/replace ns "com.github." "") "/" nm)))))
+
+(defn check
+  "Check the code by compiling it (and throwing away the result).  No options."
+  [_]
+  ; Note: we do this this way to get around tools.deps lack of support for transitive dependencies that are git coords
+  (tc/clojure "-Sdeps"
+              (str "{:aliases {:check {:extra-deps {com.github.athos/clj-check " (pr-str ver-clj-check) "} :main-opts [\"-m\" \"clj-check.check\"]}}}")
+              "-M:check"))
+
+(defn- outdated-deps
+  "Determine outdated dependencies, via antq."
+  [opts]
+  (let [user-opts (:antq opts)
+        antq-opts (merge {:directory ["."]
+                          :reporter  "table"}
+                         user-opts
+                         {:skip      (concat ["pom" "leiningen"] (:skip user-opts))})
+        deps      (aq/fetch-deps antq-opts)]
+    (aq/antq antq-opts deps)))
+
+(defn antq-outdated
+  "Determine outdated dependencies, via antq.  opts includes:
+
+  :antq -- opt: a map containing antq-specific configuration options. Sadly these aren't really documented anywhere obvious, but they are passed into this fn: https://github.com/liquidz/antq/blob/main/src/antq/core.clj#L230"
+  [opts]
+  (let [old-deps (outdated-deps opts)]
+    (when (seq old-deps)
+      (throw (ex-info "Outdated dependencies found" {:outdated-deps old-deps})))))
+
+(defn antq-upgrade
+  "Unconditionally upgrade any outdated dependencies, via antq.  opts includes:
+
+  :antq -- opt: a map containing antq-specific configuration options. Sadly these aren't really documented anywhere obvious, but they are passed into this fn: https://github.com/liquidz/antq/blob/main/src/antq/core.clj#L230"
+  [opts]
+  (let [old-deps (outdated-deps opts)]
+    (when (seq old-deps)
+      (au/upgrade! old-deps true))))
+
+(defn run-tests
+  "Runs unit tests (if any).  opts includes:
+
+  :test-paths -- opt: a sequence of paths containing test code (defaults to [\"test\"])"
+  [opts]
+  (let [test-paths (vec (get opts :test-paths ["test"]))]
+    ; Note: we do this this way to get around tools.deps lack of support for transitive dependencies that are git coords
+    (tc/clojure "-Sdeps"
+                (str "{:aliases {:test {:extra-paths " (pr-str test-paths) " "
+                                       ":extra-deps  {io.github.cognitect-labs/test-runner " (pr-str ver-test-runner) "} "
+                                       ":main-opts   [\"-m\" \"cognitect.test-runner\"] "
+                                       ":exec-fn     cognitect.test-runner.api/test}}}")
+                "-X:test")))
+
+(defn kondo
+  "Run the clj-kondo linter.  No options."
+  [_]
+  (let [basis (bb/default-basis)
+        paths (get basis :paths ["src"])]
+    (kd/print! (kd/run! {:lint paths}))))
+
+(defn eastwood
+  "Run the eastwood linter.  No options."
+  [_]
+  (let [basis (bb/default-basis)
+        paths (get basis :paths ["src"])]
+    (ew/-main {:source-paths paths})))    ; We could also use ew/lint, but then we'd have to roll our own output
 
 (defn deploy-info
   "Writes out a deploy-info EDN file, containing at least :hash and :date keys, and possibly also a :tag key.  opts includes:
@@ -56,7 +140,11 @@
   opts)
 
 (defn check-release
-  "Check that a release can be made from the current directory, with the given opts."
+  "Check that a release can be made from the current directory, using the provided opts. opts includes:
+
+  :lib        -- opt: a symbol identifying your project e.g. 'org.github.pmonks/pbr
+  :version    -- opt: a string containing the version of your project e.g. \"1.0.0-SNAPSHOT\"
+  :dev-branch -- opt: the name of the development branch containing the changes to be PRed (defaults to \"dev\")"
   [opts]
   ; Check for the command line tools we need
   (tc/ensure-command "hub")
@@ -71,7 +159,7 @@
     (when-not (= dev-branch current-branch)
       (throw (ex-info (str "Must be on branch '" dev-branch "' to prepare a release, but current branch is '" current-branch "'.") {}))))
 
-  (let [git-status (git "status" "--short")]
+  (let [git-status (tc/git :status "--short")]
     (when (not (s/blank? git-status))
       (throw (ex-info (str "Working directory is not clean:\n " git-status "\nPlease commit, revert, or stash these changes before preparing a release.") {}))))
 
@@ -100,9 +188,9 @@
 
     ; Ensure working directory is up to date with prod branch
     (println "ℹ️ Updating working directory...")
-    (git "fetch" "origin" (str prod-branch ":" prod-branch))
-    (git "merge" prod-branch)
-    (git "pull")
+    (tc/git :fetch "origin" (str prod-branch ":" prod-branch))
+    (tc/git :merge prod-branch)
+    (tc/git :pull)
 
     (println "ℹ️ Checking that a release can be made...")
     (check-release opts)
@@ -112,24 +200,24 @@
     (read-line)
 
     (println "ℹ️ Tagging release as" (str version "..."))
-    (git "tag" "-f" "-a" version "-m" (str ":gem: Release " version))
+    (tc/git :tag "-f" "-a" version "-m" (str ":gem: Release " version))
 
     (when deploy-info-file
       (println "ℹ️ Updating" (str deploy-info-file "..."))
       (deploy-info opts)
-      (git "add" deploy-info-file)  ; Add the file just in case it's never existed before - this is no-op if it's already in the index
-      (git "commit" "-m" (str ":gem: Release " version) deploy-info-file))
+      (tc/git :add deploy-info-file)  ; Add the file just in case it's never existed before - this is no-op if it's already in the index
+      (tc/git :commit "-m" (str ":gem: Release " version) deploy-info-file))
 
     (println "ℹ️ Pushing tag" version (str "(" (tc/git-tag-commit version) ")..."))
-    (git "push")
-    (git "push" "origin" "-f" "--tags")
+    (tc/git :push)
+    (tc/git :push "origin" "-f" "--tags")
 
     (println "ℹ️ Creating 'release' pull request from" dev-branch " to " prod-branch "...")
     (let [pr-desc-fmt (get opts :pr-desc "%1$s release v%2$s. See commit log for details of what's included in this release.")]
-      (exec ["hub" "pull-request" "--browse" "-f"
-             "-m" (str "Release v" version)
-             "-m" (format pr-desc-fmt (str lib) (str version))
-             "-h" dev-branch "-b" prod-branch]))
+      (tc/exec ["hub" "pull-request" "--browse" "-f"
+                "-m" (str "Release v" version)
+                "-m" (format pr-desc-fmt (str lib) (str version))
+                "-h" dev-branch "-b" prod-branch]))
 
     (println "ℹ️ After the PR has been merged, it is highly recommended to:\n"
              "  1. git fetch origin" (str prod-branch ":" prod-branch) "\n"
@@ -160,3 +248,17 @@
         (bb/deploy deploy-opts))
       (throw (ex-info (str "deploy task must be run from '" main-branch "' branch (current branch is '" current-branch "').") (into {} opts)))))
   opts)
+
+(defn codox
+  "Generates codox documentation. opts includes:
+
+  :lib   -- opt: a symbol identifying your project e.g. 'org.github.pmonks/pbr
+  :codox -- opt: a codox options map (see https://github.com/weavejester/codox#project-options). Note that PBR will auto-include the :source-uri option for com.github.* projects"
+  [opts]
+  (let [basis       (bb/default-basis)
+        paths       (get basis :paths ["src"])
+        github-url  (github-url (:lib opts))
+        prod-branch (get opts :prod-branch "main")]
+    (cx/generate-docs (merge {:source-paths paths}
+                             (when github-url {:source-uri (str github-url "/blob/" prod-branch "/{filepath}#L{line}")})
+                             (:codox opts)))))
