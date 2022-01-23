@@ -152,7 +152,7 @@
   opts)
 
 (defn deploy-info
-  "Writes out a deploy-info EDN file, containing at least :hash and :date keys, and possibly also a :tag key. opts includes:
+  "Writes out a deploy-info EDN file, containing at least :hash and :date keys, and possibly also :repo and :tag keys. opts includes:
 
   :deploy-info-file -- req: the name of the file to write to (e.g. \"./resources/deploy-info.edn\")"
   [opts]
