@@ -31,7 +31,6 @@
     com.github.athos/clj-check           {:git/sha "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"}
     io.github.cognitect-labs/test-runner {:git/tag "v0.5.0" :git/sha "b3fd0d2"}}
  :aliases
-   {:build
-      {:deps       {io.github.seancorfield/build-clj {:git/tag "v0.6.7" :git/sha "22c2d09"}
-                    com.github.pmonks/pbr            {:local/root "."}}
-       :ns-default pbr.build}}}
+   {:build {:deps       {io.github.seancorfield/build-clj {:git/tag "v0.6.7" :git/sha "22c2d09"}
+                         com.github.pmonks/pbr            {:local/root "."}}
+            :ns-default pbr.build}}}
