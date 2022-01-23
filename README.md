@@ -47,14 +47,11 @@ Tasks can be listed by running `clojure -A:deps -T:build help/doc`, and are:
 The turnkey build script also assumes your `deps.edn` includes the following:
 
 ```edn
-{:deps
-   { ; Your project's dependencies
-   }
- :aliases
-   {:build
-      {:deps       {io.github.seancorfield/build-clj {:git/tag "v0.6.7" :git/sha "22c2d09"}
-                    com.github.pmonks/pbr            {:mvn/version "RELEASE"}}
-       :ns-default pbr.build}}}
+{:deps { ; Your project's dependencies
+       }
+ :aliases {:build {:deps       {io.github.seancorfield/build-clj {:git/tag "v0.6.7" :git/sha "22c2d09"}
+                                com.github.pmonks/pbr            {:mvn/version "RELEASE"}}
+                   :ns-default pbr.build}}}
 ```
 
 Note that despite not using it directly, you must express an explicit dependency on `io.github.seancorfield/build-clj` in your build alias, as that project [doesn't publish artifacts to Clojars](https://github.com/seancorfield/build-clj/issues/11) and transitive git coordinate dependencies are not supported by tools.deps.
@@ -75,7 +72,7 @@ $ clj -A:build -P
 **A.** Because this code is cheap and nasty, and will give you a headache if you consume too much of it.
 
 **Q.** Does PBR use itself for build tasks?  
-**A.** Yes it does!  [You can see how this sneaky self-reference here](https://github.com/pmonks/pbr/blob/main/deps.edn#L35).
+**A.** Yes it does!  [You can see this sneaky self-reference here](https://github.com/pmonks/pbr/blob/main/deps.edn#L35).
 
 ## Contributor Information
 
