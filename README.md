@@ -16,11 +16,11 @@ A little [tools.build](https://github.com/clojure/tools.build) task library that
 
 ### Task library
 
-PBR includes a library of tools.build tasks that are [documented here](https://pmonks.github.io/pbr/).
+PBR includes a library of tools.build tasks that are [documented here](https://pmonks.github.io/pbr/).  These may be used independently of the turnkey build script described next.
 
 ### Turnkey build script
 
-PBR provides a default `build.clj` script that provides all of the tasks I typically need in my build scripts.  It allows customisation by loading a `./pbr.clj` file, which must contain a `set-opts` fn where various project specific opts can be set.  You can look at [PBR's own `pbr.clj` file](https://github.com/pmonks/pbr/blob/main/pbr.clj) for an idea of what this looks like.
+PBR also provides a turnkey `build.clj` script that provides all of the tasks I typically need in my build scripts.  It allows customisation via a per-project `./pbr.clj` file, which must contain a `set-opts` fn where various project specific options can be set.  You can look at [PBR's own `pbr.clj` file](https://github.com/pmonks/pbr/blob/main/pbr.clj) for an idea of what this looks like.
 
 Tasks can be listed by running `clojure -A:deps -T:build help/doc`, and are:
 
@@ -42,7 +42,9 @@ Tasks can be listed by running `clojure -A:deps -T:build help/doc`, and are:
 * `test` - Run the tests.
 * `uber` - Create an uber jar.
 
-This script also assumes your `deps.edn` includes the following:
+#### deps.edn required by build script
+
+The turnkey build script also assumes your `deps.edn` includes the following:
 
 ```edn
 {:deps
@@ -57,9 +59,9 @@ This script also assumes your `deps.edn` includes the following:
 
 Note that despite not using it directly, you must express an explicit dependency on `io.github.seancorfield/build-clj` in your build alias, as that project [doesn't publish artifacts to Clojars](https://github.com/seancorfield/build-clj/issues/11) and transitive git coordinate dependencies are not supported by tools.deps.
 
-## Preparing to build
+#### Preparing to build with the turnkey script
 
-To prepare your project to use PBR:
+To prepare your project to use the turnkey build script, you must run the following command first:
 
 ```shell
 $ clj -A:build -P
@@ -72,8 +74,8 @@ $ clj -A:build -P
 **Q.** Why "PBR"?  
 **A.** Because this code is cheap and nasty, and will give you a headache if you consume too much of it.
 
-**Q.** Does PBR use itself for its own build tasks?  
-**A.** Why yes it does!  You can see how it sneakily references itself [here](https://github.com/pmonks/pbr/blob/main/deps.edn#L35).
+**Q.** Does PBR use itself for build tasks?  
+**A.** Yes it does!  [You can see how this sneaky self-reference here](https://github.com/pmonks/pbr/blob/main/deps.edn#L35).
 
 ## Contributor Information
 
