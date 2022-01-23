@@ -1,7 +1,7 @@
 | | | |
 |---:|:---:|:---:|
-| [**main**](https://github.com/pmonks/pbr/tree/main) | [![Lint](https://github.com/pmonks/pbr/workflows/lint/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Alint) | [![Dependencies](https://github.com/pmonks/pbr/workflows/dependencies/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies) |
-| [**dev**](https://github.com/pmonks/pbr/tree/dev)  | [![Lint](https://github.com/pmonks/pbr/workflows/lint/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Alint) | [![Dependencies](https://github.com/pmonks/pbr/workflows/dependencies/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies) |
+| [**main**](https://github.com/pmonks/pbr/tree/main) | [![CI](https://github.com/pmonks/pbr/workflows/lint/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3ACI+branch%3Amain) | [![Dependencies](https://github.com/pmonks/pbr/workflows/dependencies/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies+branch%3Amain) |
+| [**dev**](https://github.com/pmonks/pbr/tree/dev)  | [![CI](https://github.com/pmonks/pbr/workflows/CI/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3ACI+branch%3Adev) | [![Dependencies](https://github.com/pmonks/pbr/workflows/dependencies/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies+branch%3Adev) |
 
 [![Latest Version](https://img.shields.io/clojars/v/com.github.pmonks/pbr)](https://clojars.org/com.github.pmonks/pbr/) [![Open Issues](https://img.shields.io/github/issues/pmonks/pbr.svg)](https://github.com/pmonks/pbr/issues) [![License](https://img.shields.io/github/license/pmonks/pbr.svg)](https://github.com/pmonks/pbr/blob/main/LICENSE)
 
@@ -12,17 +12,15 @@
 
 A little [tools.build](https://github.com/clojure/tools.build) task library that supports the author's personal GitHub workflow.  It is not expected to be especially relevant for other developers' workflows.
 
-If you're looking for the convenience functions, and the pom.xml and license tasks that used to be part of PBR, as of PBR v2.0 they've been refactored into their own micro-libraries to better facilitate reuse and contribution:
-
-* [com.github.pmonks/tools-convenience](https://github.com/pmonks/tools-convenience/) - tools.build convenience fns
-* [com.github.pmonks/tools-pom](https://github.com/pmonks/tools-pom/) - pom.xml-related build tasks
-* [com.github.pmonks/tools-licenses](https://github.com/pmonks/tools-licenses/) - license-related build tasks
-
 ## Features
 
-### Build script
+### Task library
 
-PBR provides a default `./build.clj` script that provides all of the tasks I typically need in my build scripts.  It allows customisation by loading a `./pbr.clj` file, which must contain a `set-opts` fn where various project specific opts can be set.  You can look at [PBR's own `pbr.clj` file](https://github.com/pmonks/pbr/blob/main/pbr.clj) for an idea of what this must contain.
+PBR includes a library of tools.build tasks that are [documented here](https://pmonks.github.io/pbr/).  These may be used independently of the turnkey build script described next.
+
+### Turnkey build script
+
+PBR also provides a turnkey `build.clj` script that provides all of the tasks I typically need in my build scripts.  It allows customisation via a per-project `./pbr.clj` file, which must contain a `set-opts` fn where various project specific options can be set.  You can look at [PBR's own `pbr.clj` file](https://github.com/pmonks/pbr/blob/main/pbr.clj) for an idea of what this looks like.
 
 Tasks can be listed by running `clojure -A:deps -T:build help/doc`, and are:
 
@@ -37,84 +35,37 @@ Tasks can be listed by running `clojure -A:deps -T:build help/doc`, and are:
 * `install` - Install the library locally e.g. so it can be tested by downstream dependencies
 * `jar` - Generates a library JAR for the project.
 * `kondo` - Run the clj-kondo linter.
-* `licenses` - Attempts to list all licenses for the transitive set of dependencies of the project, using SPDX license expressions.
+* `licenses` - Attempts to list all licenses for the transitive set of dependencies of the project, as SPDX license identifiers.
 * `lint` - Run all linters.
 * `outdated` - Check for outdated dependencies.
 * `release` - Release a new version of the library.
 * `test` - Run the tests.
 * `uber` - Create an uber jar.
 
-This script also assumes your `deps.edn` includes _at least_ the following aliases:
+#### deps.edn required by build script
+
+The turnkey build script also assumes your `deps.edn` includes the following:
 
 ```edn
 {:deps
-   {
-    ; Your project's dependencies
+   { ; Your project's dependencies
    }
  :aliases
-   {; ---- TOOL ALIASES ----
-
-    ; clj -T:build <taskname>
-    :build
-      {:deps       {io.github.seancorfield/build-clj {:git/tag "v0.6.3" :git/sha "9b8e09b"}
-                    com.github.pmonks/pbr            {:mvn/version "LATEST_CLOJARS_VERSION"}}
-       :ns-default build}
-
-
-    ; ---- MAIN FUNCTION ALIASES ----
-
-    ; clj -M:check
-    :check
-      {:extra-deps {com.github.athos/clj-check {:git/sha "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"}}
-       :main-opts  ["-m" "clj-check.check"]}
-
-    ; clj -M:test or clj -X:test
-    :test {:extra-paths ["test"]
-           :extra-deps  {io.github.cognitect-labs/test-runner {:git/tag "v0.5.0" :git/sha "b3fd0d2"}}
-           :main-opts   ["-m" "cognitect.test-runner"]
-           :exec-fn     cognitect.test-runner.api/test}
-
-    ; clj -M:kondo
-    :kondo
-      {:extra-deps {clj-kondo/clj-kondo {:mvn/version "2021.12.16"}}
-       :main-opts  ["-m" "clj-kondo.main" "--lint" "src"]}
-
-    ; clj -M:eastwood
-    :eastwood
-      {:extra-deps {jonase/eastwood {:mvn/version "1.0.0"}}
-       :main-opts  ["-m" "eastwood.lint" "{:source-paths,[\"src\"]}"]}
-
-    ; clj -M:outdated
-    :outdated
-      {:extra-deps {com.github.liquidz/antq {:mvn/version "1.3.0"}}
-       :main-opts  ["-m" "antq.core" "--skip=pom"]}
-
-    ; clj -X:codox
-    :codox
-      {:extra-deps {codox/codox {:mvn/version "0.10.8"}}
-       :exec-fn    codox.main/generate-docs
-       :exec-args  {:source-paths ["src"]
-                    :source-uri   "https://github.com/pmonks/pbr/blob/main/{filepath}#L{line}"}}
-   }}
+   {:build
+      {:deps       {io.github.seancorfield/build-clj {:git/tag "v0.6.7" :git/sha "22c2d09"}
+                    com.github.pmonks/pbr            {:mvn/version "RELEASE"}}
+       :ns-default pbr.build}}}
 ```
 
-If you fail to include some of these aliases, PBR _will_ break.  Note also that you must express an explicit dependency on `io.github.seancorfield/build-clj` in your build alias, as that project [doesn't publish artifacts to Clojars](https://github.com/seancorfield/build-clj/issues/11), and transitive git coordinate dependencies are not supported by tools.deps.
+Note that despite not using it directly, you must express an explicit dependency on `io.github.seancorfield/build-clj` in your build alias, as that project [doesn't publish artifacts to Clojars](https://github.com/seancorfield/build-clj/issues/11) and transitive git coordinate dependencies are not supported by tools.deps.
 
-### Additional build tasks
+#### Preparing to build with the turnkey script
 
-PBR also provides some additional build task fns:
+To prepare your project to use the turnkey build script, you must run the following command first:
 
-1. `deploy-info` - generate an EDN file containing deployment info for your code (build date/time and git commit SHA & (optionally) tag).
-2. `release` - perform a release by tagging the current code, optionally updating the deploy-info.edn file, and creating a PR from a development branch to a production branch.
-3. `deploy` - perform a deployment by constructing a comprehensive pom.xml file, building a JAR, and deploying them to clojars.
-
-#### API Documentation
-
-[API documentation is available here](https://pmonks.github.io/pbr/).
-
-#### Worked example
-
-For a worked example of using the library's build tasks, see [the default build script](https://github.com/pmonks/pbr/blob/main/src/build.clj).
+```shell
+$ clj -A:build -P
+```
 
 ## FAQ
 
@@ -123,8 +74,8 @@ For a worked example of using the library's build tasks, see [the default build 
 **Q.** Why "PBR"?  
 **A.** Because this code is cheap and nasty, and will give you a headache if you consume too much of it.
 
-**Q.** Does PBR use itself for its own build tasks?  
-**A.** Why yes it does!  You can see how it sneakily references itself [here](https://github.com/pmonks/pbr/blob/main/deps.edn#L33).
+**Q.** Does PBR use itself for build tasks?  
+**A.** Yes it does!  [You can see how this sneaky self-reference here](https://github.com/pmonks/pbr/blob/main/deps.edn#L35).
 
 ## Contributor Information
 

@@ -34,4 +34,5 @@
                         :licenses         [:license   {:name "Apache License 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}]
                         :developers       [:developer {:id "pmonks" :name "Peter Monks" :email "pmonks+pbr@gmail.com"}]
                         :scm              {:url "https://github.com/pmonks/pbr" :connection "scm:git:git://github.com/pmonks/pbr.git" :developer-connection "scm:git:ssh://git@github.com/pmonks/pbr.git"}
-                        :issue-management {:system "github" :url "https://github.com/pmonks/pbr/issues"}}))
+                        :issue-management {:system "github" :url "https://github.com/pmonks/pbr/issues"}}
+         :codox        {:namespaces ['pbr.tasks]}))

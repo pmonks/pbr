@@ -16,9 +16,9 @@
 ; SPDX-License-Identifier: Apache-2.0
 ;
 
-#_{:clj-kondo/ignore [:unused-namespace]}   ; Because there are various namespaces the pbr script may want to use
-(ns build
-  "PBR generic build script.
+#_{:clj-kondo/ignore [:unused-namespace]}   ; Because there are various namespaces each project's pbr.clj script may want to use
+(ns pbr.build
+  "PBR turnkey build script.
 
 For more information, run:
 
@@ -36,40 +36,57 @@ clojure -A:deps -T:build help/doc"
             [tools-licenses.tasks    :as lic]
             [pbr.tasks               :as pbr]))
 
-(declare set-opts)
+(defn set-opts [_] (throw (ex-info "Default set-opts fn called. Did you forget to redefine it in your pbr.clj script?" {})))
+(load-file "./pbr.clj")  ; Load the project's own pbr.clj script (that must redefine set-opts)
 
-(load-file "./pbr.clj")
-
-; Build tasks
 (defn clean
   "Clean up the project."
   [opts]
-  (bb/clean (set-opts opts)))
+  (-> opts
+      (set-opts)
+      (bb/clean)))
 
 (defn check
-  "Check the code by compiling it."
+  "Check the code by AOT compiling it (and throwing away the result)."
   [opts]
-  (bb/run-task (set-opts opts) [:check]))
+  (-> opts
+      (set-opts)
+      (pbr/check)))
 
 (defn outdated
-  "Check for outdated dependencies."
+  "Check for outdated dependencies (using antq)."
   [opts]
-  (bb/run-task (set-opts opts) [:outdated]))
+  (-> opts
+      (set-opts)
+      (pbr/antq-outdated)))
+
+(defn upgrade
+  "Upgrade any outdated dependencies (using antq). NOTE: does not prompt for confirmation!"
+  [opts]
+  (-> opts
+      (set-opts)
+      (pbr/antq-upgrade)))
 
 (defn test
   "Run the tests."
   [opts]
-  (bb/run-tests (set-opts opts)))
+  (-> opts
+      (set-opts)
+      (pbr/run-tests)))
 
 (defn kondo
   "Run the clj-kondo linter."
   [opts]
-  (bb/run-task (set-opts opts) [:kondo]))
+  (-> opts
+      (set-opts)
+      (pbr/kondo)))
 
 (defn eastwood
   "Run the eastwood linter."
   [opts]
-  (bb/run-task (set-opts opts) [:eastwood]))
+  (-> opts
+      (set-opts)
+      (pbr/eastwood)))
 
 (defn lint
   "Run all linters."
@@ -88,7 +105,7 @@ clojure -A:deps -T:build help/doc"
     (lint opts)))
 
 (defn licenses
-  "Attempts to list all licenses for the transitive set of dependencies of the project, using SPDX license expressions."
+  "Attempts to list all licenses for the transitive set of dependencies of the project, as SPDX license identifiers."
   [opts]
   (-> opts
       (set-opts)
@@ -120,25 +137,33 @@ clojure -A:deps -T:build help/doc"
 (defn pom
   "Generates a comprehensive pom.xml for the project."
   [opts]
-  (pom/pom (set-opts opts)))
+  (-> opts
+      (set-opts)
+      (pom/pom)))
 
 (defn jar
   "Generates a library JAR for the project."
   [opts]
   (pom opts)
-  (bb/jar (set-opts opts)))
+  (-> opts
+      (set-opts)
+      (bb/jar)))
 
 (defn uber
   "Create an uber jar."
   [opts]
   (pom opts)
-  (bb/uber (set-opts opts)))
+  (-> opts
+      (set-opts)
+      (bb/uber)))
 
 (defn install
   "Install the library locally e.g. so it can be tested by downstream dependencies"
   [opts]
   (jar opts)
-  (bb/install (set-opts opts)))
+  (-> opts
+      (set-opts)
+      (bb/install)))
 
 (defn deploy
   "Deploys the library JAR to Clojars."
@@ -148,6 +173,8 @@ clojure -A:deps -T:build help/doc"
       (pbr/deploy)))
 
 (defn docs
-  "Generates codox documentation"
-  [_]
-  (tc/clojure "-X:codox"))
+  "Generates documentation (using codox)."
+  [opts]
+  (-> opts
+      (set-opts)
+      (pbr/codox)))
