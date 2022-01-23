@@ -104,18 +104,21 @@
 (defn run-tests
   "Runs unit tests (if any).  opts includes:
 
-  :test-paths -- opt: a sequence of paths containing test code (defaults to [\"test\"])"
+  :test-paths -- opt: a sequence of paths containing test code (defaults to [\"test\"])
+  :test-deps  -- opt: a dep map of dependencies to add while testing"
   [opts]
-  (let [test-paths (vec (get opts :test-paths ["test"]))]
+  (let [test-paths (vec (get opts :test-paths ["test"]))
+        test-deps  (merge {'io.github.cognitect-labs/test-runner ver-test-runner
+                           'ch.qos.logback/logback-classic       ver-logback
+                           'org.slf4j/slf4j-api                  ver-slf4j
+                           'org.slf4j/jcl-over-slf4j             ver-slf4j
+                           'org.slf4j/log4j-over-slf4j           ver-slf4j
+                           'org.slf4j/jul-to-slf4j               ver-slf4j}
+                          (:test-deps opts))]
     ; Note: we do this this way to get around tools.deps lack of support for transitive dependencies that are git coords
     (tc/clojure "-Sdeps"
                 (str "{:aliases {:test {:extra-paths " (pr-str test-paths) " "
-                                       ":extra-deps  {io.github.cognitect-labs/test-runner " (pr-str ver-test-runner) " "
-                                                      "ch.qos.logback/logback-classic " (pr-str ver-logback) " "
-                                                      "org.slf4j/slf4j-api " (pr-str ver-slf4j) " "
-                                                      "org.slf4j/jcl-over-slf4j " (pr-str ver-slf4j) " "
-                                                      "org.slf4j/log4j-over-slf4j " (pr-str ver-slf4j) " "
-                                                      "org.slf4j/jul-to-slf4j " (pr-str ver-slf4j) "} "
+                                       ":extra-deps  " (pr-str test-deps) " "
                                        ":main-opts   [\"-m\" \"cognitect.test-runner\"] "
                                        ":exec-fn     cognitect.test-runner.api/test}}}")
                 "-X:test"))
