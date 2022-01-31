@@ -48,8 +48,8 @@
 (def ^:private ver-clj-check   {:git/sha "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"}) ; Latest version of https://github.com/athos/clj-check
 (def ^:private ver-test-runner {:git/tag "v0.5.0" :git/sha "b3fd0d2"})                ; Latest version of https://github.com/cognitect-labs/test-runner
 (def ^:private ver-logback     {:mvn/version "1.2.10"})
-(def ^:private ver-slf4j       {:mvn/version "1.7.33"})
-(def ^:private ver-eastwood    {:mvn/version "1.2.0"})
+(def ^:private ver-slf4j       {:mvn/version "1.7.35"})
+(def ^:private ver-eastwood    {:mvn/version "1.2.2"})
 
 (defn github-url
   "Returns the base GitHub URL for the given lib (a namespaced symbol), or nil if it can't be determined."
@@ -142,7 +142,7 @@
         paths         (get basis :paths ["src"])
         eastwood-opts (merge {:source-paths paths}
                              (:eastwood opts))]
-    ; Note: this should work, but doesn't... ...at least not reliably  🙄
+    ; Note: we can't do this, as it's running in the wrong classpath (i.e. the build.tool classpath, not the project classpath)
     ;(ew/eastwood eastwood-opts))
     ; So instead we revert to ye olde dynamic invocation...
     (tc/clojure "-Sdeps"
@@ -152,7 +152,7 @@
   opts)
 
 (defn deploy-info
-  "Writes out a deploy-info EDN file, containing at least :hash and :date keys, and possibly also a :tag key. opts includes:
+  "Writes out a deploy-info EDN file, containing at least :hash and :date keys, and possibly also :repo and :tag keys. opts includes:
 
   :deploy-info-file -- req: the name of the file to write to (e.g. \"./resources/deploy-info.edn\")"
   [opts]

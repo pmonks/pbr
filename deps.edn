@@ -17,17 +17,23 @@
 ;
 
 {:deps
-   {io.github.clojure/tools.build        {:git/tag "v0.7.5" :git/sha "2526f58"}
+   {org.clojure/tools.deps.alpha         {:mvn/version "0.12.1120"}
+    io.github.clojure/tools.build        {:git/tag "v0.7.5" :git/sha "2526f58"}
     io.github.seancorfield/build-clj     {:git/tag "v0.6.7" :git/sha "22c2d09"}
     com.github.pmonks/tools-convenience  {:mvn/version "1.0.86"}
     com.github.pmonks/tools-pom          {:mvn/version "1.0.74"}
     com.github.pmonks/tools-licenses     {:mvn/version "1.0.94"}
     com.github.liquidz/antq              {:mvn/version "1.4.0"}
-    jonase/eastwood                      {:mvn/version "1.2.0"}
     clj-kondo/clj-kondo                  {:mvn/version "2022.01.15"}
     codox/codox                          {:mvn/version "0.10.8"}
 
-    ; From here on down, these dependencies are used dynamically, but we include them here so that we know when they're out of date
+    ; Dynamic dependencies - any time any of these changes it MUST ALSO BE CHANGED IN pbr.tasks!!
+    ch.qos.logback/logback-classic       {:mvn/version "1.2.10"}
+    org.slf4j/slf4j-api                  {:mvn/version "1.7.35"}
+    org.slf4j/jcl-over-slf4j             {:mvn/version "1.7.35"}
+    org.slf4j/log4j-over-slf4j           {:mvn/version "1.7.35"}
+    org.slf4j/jul-to-slf4j               {:mvn/version "1.7.35"}
+    jonase/eastwood                      {:mvn/version "1.2.2"}
     com.github.athos/clj-check           {:git/sha "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"}
     io.github.cognitect-labs/test-runner {:git/tag "v0.5.0" :git/sha "b3fd0d2"}}
  :aliases
