@@ -32,7 +32,7 @@ All of the above build tasks return the opts hash map they were passed
 :prod-branch -- opt: the name of the production branch where the deployment is to be initiated from (defaults to "main")
 -- opts from the pom task, though note that :write-pom and :validate-pom are forced to true --
 -- opts from the build-clj/jar task --
--- opts from the build-clj/deploy task (i.e. deps-deploy) --</pre></div><div class="src-link"><a href="https://github.com/pmonks/pbr/blob/main/src/pbr/tasks.clj#L259">view source</a></div></div><div class="public anchor" id="var-deploy-info"><h3>deploy-info</h3><div class="usage"><code>(deploy-info opts)</code></div><div class="doc"><pre class="plaintext">Writes out a deploy-info EDN file, containing at least :hash and :date keys, and possibly also a :tag key. opts includes:
+-- opts from the build-clj/deploy task (i.e. deps-deploy) --</pre></div><div class="src-link"><a href="https://github.com/pmonks/pbr/blob/main/src/pbr/tasks.clj#L259">view source</a></div></div><div class="public anchor" id="var-deploy-info"><h3>deploy-info</h3><div class="usage"><code>(deploy-info opts)</code></div><div class="doc"><pre class="plaintext">Writes out a deploy-info EDN file, containing at least :hash and :date keys, and possibly also :repo and :tag keys. opts includes:
 
 :deploy-info-file -- req: the name of the file to write to (e.g. "./resources/deploy-info.edn")</pre></div><div class="src-link"><a href="https://github.com/pmonks/pbr/blob/main/src/pbr/tasks.clj#L154">view source</a></div></div><div class="public anchor" id="var-eastwood"><h3>eastwood</h3><div class="usage"><code>(eastwood opts)</code></div><div class="doc"><pre class="plaintext">Run the eastwood linter. opts includes:
 
