@@ -23,7 +23,7 @@
     com.github.pmonks/tools-pom          {:mvn/version "1.0.74"}
     com.github.pmonks/tools-licenses     {:mvn/version "1.0.94"}
     com.github.liquidz/antq              {:mvn/version "1.4.0"}
-    jonase/eastwood                      {:mvn/version "1.2.0"}
+    jonase/eastwood                      {:mvn/version "1.2.2"}
     clj-kondo/clj-kondo                  {:mvn/version "2022.01.15"}
     codox/codox                          {:mvn/version "0.10.8"}
 
