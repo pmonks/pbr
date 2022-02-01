@@ -52,7 +52,7 @@
 (def ^:private ver-eastwood    {:mvn/version "1.2.2"})
 
 (defn github-url
-  "Returns the base GitHub URL for the given lib (a namespaced symbol), or nil if it can't be determined."
+  "Returns the base GitHub URL for the given lib (a namespaced symbol), or nil if it can't be determined. Note: this is a utility fn, not a task fn."
   [lib]
   (when lib
     (let [ns (namespace lib)
@@ -63,7 +63,7 @@
         (str "https://github.com/" (s/replace ns "com.github." "") "/" nm)))))
 
 (defn check
-  "Check the code by compiling it (and throwing away the result).  No options."
+  "Check the code by compiling it (and throwing away the result). No options."
   [opts]
   ; Note: we do this this way to get around tools.deps lack of support for transitive dependencies that are git coords
   (tc/clojure "-Sdeps"
@@ -83,7 +83,7 @@
     (aq/antq antq-opts deps)))    ; NOTE: DO NOT RETURN opts HERE!  THIS IS NOT A BUILD TASK FN!
 
 (defn antq-outdated
-  "Determine outdated dependencies, via antq.  opts includes:
+  "Determine outdated dependencies, via antq. opts includes:
 
   :antq -- opt: a map containing antq-specific configuration options. Sadly these aren't really documented anywhere obvious, but they are passed into this fn: https://github.com/liquidz/antq/blob/main/src/antq/core.clj#L230"
   [opts]
@@ -93,7 +93,7 @@
   opts)
 
 (defn antq-upgrade
-  "Unconditionally upgrade any outdated dependencies, via antq.  opts includes:
+  "Unconditionally upgrade any outdated dependencies, via antq. opts includes:
 
   :antq -- opt: a map containing antq-specific configuration options. Sadly these aren't really documented anywhere obvious, but they are passed into this fn: https://github.com/liquidz/antq/blob/main/src/antq/core.clj#L230"
   [opts]
@@ -103,7 +103,7 @@
   opts)
 
 (defn run-tests
-  "Runs unit tests (if any).  opts includes:
+  "Runs unit tests (if any). opts includes:
 
   :test-paths -- opt: a sequence of paths containing test code (defaults to [\"test\"])
   :test-deps  -- opt: a dep map of dependencies to add while testing"
@@ -126,13 +126,20 @@
   opts)
 
 (defn uber
-  "Create an uber jar."
+  "Create an uber jar. opts includes:
+
+  :uber-file -- opt: the name of the uberjar file to emit (defaults to the logic in the `build-clj/default-jar-file` fn).
+  -- opts from the `pom` task --"
   [opts]
   (pom/pom opts)
-  (bb/uber opts))
+  (bb/uber opts)
+  opts)
 
 (defn uberexec
-  "Creates an executable uber jar (note: does not bundle a JRE, though one is still required)."
+  "Creates an executable uber jar (note: does not bundle a JRE, though one is still required). opts includes:
+
+  :uber-file -- opt: the name of the uberjar file to emit (defaults to the logic in the `build-clj/default-jar-file` fn). The executable jar will have the same name, but without the '.jar' extension.
+  -- opts from the `pom` task --"
   [opts]
   (let [uber-file     (or (:uber-file opts) (bb/default-jar-file (:target opts) (:lib opts) (:version opts)))
         uberexec-file (s/replace uber-file ".jar" "")]
@@ -156,7 +163,8 @@
     (with-open [in (io/input-stream uber-file)]
       (with-open [out (io/output-stream uberexec-file :append true)]
         (io/copy in out)))
-    (.setExecutable (io/file uberexec-file) true false)))
+    (.setExecutable (io/file uberexec-file) true false))
+  opts)
 
 (defn kondo
   "Run the clj-kondo linter. No options."
@@ -234,7 +242,7 @@
   :dev-branch  -- opt: the name of the development branch containing the changes to be PRed (defaults to \"dev\")
   :prod-branch -- opt: the name of the production branch where the PR is to be sent (defaults to \"main\")
   :pr-desc     -- opt: a format string used for the PR description with two %s values passed in (%1$s = lib, %2$s = version) (defaults to \"%1$s release v%2$s. See commit log for details of what's included in this release.\")
-  -- opts from the (deploy-info) task, if you wish to generate deploy-info --"
+  -- opts from the `deploy-info` task, if you wish to generate deploy-info --"
   [opts]
   (when-not (:version opts) (throw (ex-info ":version not provided" (into {} opts))))
   (when-not (:lib opts)     (throw (ex-info ":lib not provided" (into {} opts))))
@@ -293,9 +301,9 @@
   "Builds and deploys the library's artifacts (pom.xml, JAR) to Clojars (or elsewhere), from the 'production' branch. opts includes:
 
   :prod-branch -- opt: the name of the production branch where the deployment is to be initiated from (defaults to \"main\")
-  -- opts from the pom task, though note that :write-pom and :validate-pom are forced to true --
-  -- opts from the build-clj/jar task --
-  -- opts from the build-clj/deploy task (i.e. deps-deploy) --"
+  -- opts from the `pom task`, though note that :write-pom and :validate-pom are forced to true --
+  -- opts from the `build-clj/jar` task --
+  -- opts from the `build-clj/deploy` task (i.e. deps-deploy) --"
   [opts]
   (let [current-branch (tc/git-current-branch)
         main-branch    (get opts :prod-branch "main")]
