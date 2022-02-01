@@ -24,25 +24,28 @@ PBR also provides a turnkey `build.clj` script that provides all of the tasks I 
 
 Tasks can be listed by running `clojure -A:deps -T:build help/doc`, and are:
 
-* `check` -  Check the code by compiling it.
+* `check` - Check the code by AOT compiling it (and throwing away the result).
 * `check-asf-policy` - Checks this project's dependencies' licenses against the ASF's 3rd party license policy (https://www.apache.org/legal/resolved.html).
 * `check-release` - Check that a release can be done from the current directory.
 * `ci` - Run the CI pipeline.
 * `clean` - Clean up the project.
 * `deploy` - Deploys the library JAR to Clojars.
-* `docs` - Generates codox documentation
+* `docs` - Generates documentation (using codox).
 * `eastwood` - Run the eastwood linter.
 * `install` - Install the library locally e.g. so it can be tested by downstream dependencies
 * `jar` - Generates a library JAR for the project.
 * `kondo` - Run the clj-kondo linter.
 * `licenses` - Attempts to list all licenses for the transitive set of dependencies of the project, as SPDX license identifiers.
 * `lint` - Run all linters.
-* `outdated` - Check for outdated dependencies.
+* `outdated` - Check for outdated dependencies (using antq).
+* `pom` - Generates a comprehensive pom.xml for the project.
 * `release` - Release a new version of the library.
 * `test` - Run the tests.
 * `uber` - Create an uber jar.
+* `uberexec` - Creates an executable uber jar. NOTE: does not bundle a JRE, though one is still required.
+* `upgrade` - Upgrade any outdated dependencies (using antq). NOTE: does not prompt for confirmation!
 
-#### deps.edn required by build script
+#### deps.edn required by turnkey build script
 
 The turnkey build script also assumes your `deps.edn` includes the following:
 
@@ -56,7 +59,7 @@ The turnkey build script also assumes your `deps.edn` includes the following:
 
 Note that despite not using it directly, you must express an explicit dependency on `io.github.seancorfield/build-clj` in your build alias, as that project [doesn't publish artifacts to Clojars](https://github.com/seancorfield/build-clj/issues/11) and transitive git coordinate dependencies are not supported by tools.deps.
 
-#### Preparing to build with the turnkey script
+#### Preparing to build with the turnkey build script
 
 To prepare your project to use the turnkey build script, you must run the following command first:
 

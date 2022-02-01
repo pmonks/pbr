@@ -16,17 +16,12 @@
 ; SPDX-License-Identifier: Apache-2.0
 ;
 
-(def lib 'com.github.pmonks/pbr)
-
 #_{:clj-kondo/ignore [:unresolved-namespace]}
-(def version (format "2.0.%s" (b/git-count-revs nil)))
-
-; Utility fns
 (defn set-opts
   [opts]
   (assoc opts
-         :lib          lib
-         :version      version
+         :lib          'com.github.pmonks/pbr
+         :version      (format "2.0.%s" (b/git-count-revs nil))
          :write-pom    true
          :validate-pom true
          :pom          {:description      "Peter's Build Resources for Clojure tools.build projects."
