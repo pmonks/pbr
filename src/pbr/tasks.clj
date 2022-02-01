@@ -140,20 +140,19 @@
     (println "Building executable uberjar" (str uberexec-file "..."))
     ; Magical cross-platform script that gets prepended to the JAR file
     (spit uberexec-file (str ":; java -jar $0 \"$@\" #\r\n"
-                             ":; exit #\r\n"
+                             ":; exit $? #\r\n"
                              "\r\n"
-                             "@echo off\r\n"
-                             "set args=%1\r\n"
-                             "shift\r\n"
+                             "@ECHO OFF\r\n"
+                             "SET ARGS=%1\r\n"
+                             "SHIFT\r\n"
                              ":nextarg\r\n"
-                             "if [%1] == [] goto done\r\n"
-                             "set args=%args% %1\r\n"
-                             "shift\r\n"
-                             "goto nextarg\r\n"
-                             "\r\n"
+                             "IF [%1] == [] GOTO done\r\n"
+                             "SET ARGS=%ARGS% %1\r\n"
+                             "SHIFT\r\n"
+                             "GOTO nextarg\r\n"
                              ":done\r\n"
-                             "java -jar %~f0 %args%\r\n"
-                             "exit /b\r\n"))
+                             "java -jar %~f0 %ARGS%\r\n"
+                             "EXIT /b %ERRORLEVEL%\r\n"))
     (with-open [in (io/input-stream uber-file)]
       (with-open [out (io/output-stream uberexec-file :append true)]
         (io/copy in out)))
