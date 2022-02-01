@@ -125,6 +125,40 @@
                 "-X:test"))
   opts)
 
+(defn uber
+  "Create an uber jar."
+  [opts]
+  (pom/pom opts)
+  (bb/uber opts))
+
+(defn uberexec
+  "Creates an executable uber jar (note: does not bundle a JRE, though one is still required)."
+  [opts]
+  (let [uber-file     (or (:uber-file opts) (bb/default-jar-file (:target opts) (:lib opts) (:version opts)))
+        uberexec-file (s/replace uber-file ".jar" "")]
+    (uber opts)
+    (println "Building executable uberjar" (str uberexec-file "..."))
+    ; Magical cross-platform script that gets prepended to the JAR file
+    (spit uberexec-file (str ":; java -jar $0 \"$@\" #\r\n"
+                             ":; exit #\r\n"
+                             "\r\n"
+                             "@echo off\r\n"
+                             "set args=%1\r\n"
+                             "shift\r\n"
+                             ":nextarg\r\n"
+                             "if [%1] == [] goto done\r\n"
+                             "set args=%args% %1\r\n"
+                             "shift\r\n"
+                             "goto nextarg\r\n"
+                             "\r\n"
+                             ":done\r\n"
+                             "java -jar %~f0 %args%\r\n"
+                             "exit /b\r\n"))
+    (with-open [in (io/input-stream uber-file)]
+      (with-open [out (io/output-stream uberexec-file :append true)]
+        (io/copy in out)))
+    (.setExecutable (io/file uberexec-file) true false)))
+
 (defn kondo
   "Run the clj-kondo linter. No options."
   [opts]

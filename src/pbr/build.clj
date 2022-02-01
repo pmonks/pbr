@@ -36,7 +36,7 @@ clojure -A:deps -T:build help/doc"
             [tools-licenses.tasks    :as lic]
             [pbr.tasks               :as pbr]))
 
-(defn set-opts [_] (throw (ex-info "Default set-opts fn called. Did you forget to redefine it in your pbr.clj script?" {})))
+(defn- set-opts [_] (throw (ex-info "Default set-opts fn called. Did you forget to redefine it in your pbr.clj script?" {})))
 (load-file "./pbr.clj")  ; Load the project's own pbr.clj script (that must redefine set-opts)
 
 (defn clean
@@ -152,10 +152,16 @@ clojure -A:deps -T:build help/doc"
 (defn uber
   "Create an uber jar."
   [opts]
-  (pom opts)
   (-> opts
       (set-opts)
-      (bb/uber)))
+      (pbr/uber)))
+
+(defn uberexec
+  "Creates an executable uber jar. NOTE: does not bundle a JRE, though one is still required."
+  [opts]
+  (-> opts
+      (set-opts)
+      (pbr/uberexec)))
 
 (defn install
   "Install the library locally e.g. so it can be tested by downstream dependencies"
