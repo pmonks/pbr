@@ -100,7 +100,7 @@
   [opts]
   (let [old-deps (outdated-deps opts)]
     (when (seq old-deps)
-      (au/upgrade! old-deps (assoc (:antq opts) :force true))))
+      (au/upgrade! old-deps (assoc (:antq opts) :force true :ignore-locals true))))
   opts)
 
 (defn run-tests
