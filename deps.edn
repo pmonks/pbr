@@ -20,7 +20,7 @@
    {org.clojure/tools.deps.alpha         {:mvn/version "0.12.1158"}
     io.github.clojure/tools.build        {:git/tag "v0.8.0" :git/sha "e3e3532"}
     io.github.seancorfield/build-clj     {:git/tag "v0.8.0" :git/sha "9bd8b8a"}
-    com.github.pmonks/tools-convenience  {:mvn/version "1.0.92"}
+    com.github.pmonks/tools-convenience  {:mvn/version "1.0.86"}
     com.github.pmonks/tools-pom          {:mvn/version "1.0.74"}
     com.github.pmonks/tools-licenses     {:mvn/version "1.0.94"}
     com.github.liquidz/antq              {:mvn/version "1.6.0"}
