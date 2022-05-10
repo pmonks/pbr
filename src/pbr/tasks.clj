@@ -36,17 +36,20 @@
   (:require [clojure.string        :as s]
             [clojure.java.io       :as io]
             [clojure.pprint        :as pp]
+            [clojure.java.shell    :as sh]
+            [clojure.data.json     :as json]
             [antq.core             :as aq]
             [antq.upgrade          :as au]
             [clj-kondo.core        :as kd]
 ;            [eastwood.lint         :as ew]
             [codox.main            :as cx]
+;            [nvd.task              :as nvd]
             [org.corfield.build    :as bb]
             [tools-convenience.api :as tc]
             [tools-pom.tasks       :as pom]))
 
 (def ^:private ver-clj-check   {:git/sha "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"}) ; Latest version of https://github.com/athos/clj-check
-(def ^:private ver-test-runner {:git/tag "v0.5.0" :git/sha "b3fd0d2"})                ; Latest version of https://github.com/cognitect-labs/test-runner
+(def ^:private ver-test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"})                ; Latest version of https://github.com/cognitect-labs/test-runner
 (def ^:private ver-logback     {:mvn/version "1.2.11"})
 (def ^:private ver-slf4j       {:mvn/version "1.7.36"})
 (def ^:private ver-eastwood    {:mvn/version "1.2.3"})
@@ -165,6 +168,56 @@
       (with-open [out (io/output-stream uberexec-file :append true)]
         (io/copy in out)))
     (.setExecutable (io/file uberexec-file) true false))
+  opts)
+
+
+(defn- delete-dir
+  "Deletes the given directory and all of its contents, recursively"
+  [dir]
+  (let [d (io/file dir)]
+    (when (.exists d)
+      (doall (map io/delete-file (reverse (file-seq d)))))))
+
+(defn nvd
+  "Run the NVD vulnerability checker
+
+  :nvd -- opt: a map containing nvd-clojure-specific configuration options. See https://github.com/rm-hull/nvd-clojure#configuration-options"
+  [opts]
+  ; Notes: NVD *cannot* be run in a directory containing a deps.edn, as this "pollutes" the classpath of the JVM it's running in; something it is exceptionally sensitive to.
+  ; So we create a temporary directory underneath the current project, and run it there. Yes this is ridiculous.
+  (let [nvd-opts           (merge {:fail-threshold 11                 ; By default tell NVD not to fail under any circumstances
+                                   :output-dir     "../target/nvd"}   ; Write to the project's actual target directory
+                                  (:nvd opts))
+        classpath-to-check (s/replace
+                             (s/replace (s/trim (:out (tc/clojure-silent "-Spath" "-A:any:aliases")))
+                                        #":[^:]*/org/owasp/dependency-check-core/[\d\.]+/dependency-check-core-[\d\.]+.jar:"   ; Remove dependency-check jar, if present
+                                        ":")
+                             #":[^:]*/nvd-clojure/nvd-clojure/[\d\.]+/nvd-clojure-[\d\.]+\.jar:"                               ; Remove nvd-clojure jar, if present
+                             ":")]
+    (delete-dir      "target/nvd")
+    (delete-dir      ".nvd")
+    (io/make-parents ".nvd/.")
+    (spit ".nvd/nvd-options.json"
+          (json/write-str {:delete-config? false
+                           :nvd            nvd-opts}))
+    (let [nvd-result (sh/sh "clojure"
+                            "-J-Dclojure.main.report=stderr"
+                            "-Srepro"
+                            "-Sdeps"
+                            "{:deps {nvd-clojure/nvd-clojure {:mvn/version \"RELEASE\"}}}"
+                            "-M"
+                            "-m"
+                            "nvd.task.check"
+                            "nvd-options.json"   ; Note: relative to :dir
+                            classpath-to-check
+                            :dir ".nvd")]
+      ; Note: we don't print stderr, as that's where dependency-check's (voluminous) logs go
+      (when-not (s/blank? (:out nvd-result))
+        (println (:out nvd-result)))
+      (when-not (= 0 (:exit nvd-result))
+        (throw (ex-info "NVD failed" nvd-result))))
+
+    (delete-dir ".nvd"))
   opts)
 
 (defn kondo
