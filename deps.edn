@@ -22,8 +22,8 @@
     io.github.clojure/tools.build        {:git/tag "v0.8.2" :git/sha "ba1a2bf"}
     io.github.seancorfield/build-clj     {:git/tag "v0.8.0" :git/sha "9bd8b8a"}
     com.github.pmonks/tools-convenience  {:mvn/version "1.0.100"}
-    com.github.pmonks/tools-pom          {:mvn/version "1.0.74"}
-    com.github.pmonks/tools-licenses     {:mvn/version "1.0.94"}
+    com.github.pmonks/tools-pom          {:mvn/version "1.0.89"}
+    com.github.pmonks/tools-licenses     {:mvn/version "1.0.110"}
     com.github.liquidz/antq              {:mvn/version "1.6.1"}
     clj-kondo/clj-kondo                  {:mvn/version "2022.04.25"}
     codox/codox                          {:mvn/version "0.10.8"}
