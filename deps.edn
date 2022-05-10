@@ -18,6 +18,7 @@
 
 {:deps
    {org.clojure/tools.deps.alpha         {:mvn/version "0.14.1178"}
+    org.clojure/data.json                {:mvn/version "2.4.0"}
     io.github.clojure/tools.build        {:git/tag "v0.8.2" :git/sha "ba1a2bf"}
     io.github.seancorfield/build-clj     {:git/tag "v0.8.0" :git/sha "9bd8b8a"}
     com.github.pmonks/tools-convenience  {:mvn/version "1.0.86"}

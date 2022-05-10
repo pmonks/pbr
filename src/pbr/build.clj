@@ -74,6 +74,13 @@ clojure -A:deps -T:build help/doc"
       (set-opts)
       (pbr/run-tests)))
 
+(defn nvd
+  "Run an NVD vulnerability check"
+  [opts]
+  (-> opts
+      (set-opts)
+      (pbr/nvd)))
+
 (defn kondo
   "Run the clj-kondo linter."
   [opts]
@@ -102,6 +109,7 @@ clojure -A:deps -T:build help/doc"
     (outdated opts)
     (try (check opts) (catch Exception _))   ; Ignore errors until https://github.com/athos/clj-check/issues/4 is fixed
     (test opts)
+;    (try (nvd opts) (catch Exception _))     ; This is exceptionally slow, and inappropriate for every CI build
     (lint opts)))
 
 (defn licenses
