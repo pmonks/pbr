@@ -211,7 +211,7 @@
                             "nvd-options.json"   ; Note: relative to :dir
                             classpath-to-check
                             :dir ".nvd")]
-; Note: we don't print stderr, as that's where dependency-check's (voluminous) logs go
+      ; Note: we don't print stderr, as that's where dependency-check's (voluminous) logs go
       (when-not (s/blank? (:out nvd-result))
         (println (:out nvd-result)))
       (when-not (= 0 (:exit nvd-result))
