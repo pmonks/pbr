@@ -10,7 +10,11 @@
 
 # PBR - Peter's Build Resources
 
-A little [tools.build](https://github.com/clojure/tools.build) task library that supports the author's personal GitHub workflow.  It is not expected to be especially relevant for other developers' workflows.
+A little [tools.build](https://github.com/clojure/tools.build) task library and turnkey build script that supports the author's personal GitHub workflow.  It is not expected to be especially relevant for other developers' workflows, except perhaps as a model for how tools.build can be (somewhat) tamed when working with multiple independent projects that share common build tasks.
+
+## Why?
+
+Because "vanilla" tools.build builds impose a _lot_ of unnecessary repetition when one is working on lots of separate projects that have the same build tasks. A more detailed explanation of the problem is [here](https://ask.clojure.org/index.php/11168/tools-build-are-standard-build-tasks-under-consideration).
 
 ## Features
 
@@ -20,7 +24,7 @@ PBR includes a library of tools.build tasks that are [documented here](https://p
 
 ### Turnkey build script
 
-PBR also provides a turnkey `build.clj` script that provides all of the tasks I typically need in my build scripts.  It allows customisation via a per-project `./pbr.clj` file, which must contain a `set-opts` fn where various project specific options can be set.  You can look at [PBR's own `pbr.clj` file](https://github.com/pmonks/pbr/blob/main/pbr.clj) for an idea of what this looks like.
+PBR also provides a turnkey `build.clj` script that provides all of the tasks I typically need in my build scripts.  It allows customisation via a per-project `pbr.clj` file, which must contain a `set-opts` fn where various project specific options can be set.  You can look at [PBR's own `pbr.clj` file](https://github.com/pmonks/pbr/blob/main/pbr.clj) for an idea of what this looks like.
 
 Tasks can be listed by running `clojure -A:deps -T:build help/doc`, and are:
 
@@ -37,6 +41,7 @@ Tasks can be listed by running `clojure -A:deps -T:build help/doc`, and are:
 * `kondo` - Run the clj-kondo linter.
 * `licenses` - Attempts to list all licenses for the transitive set of dependencies of the project, as SPDX license identifiers.
 * `lint` - Run all linters.
+* `nvd` - Run an NVD vulnerability check.
 * `outdated` - Check for outdated dependencies (using antq).
 * `pom` - Generates a comprehensive pom.xml for the project.
 * `release` - Release a new version of the library.
@@ -47,12 +52,12 @@ Tasks can be listed by running `clojure -A:deps -T:build help/doc`, and are:
 
 #### deps.edn required by turnkey build script
 
-The turnkey build script also assumes your `deps.edn` includes the following:
+To use the turnkey build script, include the following alias in your project's `deps.edn`:
 
 ```edn
 {:deps { ; Your project's dependencies
        }
- :aliases {:build {:deps       {io.github.seancorfield/build-clj {:git/tag "v0.6.7" :git/sha "22c2d09"}
+ :aliases {:build {:deps       {io.github.seancorfield/build-clj {:git/tag "v0.8.0" :git/sha "9bd8b8a"}
                                 com.github.pmonks/pbr            {:mvn/version "RELEASE"}}
                    :ns-default pbr.build}}}
 ```
