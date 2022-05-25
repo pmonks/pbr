@@ -24,7 +24,7 @@
     com.github.pmonks/tools-convenience  {:mvn/version "1.0.100"}
     com.github.pmonks/tools-pom          {:mvn/version "1.0.89"}
     com.github.pmonks/tools-licenses     {:mvn/version "1.0.110"}
-    com.github.liquidz/antq              {:mvn/version "1.6.2"}
+    com.github.liquidz/antq              {:mvn/version "1.6.774"}
     clj-kondo/clj-kondo                  {:mvn/version "2022.04.25"}
     codox/codox                          {:mvn/version "0.10.8"}
 
