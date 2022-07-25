@@ -52,7 +52,7 @@
 (def ^:private ver-test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"})                ; Latest version of https://github.com/cognitect-labs/test-runner
 (def ^:private ver-logback     {:mvn/version "1.2.11"})
 (def ^:private ver-slf4j       {:mvn/version "1.7.36"})
-(def ^:private ver-eastwood    {:mvn/version "1.2.3"})
+(def ^:private ver-eastwood    {:mvn/version "1.2.4"})
 
 (defn github-url
   "Returns the base GitHub URL for the given lib (a namespaced symbol), or nil if it can't be determined. Note: this is a utility fn, not a task fn."
@@ -336,9 +336,9 @@
     (tc/git :push "origin" "-f" "--tags")
 
     (println "ℹ️ Creating 'release' pull request from" dev-branch " to " prod-branch "...")
-    (let [pr-desc-fmt (get opts :pr-desc "%1$s release v%2$s. See commit log for details of what's included in this release.")]
+    (let [pr-desc-fmt (get opts :pr-desc "%1$s release %2$s. See commit log for details of what's included in this release.")]
       (tc/exec ["hub" "pull-request" "--browse" "-f"
-                "-m" (str "Release v" version)
+                "-m" (str "Release " version)
                 "-m" (format pr-desc-fmt (str lib) (str version))
                 "-h" dev-branch "-b" prod-branch]))
 
@@ -362,11 +362,18 @@
   (let [current-branch (tc/git-current-branch)
         main-branch    (get opts :prod-branch "main")]
     (if (= current-branch main-branch)
-      (let [deploy-opts (assoc opts :version      (tc/git-nearest-tag)
+      (let [version     (tc/git-nearest-tag)
+            deploy-opts (assoc opts :version      version
                                     :write-pom    true
                                     :validate-pom true)]
         (println "ℹ️ Deploying" (:lib deploy-opts) "version" (:version deploy-opts) "to Clojars.")
-        (pom/pom   deploy-opts)
+        ; If we're using git, always ensure there's a <tag> element inside the <scm> element - leaving it out causes
+        ; either deps-deploy or Clojars (undetermined which) to default it to an invalid value, which then breaks
+        ; downstream tooling (e.g. cljdoc)
+        (if (and (not (get-in opts [:pom :scm :tag]))
+                 (s/starts-with? (get-in opts [:pom :scm :connection] "") "scm:git"))
+          (pom/pom (assoc-in opts [:pom :scm :tag] version))
+          (pom/pom opts))
         (bb/jar    deploy-opts)
         (bb/deploy deploy-opts))
       (throw (ex-info (str "deploy task must be run from '" main-branch "' branch (current branch is '" current-branch "').") (into {} opts)))))

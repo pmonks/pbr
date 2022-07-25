@@ -57,9 +57,10 @@ To use the turnkey build script, include the following alias in your project's `
 ```edn
 {:deps { ; Your project's dependencies
        }
- :aliases {:build {:deps       {io.github.seancorfield/build-clj {:git/tag "v0.8.0" :git/sha "9bd8b8a"}
-                                com.github.pmonks/pbr            {:mvn/version "RELEASE"}}
-                   :ns-default pbr.build}}}
+ :aliases {:build {:deps        {io.github.seancorfield/build-clj {:git/tag "v0.8.2" :git/sha "0ffdb4c"}
+                                 com.github.pmonks/pbr            {:mvn/version "RELEASE"}}
+                   :ns-default  pbr.build
+                   :extra-paths ["src"]}}}  ; To appease codox, which is poorly integrated with tools.deps/tools.build...
 ```
 
 Note that despite not using it directly, you must express an explicit dependency on `io.github.seancorfield/build-clj` in your build alias, as that project [doesn't publish artifacts to Clojars](https://github.com/seancorfield/build-clj/issues/11) and transitive git coordinate dependencies are not supported by tools.deps.
