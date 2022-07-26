@@ -32,7 +32,6 @@ clojure -A:deps -T:build help/doc"
             [clojure.tools.build.api :as b]
             [org.corfield.build      :as bb]
             [tools-convenience.api   :as tc]
-            [tools-pom.tasks         :as pom]
             [tools-licenses.tasks    :as lic]
             [pbr.tasks               :as pbr]))
 
@@ -147,15 +146,15 @@ clojure -A:deps -T:build help/doc"
   [opts]
   (-> opts
       (set-opts)
-      (pom/pom)))
+      (pbr/pom)))
 
 (defn jar
   "Generates a library JAR for the project."
   [opts]
-  (pom opts)
   (-> opts
       (set-opts)
-      (bb/jar)))
+      (pbr/pom)
+      (pbr/jar)))
 
 (defn uber
   "Create an uber jar."
