@@ -373,7 +373,7 @@
         (if (and (not (get-in opts [:pom :scm :tag]))
                  (s/starts-with? (get-in opts [:pom :scm :connection] "") "scm:git"))
           (pom/pom (assoc-in opts [:pom :scm :tag] version))
-          (pom/pom opts))
+          (pom/pom deploy-opts))
         (bb/jar    deploy-opts)
         (bb/deploy deploy-opts))
       (throw (ex-info (str "deploy task must be run from '" main-branch "' branch (current branch is '" current-branch "').") (into {} opts)))))
