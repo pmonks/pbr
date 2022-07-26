@@ -17,22 +17,7 @@
 ;
 
 (ns pbr.tasks
-  "Standard implementations of common tools.build tasks.
-
-  The following build task functions are provided, with the
-  specified required and optional hash map options:
-
-  deploy-info    -- opt: :deploy-info-file (defaults to \"./resources/deploy-info.edn\")
-  check-release  -- as for the release task --
-  release        -- req: :lib a symbol identifying your project e.g. 'org.github.pmonks/pbr
-                         :version a string containing the version of your project e.g. \"1.0.0-SNAPSHOT\"
-                    opt: :dev-branch the name of the development branch containing the changes to be PRed (defaults to \"dev\")
-                         :prod-branch the name of the production branch where the PR is to be sent (defaults to \"main\")
-                         :pr-desc a format string used for the PR description with two %s values passed in (%1$s = lib, %2$s = version) (defaults to \"%1$s release v%2$s. See commit log for details of what's included in this release.\")
-                         -- all opts from the deploy-info task --
-
-  All of the above build tasks return the opts hash map they were passed
-  (unlike some of the functions in clojure.tools.build.api)."
+  "Standard implementations of common tools.build tasks."
   (:require [clojure.string        :as s]
             [clojure.java.io       :as io]
             [clojure.pprint        :as pp]
@@ -351,6 +336,40 @@
     (println "⏹ Done."))
   opts)
 
+(defn- get-scm-tag
+  "Calculates the 'best' value for the <scm><tag> element in pom.xml."
+  [opts]
+  (if-let [tag (get-in opts [:pom :scm :tag])]
+    tag
+    (if-let [exact-tag (tc/git-exact-tag)]
+      exact-tag
+      (tc/git-current-commit))))
+
+(defn pom
+  "Generates a comprehensive pom.xml file. opts includes:
+
+  :lib          -- opt: a symbol identifying your project e.g. 'com.github.yourusername/yourproject
+  :version      -- opt: a string containing the version of your project e.g. \"1.0.0-SNAPSHOT\"
+  :pom-file     -- opt: the name of the file to write to (defaults to \"./pom.xml\")
+  :write-pom    -- opt: a flag indicating whether to invoke \"clojure -Spom\" after generating the basic pom (i.e. adding dependencies and repositories from your deps.edn file) (defaults to false)
+  :validate-pom -- opt: a flag indicating whether to validate the generated pom.xml file after it's been constructed (defaults to false)
+  :pom          -- opt: a map containing any other POM elements (see https://maven.apache.org/pom.html for details), using standard Clojure :keyword keys
+
+See https://github.com/pmonks/tools-pom/ for more details"
+  [opts]
+  ; Always ensure there's a <tag> element inside the <scm> element - leaving it out causes build-clj to auto-populate
+  ; it with an invalid value, which then breaks downstream tooling (e.g. cljdoc)
+  ;
+  ; See https://github.com/seancorfield/build-clj/issues/24
+  (pom/pom (assoc-in opts [:pom :scm :tag] (get-scm-tag opts))))
+
+(defn jar
+  "Generates a library JAR for the project. opts are from https://github.com/seancorfield/build-clj/blob/main/src/org/corfield/build.clj#L171"
+  [opts]
+  (let [jar-opts (assoc opts :src-pom (get opts :pom-file "./pom.xml")
+                             :tag     (get-scm-tag opts))]    ; Workaround for https://github.com/seancorfield/build-clj/issues/24
+    (bb/jar jar-opts)))
+
 (defn deploy
   "Builds and deploys the library's artifacts (pom.xml, JAR) to Clojars (or elsewhere), from the 'production' branch. opts includes:
 
@@ -367,14 +386,8 @@
                                     :write-pom    true
                                     :validate-pom true)]
         (println "ℹ️ Deploying" (:lib deploy-opts) "version" (:version deploy-opts) "to Clojars.")
-        ; If we're using git, always ensure there's a <tag> element inside the <scm> element - leaving it out causes
-        ; either deps-deploy or Clojars (undetermined which) to default it to an invalid value, which then breaks
-        ; downstream tooling (e.g. cljdoc)
-        (if (and (not (get-in opts [:pom :scm :tag]))
-                 (s/starts-with? (get-in opts [:pom :scm :connection] "") "scm:git"))
-          (pom/pom (assoc-in opts [:pom :scm :tag] version))
-          (pom/pom deploy-opts))
-        (bb/jar    deploy-opts)
+        (pom       deploy-opts)
+        (jar       deploy-opts)
         (bb/deploy deploy-opts))
       (throw (ex-info (str "deploy task must be run from '" main-branch "' branch (current branch is '" current-branch "').") (into {} opts)))))
   opts)
