@@ -30,7 +30,6 @@ clojure -A:deps -T:build help/doc"
             [clojure.java.io         :as io]
             [clojure.java.shell      :as sh]
             [clojure.tools.build.api :as b]
-            [org.corfield.build      :as bb]
             [tools-convenience.api   :as tc]
             [tools-licenses.tasks    :as lic]
             [pbr.tasks               :as pbr]))
@@ -43,7 +42,7 @@ clojure -A:deps -T:build help/doc"
   [opts]
   (-> opts
       (set-opts)
-      (bb/clean)))
+      (pbr/clean)))
 
 (defn check
   "Check the code by AOT compiling it (and throwing away the result)."
@@ -108,7 +107,7 @@ clojure -A:deps -T:build help/doc"
     (outdated opts)
     (try (check opts) (catch Exception _))   ; Ignore errors until https://github.com/athos/clj-check/issues/4 is fixed
     (test opts)
-;    (try (nvd opts) (catch Exception _))     ; This is exceptionally slow, and inappropriate for every CI build
+;    (try (nvd opts) (catch Exception _))     ; This is exceptionally slow, and therefore inappropriate for every CI build
     (lint opts)))
 
 (defn licenses
@@ -153,7 +152,6 @@ clojure -A:deps -T:build help/doc"
   [opts]
   (-> opts
       (set-opts)
-      (pbr/pom)
       (pbr/jar)))
 
 (defn uber
@@ -173,10 +171,9 @@ clojure -A:deps -T:build help/doc"
 (defn install
   "Install the library locally e.g. so it can be tested by downstream dependencies"
   [opts]
-  (jar opts)
   (-> opts
       (set-opts)
-      (bb/install)))
+      (pbr/install)))
 
 (defn deploy
   "Deploys the library JAR to Clojars."

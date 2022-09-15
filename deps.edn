@@ -19,7 +19,7 @@
 {:deps
    {org.clojure/tools.deps.alpha         {:mvn/version "0.14.1222"}
     org.clojure/data.json                {:mvn/version "2.4.0"}
-    slipset/deps-deploy                  {:mvn/version "0.2.0"}
+    slipset/deps-deploy                  {:mvn/version "0.2.0" :exclusions [org.slf4j/slf4j-nop]}
     io.github.clojure/tools.build        {:git/tag "v0.8.3" :git/sha "0d20256"}
     com.github.pmonks/tools-convenience  {:mvn/version "1.0.111"}
     com.github.pmonks/tools-pom          {:mvn/version "1.0.98"}
