@@ -250,10 +250,15 @@
   -- opts from the `pom` task --
   -- opts from the `tools.build/uber` task --"
   [opts]
-  (let [uber-opts (assoc opts :src-pom   (get opts :src-pom (pom-file-name opts)) ; Ensure we tell write-pom to use the pom.xml we generate as a template
-                              :class-dir (classes-dir opts)
-                              :uber-file (get opts :uber-file (fq-uberjar-file-name opts))
-                              :basis     (default-basis))]
+  (let [uber-opts (assoc opts :src-pom           (get opts :src-pom (pom-file-name opts)) ; Ensure we tell write-pom to use the pom.xml we generate as a template
+                              :class-dir         (classes-dir opts)
+                              :uber-file         (get opts :uber-file (fq-uberjar-file-name opts))
+                              :basis             (default-basis)
+                              :conflict-handlers {"^data_readers.clj[c]?$" :data-readers
+                                                  "^META-INF/services/.*" :append
+                                                  "(?i)^(META-INF/)?(COPYRIGHT|NOTICE|LICENSE)(\\.(txt|md))?$" :append-dedupe
+                                                  "Log4j2Plugins\\.dat" :warn   ; Addition to the default map for Log4J2
+                                                  :default :ignore})]
     (println "ℹ️ Constructing uberjar" (str (:uber-file uber-opts) "..."))
     (prep-classes-dir! uber-opts)
     (b/uber uber-opts))
@@ -527,5 +532,6 @@
                                         ":exec-fn codox.main/generate-docs "
                                         ":exec-args " (pr-str (merge {:source-paths paths}
                                                                      (when github-url {:source-uri (str github-url "/blob/" prod-branch "/{filepath}#L{line}")})
-                                                                     (:codox opts))) "}}}")))
+                                                                     (:codox opts))) "}}}"))
+                "-X:codox")
   opts)
