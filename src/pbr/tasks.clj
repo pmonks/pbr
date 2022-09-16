@@ -532,6 +532,6 @@
                                         ":exec-fn codox.main/generate-docs "
                                         ":exec-args " (pr-str (merge {:source-paths paths}
                                                                      (when github-url {:source-uri (str github-url "/blob/" prod-branch "/{filepath}#L{line}")})
-                                                                     (:codox opts))) "}}}"))
-                "-X:codox")
+                                                                     (:codox opts))) "}}}")
+                "-X:codox"))
   opts)
