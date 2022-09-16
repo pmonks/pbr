@@ -505,7 +505,6 @@
                                            :pom-file       (pom-file-name deploy-opts)
                                            :sign-releases? (get deploy-opts :sign-releases? false))]
         (println "ℹ️ Deploying" (:lib deploy-opts) "version" (:version deploy-opts) "to Clojars...")
-        (pom       deploy-opts)
         (jar       deploy-opts)
         (dd/deploy deploy-opts))
       (throw (ex-info (str "deploy task must be run from '" main-branch "' branch (current branch is '" current-branch "').") (into {} opts)))))
