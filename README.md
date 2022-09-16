@@ -67,9 +67,9 @@ To use the turnkey build script, include the following alias in your project's `
 ```edn
 {:deps { ; Your project's dependencies
        }
- :aliases {:build {:deps        {com.github.pmonks/pbr {:mvn/version "RELEASE"}}
-                   :ns-default  pbr.build
-                   :extra-paths ["src"]}}}  ; Required if you're using the `docs` task, as codox is poorly integrated with tools.deps/tools.build...
+ :aliases {:build {:deps        {io.github.clojure/tools.build {:git/tag "v0.8.3" :git/sha "0d20256"}  ; Or whatever the latest version is - this will go away if/when tools.build gets a proper release
+                                 com.github.pmonks/pbr         {:mvn/version "RELEASE"}}
+                   :ns-default  pbr.build}}}
 ```
 
 #### Preparing to build with the turnkey build script
@@ -88,7 +88,7 @@ $ clj -A:build -P
 **A.** Because this code is cheap and nasty, and will give you a headache if you consume too much of it.
 
 **Q.** Does PBR use itself for build tasks?  
-**A.** Yes it does!  [You can see this sneaky self-reference here](https://github.com/pmonks/pbr/blob/main/deps.edn#L41).
+**A.** Yes it does!  [You can see this sneaky self-reference here](https://github.com/pmonks/pbr/blob/main/deps.edn#L42).
 
 ## Contributor Information
 

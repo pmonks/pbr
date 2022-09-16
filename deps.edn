@@ -38,5 +38,6 @@
     com.github.athos/clj-check           {:git/sha "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"}
     io.github.cognitect-labs/test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
  :aliases
-   {:build {:deps       {com.github.pmonks/pbr {:local/root "."}}
+   {:build {:deps       {io.github.clojure/tools.build {:git/tag "v0.8.3" :git/sha "0d20256"}
+                         com.github.pmonks/pbr         {:local/root "."}}
             :ns-default pbr.build}}}
