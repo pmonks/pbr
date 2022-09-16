@@ -88,7 +88,7 @@ $ clj -A:build -P
 **A.** Because this code is cheap and nasty, and will give you a headache if you consume too much of it.
 
 **Q.** Does PBR use itself for build tasks?  
-**A.** Yes it does!  [You can see this sneaky self-reference here](https://github.com/pmonks/pbr/blob/main/deps.edn#L35).
+**A.** Yes it does!  [You can see this sneaky self-reference here](https://github.com/pmonks/pbr/blob/main/deps.edn#L41).
 
 ## Contributor Information
 
