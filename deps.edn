@@ -17,15 +17,15 @@
 ;
 
 {:deps
-   {org.clojure/tools.deps.alpha         {:mvn/version "0.15.1244"}
+   {org.clojure/tools.deps.alpha         {:mvn/version "0.15.1250"}
     org.clojure/data.json                {:mvn/version "2.4.0"}
     slipset/deps-deploy                  {:mvn/version "0.2.0" :exclusions [org.slf4j/slf4j-nop]}
-    io.github.clojure/tools.build        {:git/tag "v0.8.3" :git/sha "0d20256"}
+    io.github.clojure/tools.build        {:git/tag "v0.8.4" :git/sha "8c3cd69"}
     com.github.pmonks/tools-convenience  {:mvn/version "1.0.116"}
     com.github.pmonks/tools-pom          {:mvn/version "1.0.105"}
     com.github.pmonks/tools-licenses     {:mvn/version "1.0.125"}
-    com.github.liquidz/antq              {:mvn/version "2.1.939"}
-    clj-kondo/clj-kondo                  {:mvn/version "2022.10.14"}
+    com.github.liquidz/antq              {:mvn/version "2.1.946"}
+    clj-kondo/clj-kondo                  {:mvn/version "2022.11.02"}
 
     ; Dynamic dependencies - any time any of these changes it MUST ALSO BE CHANGED IN pbr.tasks!!
     ch.qos.logback/logback-classic       {:mvn/version "1.4.4"}
@@ -38,6 +38,6 @@
     com.github.athos/clj-check           {:git/sha "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"}
     io.github.cognitect-labs/test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
  :aliases
-   {:build {:deps       {io.github.clojure/tools.build {:git/tag "v0.8.3" :git/sha "0d20256"}
+   {:build {:deps       {io.github.clojure/tools.build {:git/tag "v0.8.4" :git/sha "8c3cd69"}
                          com.github.pmonks/pbr         {:local/root "."}}
             :ns-default pbr.build}}}
