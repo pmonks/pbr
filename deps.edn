@@ -25,7 +25,7 @@
     com.github.pmonks/tools-pom          {:mvn/version "1.0.105"}
     com.github.pmonks/tools-licenses     {:mvn/version "1.0.125"}
     com.github.liquidz/antq              {:mvn/version "2.2.962"}
-    clj-kondo/clj-kondo                  {:mvn/version "2022.11.02"}
+    clj-kondo/clj-kondo                  {:mvn/version "2022.12.10"}
 
     ; Dynamic dependencies - any time any of these changes it MUST ALSO BE CHANGED IN pbr.tasks!!
     ch.qos.logback/logback-classic       {:mvn/version "1.4.5"}
