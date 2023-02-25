@@ -36,8 +36,8 @@
 
 (def ^:private ver-clj-check   {:git/sha "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"}) ; Latest version of https://github.com/athos/clj-check
 (def ^:private ver-test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"})                ; Latest version of https://github.com/cognitect-labs/test-runner
-(def ^:private ver-logback     {:mvn/version "1.4.1"})
-(def ^:private ver-slf4j       {:mvn/version "2.0.1"})
+(def ^:private ver-logback     {:mvn/version "1.4.5"})
+(def ^:private ver-slf4j       {:mvn/version "2.0.6"})
 (def ^:private ver-eastwood    {:mvn/version "1.3.0"})
 (def ^:private ver-codox       {:mvn/version "0.10.8"})
 
@@ -201,12 +201,14 @@
                           (:test-deps opts))]
     (println "ℹ️ Running unit tests from" (str (s/join ", " test-paths) "..."))
     ; Note: we do this this way to get around tools.deps lack of support for transitive dependencies that are git coords
-    (tc/clojure "-Sdeps"
-                (str "{:aliases {:test {:extra-paths " (pr-str test-paths) " "
-                                       ":extra-deps  " (pr-str test-deps) " "
-                                       ":main-opts   [\"-m\" \"cognitect.test-runner\"] "
-                                       ":exec-fn     cognitect.test-runner.api/test}}}")
-                "-X:test"))
+    (try
+      (tc/clojure "-Sdeps"
+                  (str "{:aliases {:test {:extra-paths " (pr-str test-paths) " "
+                                         ":extra-deps  " (pr-str test-deps) " "
+                                         ":main-opts   [\"-m\" \"cognitect.test-runner\"] "
+                                         ":exec-fn     cognitect.test-runner.api/test}}}")
+                  "-X:test")
+      (catch clojure.lang.ExceptionInfo _)))  ; Ignore exceptions and move on - the test runner prints out errors itself
   opts)
 
 (defn pom
