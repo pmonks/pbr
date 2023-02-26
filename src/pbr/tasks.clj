@@ -329,33 +329,34 @@
                                         ":")
                              #":[^:]*/nvd-clojure/nvd-clojure/[\d\.]+/nvd-clojure-[\d\.]+\.jar:"                               ; Remove nvd-clojure jar, if present
                              ":")]
-    (delete-dir      output-dir)
-    (delete-dir      ".nvd")
-    (io/make-parents ".nvd/.")
-    (spit ".nvd/nvd-options.json"
-          (json/write-str {:delete-config? false
-                           :group          (namespace (:lib opts))
-                           :name           (name      (:lib opts))
-                           :version        (:version opts)
-                           :nvd            nvd-opts}))
-    (let [nvd-result (sh/sh "clojure"
-                            "-J-Dclojure.main.report=stderr"
-                            "-Srepro"
-                            "-Sdeps"
-                            "{:deps {nvd-clojure/nvd-clojure {:mvn/version \"RELEASE\"}}}"
-                            "-M"
-                            "-m"
-                            "nvd.task.check"
-                            "nvd-options.json"   ; Note: relative to :dir
-                            classpath-to-check
-                            :dir ".nvd")]
-      (when-not (s/blank? (:out nvd-result))
-        (println (:out nvd-result)))
-      (spit (str output-dir "/nvd.log") (:err nvd-result))
-      (when-not (= 0 (:exit nvd-result))
-        (throw (ex-info (str "Found vulnerabilities with CVSS score above " (get nvd-opts :fail-threshold 0)) {}))))  ; We don't include nvd-result in the thrown exception as it duplicates what NVD has already written to stdout
-
-    (delete-dir ".nvd"))
+    (try
+      (delete-dir      output-dir)
+      (delete-dir      ".nvd")
+      (io/make-parents ".nvd/.")
+      (spit ".nvd/nvd-options.json"
+            (json/write-str {:delete-config? false
+                             :group          (namespace (:lib opts))
+                             :name           (name      (:lib opts))
+                             :version        (:version opts)
+                             :nvd            nvd-opts}))
+      (let [nvd-result (sh/sh "clojure"
+                              "-J-Dclojure.main.report=stderr"
+                              "-Srepro"
+                              "-Sdeps"
+                              "{:deps {nvd-clojure/nvd-clojure {:mvn/version \"RELEASE\"}}}"
+                              "-M"
+                              "-m"
+                              "nvd.task.check"
+                              "nvd-options.json"   ; Note: relative to :dir
+                              classpath-to-check
+                              :dir ".nvd")]
+        (when-not (s/blank? (:out nvd-result))
+          (println (:out nvd-result)))
+        (spit (str output-dir "/nvd.log") (:err nvd-result))
+        (when-not (= 0 (:exit nvd-result))
+          (throw (ex-info (str "Found vulnerabilities with CVSS score above " (get nvd-opts :fail-threshold 0)) {}))))  ; We don't include nvd-result in the thrown exception as it duplicates what NVD has already written to stdout
+      (finally
+        (try (delete-dir ".nvd") (catch java.io.IOException _)))))  ; Fail silently
   opts)
 
 (defn kondo
