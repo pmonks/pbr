@@ -316,12 +316,12 @@
 
   :nvd -- opt: a map containing nvd-clojure-specific configuration options. See https://github.com/rm-hull/nvd-clojure#configuration-options"
   [opts]
-  (println "ℹ️ Running NVD vulnerability checker...")
+  (println "ℹ️ Running NVD vulnerability checker (this can take a while)...")
+  (flush)
   ; Notes: NVD *cannot* be run in a directory containing a deps.edn, as this "pollutes" the classpath of the JVM it's running in; something it is exceptionally sensitive to.
   ; So we create a temporary directory underneath the current project, and run it there. Yes this is ridiculous.
   (let [output-dir         (str (target-dir opts) "/nvd")
-        nvd-opts           (merge {:fail-threshold 11                        ; By default tell NVD not to fail under any circumstances
-                                   :output-dir     (str "../" output-dir)}   ; Write to the project's actual target directory
+        nvd-opts           (merge {:output-dir (str "../" output-dir)}   ; Write to the project's actual target directory
                                   (:nvd opts))
         classpath-to-check (s/replace
                              (s/replace (s/trim (:out (tc/clojure-silent "-Spath" "-A:any:aliases")))
@@ -334,6 +334,9 @@
     (io/make-parents ".nvd/.")
     (spit ".nvd/nvd-options.json"
           (json/write-str {:delete-config? false
+                           :group          (namespace (:lib opts))
+                           :name           (name      (:lib opts))
+                           :version        (:version opts)
                            :nvd            nvd-opts}))
     (let [nvd-result (sh/sh "clojure"
                             "-J-Dclojure.main.report=stderr"
@@ -346,11 +349,11 @@
                             "nvd-options.json"   ; Note: relative to :dir
                             classpath-to-check
                             :dir ".nvd")]
-      ; Note: we don't print stderr, as that's where dependency-check's (voluminous) logs go
       (when-not (s/blank? (:out nvd-result))
         (println (:out nvd-result)))
+      (spit (str output-dir "/nvd.log") (:err nvd-result))
       (when-not (= 0 (:exit nvd-result))
-        (throw (ex-info "NVD failed" nvd-result))))
+        (throw (ex-info (str "Found vulnerabilities with CVSS score above " (get nvd-opts :fail-threshold 0)) {}))))  ; We don't include nvd-result in the thrown exception as it duplicates what NVD has already written to stdout
 
     (delete-dir ".nvd"))
   opts)
