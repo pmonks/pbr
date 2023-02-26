@@ -320,8 +320,7 @@
   ; Notes: NVD *cannot* be run in a directory containing a deps.edn, as this "pollutes" the classpath of the JVM it's running in; something it is exceptionally sensitive to.
   ; So we create a temporary directory underneath the current project, and run it there. Yes this is ridiculous.
   (let [output-dir         (str (target-dir opts) "/nvd")
-        nvd-opts           (merge {:fail-threshold 11                        ; By default tell NVD not to fail under any circumstances
-                                   :output-dir     (str "../" output-dir)}   ; Write to the project's actual target directory
+        nvd-opts           (merge {:output-dir (str "../" output-dir)}   ; Write to the project's actual target directory
                                   (:nvd opts))
         classpath-to-check (s/replace
                              (s/replace (s/trim (:out (tc/clojure-silent "-Spath" "-A:any:aliases")))
@@ -346,11 +345,11 @@
                             "nvd-options.json"   ; Note: relative to :dir
                             classpath-to-check
                             :dir ".nvd")]
-      ; Note: we don't print stderr, as that's where dependency-check's (voluminous) logs go
       (when-not (s/blank? (:out nvd-result))
         (println (:out nvd-result)))
+      (spit (str output-dir "/nvd.log") (:err nvd-result))
       (when-not (= 0 (:exit nvd-result))
-        (throw (ex-info "NVD failed" nvd-result))))
+        (throw (ex-info (str "Found vulnerabilities with CVSS score above " (get nvd-opts :fail-threshold 0)) nvd-result))))
 
     (delete-dir ".nvd"))
   opts)
