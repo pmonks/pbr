@@ -317,6 +317,7 @@
   :nvd -- opt: a map containing nvd-clojure-specific configuration options. See https://github.com/rm-hull/nvd-clojure#configuration-options"
   [opts]
   (println "ℹ️ Running NVD vulnerability checker...")
+  (flush)
   ; Notes: NVD *cannot* be run in a directory containing a deps.edn, as this "pollutes" the classpath of the JVM it's running in; something it is exceptionally sensitive to.
   ; So we create a temporary directory underneath the current project, and run it there. Yes this is ridiculous.
   (let [output-dir         (str (target-dir opts) "/nvd")
