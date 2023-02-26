@@ -1,5 +1,5 @@
-| | | |
-|---:|:---:|:---:|
+| | | | |
+|---:|:---:|:---:|:---:|
 | [**main**](https://github.com/pmonks/pbr/tree/main) | [![CI](https://github.com/pmonks/pbr/workflows/lint/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3ACI+branch%3Amain) | [![Dependencies](https://github.com/pmonks/pbr/workflows/dependencies/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies+branch%3Amain) | [![Vulnerabilities](https://github.com/pmonks/pbr/workflows/vulnerabilities/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Avulnerabilities+branch%3Amain) |
 | [**dev**](https://github.com/pmonks/pbr/tree/dev)  | [![CI](https://github.com/pmonks/pbr/workflows/CI/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3ACI+branch%3Adev) | [![Dependencies](https://github.com/pmonks/pbr/workflows/dependencies/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies+branch%3Adev) | [![Vulnerabilities](https://github.com/pmonks/pbr/workflows/vulnerabilities/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Avulnerabilities+branch%3Adev) |
 
