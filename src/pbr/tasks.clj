@@ -333,6 +333,9 @@
     (io/make-parents ".nvd/.")
     (spit ".nvd/nvd-options.json"
           (json/write-str {:delete-config? false
+                           :group          (namespace (:lib opts))
+                           :name           (name      (:lib opts))
+                           :version        (:version opts)
                            :nvd            nvd-opts}))
     (let [nvd-result (sh/sh "clojure"
                             "-J-Dclojure.main.report=stderr"
@@ -349,7 +352,7 @@
         (println (:out nvd-result)))
       (spit (str output-dir "/nvd.log") (:err nvd-result))
       (when-not (= 0 (:exit nvd-result))
-        (throw (ex-info (str "Found vulnerabilities with CVSS score above " (get nvd-opts :fail-threshold 0)) nvd-result))))
+        (throw (ex-info (str "Found vulnerabilities with CVSS score above " (get nvd-opts :fail-threshold 0)) {}))))  ; We don't include nvd-result in the thrown exception as it duplicates what NVD has already written to stdout
 
     (delete-dir ".nvd"))
   opts)
