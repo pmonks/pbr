@@ -21,7 +21,7 @@
   [opts]
   (assoc opts
          :lib          'com.github.pmonks/pbr
-         :version      (format "2.0.%s" (b/git-count-revs nil))
+         :version      (pbr/calculate-version 2 0)
          :write-pom    true
          :validate-pom true
          :pom          {:description      "Peter's Build Resources for Clojure tools.build projects."

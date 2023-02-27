@@ -117,6 +117,14 @@
   [opts]
   (get opts :prod-branch "main"))
 
+(defn calculate-version
+  "Returns a calculated version number, using the provided major.minor components.  Notes: this is a utility fn, not a task fn. This logic is specific to the author's tagging and branch naming scheme and may not work as intended in other setups."
+  ([major minor] (calculate-version major minor nil))
+  ([major minor opts]
+   (if (= (prod-branch opts) (tc/git-current-branch))
+     (tc/git-nearest-tag)
+     (format "%d.%d.%s-SNAPSHOT" major minor (b/git-count-revs nil)))))
+
 (defn github-url
   "Returns the base GitHub URL for the given lib (a namespaced symbol), or nil if it can't be determined. Note: this is a utility fn, not a task fn."
   [lib]
@@ -439,9 +447,10 @@
   -- opts from the `deploy-info` task, if you wish to generate deploy-info --"
   [opts]
   (when-not (:version opts) (throw (ex-info ":version not provided" (into {} opts))))
-  (when-not (:lib opts)     (throw (ex-info ":lib not provided" (into {} opts))))
+  (when-not (:version opts) (throw (ex-info ":version not provided" (into {} opts))))
 
-  (let [lib              (:lib opts)
+  (let [opts             (assoc opts :version (s/replace (:version opts) "-SNAPSHOT" ""))  ; Make sure we remove any snapshot suffixes for the new release
+        lib              (:lib opts)
         version          (:version opts)
         dev-branch       (dev-branch opts)
         prod-branch      (prod-branch opts)
