@@ -117,9 +117,9 @@
   [opts]
   (get opts :prod-branch "main"))
 
-(defn default-version
-  "Returns a default version number.  Notes: this is a utility fn, not a task fn. This logic is specific to the author's tagging and branch naming scheme and may not work as intended in other setups."
-  ([major minor] (default-version major minor nil))
+(defn calculate-version
+  "Returns a calculated version number, using the provided major.minor components.  Notes: this is a utility fn, not a task fn. This logic is specific to the author's tagging and branch naming scheme and may not work as intended in other setups."
+  ([major minor] (calculate-version major minor nil))
   ([major minor opts]
    (if (= (prod-branch opts) (tc/git-current-branch))
      (tc/git-nearest-tag)
