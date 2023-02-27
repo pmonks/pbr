@@ -17,17 +17,11 @@
 ;
 
 #_{:clj-kondo/ignore [:unresolved-namespace]}
-
-(def version (let [branch (tc/git-current-branch)]
-               (if (or (= "main" branch) (= "master" branch))
-                 (tc/git-nearest-tag)
-                 (format "2.0.%s-SNAPSHOT" (b/git-count-revs nil)))))
-
 (defn set-opts
   [opts]
   (assoc opts
          :lib          'com.github.pmonks/pbr
-         :version      version
+         :version      (pbr/default-version)
          :write-pom    true
          :validate-pom true
          :pom          {:description      "Peter's Build Resources for Clojure tools.build projects."

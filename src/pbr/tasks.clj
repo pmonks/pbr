@@ -117,6 +117,14 @@
   [opts]
   (get opts :prod-branch "main"))
 
+(defn default-version
+  "Returns a default version number.  Notes: this is a utility fn, not a task fn. This logic is specific to the author's tagging and branch naming scheme and may not work as intended in other setups."
+  ([] (default-version nil))
+  ([opts]
+   (if (= (prod-branch opts) (tc/git-current-branch))
+     (tc/git-nearest-tag)
+     (format "2.0.%s-SNAPSHOT" (b/git-count-revs nil)))))
+
 (defn github-url
   "Returns the base GitHub URL for the given lib (a namespaced symbol), or nil if it can't be determined. Note: this is a utility fn, not a task fn."
   [lib]
