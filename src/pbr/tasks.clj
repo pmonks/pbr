@@ -122,7 +122,14 @@
   ([major minor] (calculate-version major minor nil))
   ([major minor opts]
    (if (= (prod-branch opts) (tc/git-current-branch))
-     (tc/git-nearest-tag)
+     ; If we're on a production branch, use the last release's tag as the version number, falling back on GitHub Action workflow env vars if we don't have a fully-checked-out repo
+     (let [current-branch (s/trim (try (tc/git-nearest-tag) (catch clojure.lang.ExceptionInfo _)))]
+       (if (s/blank? current-branch)
+         (if (= "tag" (s/lower-case (s/trim (System/getenv "GITHUB_REF_TYPE"))))
+           (s/trim (System/getenv "GITHUB_REF_NAME"))
+           (throw (ex-info "Unable to determine release tag" {})))
+         current-branch))
+     ; If we're not on a production branch, return a SNAPSHOT version number, based on the revision (commit) count
      (format "%d.%d.%s-SNAPSHOT" major minor (b/git-count-revs nil)))))
 
 (defn github-url
