@@ -117,16 +117,28 @@
   [opts]
   (get opts :prod-branch "main"))
 
+(defn- safe-trim
+  "nil-safe version of clojure.string/trim 🙄"
+  [s]
+  (when s
+    (s/trim s)))
+
+(defn- safe-lower-case
+  "nil-safe version of clojure.string/lower-case 🙄"
+  [s]
+  (when s
+    (s/lower-case s)))
+
 (defn calculate-version
   "Returns a calculated version number, using the provided major.minor components.  Notes: this is a utility fn, not a task fn. This logic is specific to the author's tagging and branch naming scheme and may not work as intended in other setups."
   ([major minor] (calculate-version major minor nil))
   ([major minor opts]
    (if (= (prod-branch opts) (tc/git-current-branch))
      ; If we're on a production branch, use the last release's tag as the version number, falling back on GitHub Action workflow env vars if we don't have a fully-checked-out repo
-     (let [current-branch (s/trim (try (tc/git-nearest-tag) (catch clojure.lang.ExceptionInfo _)))]
+     (let [current-branch (safe-trim (try (tc/git-nearest-tag) (catch clojure.lang.ExceptionInfo _)))]
        (if (s/blank? current-branch)
-         (if (= "tag" (s/lower-case (s/trim (System/getenv "GITHUB_REF_TYPE"))))
-           (s/trim (System/getenv "GITHUB_REF_NAME"))
+         (if (= "tag" (safe-lower-case (safe-trim (System/getenv "GITHUB_REF_TYPE"))))
+           (safe-trim (System/getenv "GITHUB_REF_NAME"))
            (throw (ex-info "Unable to determine release tag" {})))
          current-branch))
      ; If we're not on a production branch, return a SNAPSHOT version number, based on the revision (commit) count
