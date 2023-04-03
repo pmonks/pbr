@@ -17,14 +17,14 @@
 ;
 
 {:deps
-   {org.clojure/tools.deps               {:mvn/version "0.18.1317"}
+   {org.clojure/tools.deps               {:mvn/version "0.18.1335"}
     org.clojure/data.json                {:mvn/version "2.4.0"}
     slipset/deps-deploy                  {:mvn/version "0.2.1" :exclusions [org.slf4j/slf4j-nop]}
     io.github.clojure/tools.build        {:git/tag "v0.9.4" :git/sha "76b78fe"}
     com.github.pmonks/tools-convenience  {:mvn/version "1.0.125"}
     com.github.pmonks/tools-pom          {:mvn/version "1.0.116"}
     com.github.pmonks/tools-licenses     {:mvn/version "1.0.136"}
-    com.github.liquidz/antq              {:mvn/version "2.2.1017"}
+    com.github.liquidz/antq              {:mvn/version "2.3.1043"}
     clj-kondo/clj-kondo                  {:mvn/version "2023.03.17"}
 
     ; Dynamic dependencies - any time any of these changes it MUST ALSO BE CHANGED IN pbr.tasks!!
