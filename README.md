@@ -67,8 +67,8 @@ To use the turnkey build script, include the following alias in your project's `
 ```edn
 {:deps { ; Your project's dependencies
        }
- :aliases {:build {:deps        io.github.clojure/tools.build {:mvn/version "0.9.4"}
-                                com.github.pmonks/pbr         {:mvn/version "RELEASE"}}
+ :aliases {:build {:deps        {io.github.clojure/tools.build {:mvn/version "0.9.4"}
+                                 com.github.pmonks/pbr         {:mvn/version "RELEASE"}}
                    :ns-default  pbr.build}}}
 ```
 
