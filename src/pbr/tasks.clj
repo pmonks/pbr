@@ -25,8 +25,7 @@
             [clojure.data.json       :as json]
             [clojure.tools.build.api :as b]
             [deps-deploy.deps-deploy :as dd]
-            [antq.core               :as aq]
-            [antq.upgrade            :as au]
+;            [antq.api                :as antq]   ; Blocked on https://github.com/liquidz/antq/issues/222
             [clj-kondo.core          :as kd]
 ;            [eastwood.lint           :as ew]
 ;            [codox.main              :as cx]
@@ -36,10 +35,11 @@
 
 (def ^:private ver-clj-check   {:git/sha "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"}) ; Latest version of https://github.com/athos/clj-check
 (def ^:private ver-test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"})                ; Latest version of https://github.com/cognitect-labs/test-runner
-(def ^:private ver-logback     {:mvn/version "1.4.5"})
-(def ^:private ver-slf4j       {:mvn/version "2.0.6"})
-(def ^:private ver-eastwood    {:mvn/version "1.3.0"})
+(def ^:private ver-logback     {:mvn/version "1.4.8"})
+(def ^:private ver-slf4j       {:mvn/version "2.0.7"})
+(def ^:private ver-eastwood    {:mvn/version "1.4.0"})
 (def ^:private ver-codox       {:mvn/version "0.10.8"})
+(def ^:private ver-antq        {:mvn/version "2.4.1070"})
 
 ; Utility functions
 
@@ -179,38 +179,32 @@
               "-M:check")
   opts)
 
-(defn- outdated-deps
-  "Utility fn to determine outdated dependencies using antq."
-  [opts]
-  (let [user-opts (:antq opts)
-        antq-opts (merge {:directory     ["."]
-                          :reporter      "table"}
-                         user-opts
-                         {:ignore-locals true                                                ; Always ignore local-only deps
-                          :skip          (concat ["pom" "leiningen"] (:skip user-opts))})    ; Always skip pom.xml and project.clj files
-        deps      (aq/fetch-deps antq-opts)]
-    (aq/antq antq-opts deps)))    ; NOTE: DO NOT RETURN opts HERE!  THIS IS NOT A BUILD TASK FN!
-
 (defn antq-outdated
   "Determine outdated dependencies, via antq. opts includes:
 
-  :antq -- opt: a map containing antq-specific configuration options. Sadly these aren't really documented anywhere obvious, but they are passed into this fn: https://github.com/liquidz/antq/blob/main/src/antq/core.clj#L230"
+  :antq -- opt: a map containing antq-specific configuration options. Currently unused."
   [opts]
   (println "ℹ️ Checking for outdated dependencies...")
-  (let [old-deps (outdated-deps opts)]
-    (when (seq old-deps)
-      (throw (ex-info "Outdated dependencies found" {:outdated-deps old-deps}))))
+  (tc/clojure "-Sdeps"
+              (str "{:aliases {:antq {:extra-deps {com.github.liquidz/antq " (pr-str ver-antq) "} :main-opts [\"-m\" \"antq.core\"]}}}")
+              "-M:antq"
+              "--ignore-locals"
+              "--skip=pom")
   opts)
 
 (defn antq-upgrade
   "Unconditionally upgrade any outdated dependencies, via antq. opts includes:
 
-  :antq -- opt: a map containing antq-specific configuration options. Sadly these aren't really documented anywhere obvious, but they are passed into this fn: https://github.com/liquidz/antq/blob/main/src/antq/core.clj#L230"
+  :antq -- opt: a map containing antq-specific configuration options. Currently unused."
   [opts]
   (println "ℹ️ Upgrading outdated dependencies...")
-  (let [old-deps (outdated-deps opts)]
-    (when (seq old-deps)
-      (au/upgrade! old-deps (assoc (:antq opts) :force true :ignore-locals true))))
+  (tc/clojure "-Sdeps"
+              (str "{:aliases {:antq {:extra-deps {com.github.liquidz/antq " (pr-str ver-antq) "} :main-opts [\"-m\" \"antq.core\"]}}}")
+              "-M:antq"
+              "--ignore-locals"
+              "--skip=pom"
+              "--force"
+              "--upgrade")
   opts)
 
 (defn run-tests
