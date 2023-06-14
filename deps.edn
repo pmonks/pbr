@@ -17,7 +17,8 @@
 ;
 
 {:deps
-   {org.clojure/tools.deps               {:mvn/version "0.18.1354"}
+   {org.clojure/clojure                  {:mvn/version "1.11.1"}
+    org.clojure/tools.deps               {:mvn/version "0.18.1354"}
     org.clojure/data.json                {:mvn/version "2.4.0"}
     slipset/deps-deploy                  {:mvn/version "0.2.1" :exclusions [org.slf4j/slf4j-nop]}
     io.github.clojure/tools.build        {:mvn/version "0.9.4"}
