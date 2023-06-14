@@ -67,10 +67,23 @@ To use the turnkey build script, include the following alias in your project's `
 ```edn
 {:deps { ; Your project's dependencies
        }
- :aliases {:build {:deps        io.github.clojure/tools.build {:mvn/version "0.9.4"}
-                                com.github.pmonks/pbr         {:mvn/version "RELEASE"}}
+ :aliases {:build {:deps        {com.github.pmonks/pbr {:mvn/version "RELEASE"}}
                    :ns-default  pbr.build}}}
 ```
+
+Then, to run tasks, use:
+```shell
+$ clojure -T:build <task-name>
+```
+
+A list of all available tasks can be obtained with:
+
+```shell
+$ clojure clojure -A:deps -T:build help/doc
+```
+
+Note: you do not need to include the `pbr.build` namespace when referring to a task by name.
+
 
 #### Preparing to build with the turnkey build script
 
