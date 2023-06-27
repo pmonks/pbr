@@ -79,7 +79,7 @@ $ clojure -T:build <task-name>
 A list of all available tasks can be obtained with:
 
 ```shell
-$ clojure clojure -A:deps -T:build help/doc
+$ clojure -A:deps -T:build help/doc
 ```
 
 Note: you do not need to include the `pbr.build` namespace when referring to a task by name.

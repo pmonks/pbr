@@ -223,14 +223,12 @@
                           (:test-deps opts))]
     (println "ℹ️ Running unit tests from" (str (s/join ", " test-paths) "..."))
     ; Note: we do this this way to get around tools.deps lack of support for transitive dependencies that are git coords
-    (try
-      (tc/clojure "-Sdeps"
-                  (str "{:aliases {:test {:extra-paths " (pr-str test-paths) " "
-                                         ":extra-deps  " (pr-str test-deps) " "
-                                         ":main-opts   [\"-m\" \"cognitect.test-runner\"] "
-                                         ":exec-fn     cognitect.test-runner.api/test}}}")
-                  "-X:test")
-      (catch clojure.lang.ExceptionInfo _)))  ; Ignore exceptions and move on - the test runner prints out errors itself
+    (tc/clojure-discard-exceptions "-Sdeps"
+                                   (str "{:aliases {:test {:extra-paths " (pr-str test-paths) " "
+                                                          ":extra-deps  " (pr-str test-deps) " "
+                                                          ":main-opts   [\"-m\" \"cognitect.test-runner\"] "
+                                                          ":exec-fn     cognitect.test-runner.api/test}}}")
+                                   "-X:test"))
   opts)
 
 (defn pom

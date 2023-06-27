@@ -68,9 +68,12 @@ clojure -A:deps -T:build help/doc"
 (defn test
   "Run the tests."
   [opts]
-  (-> opts
-      (set-opts)
-      (pbr/run-tests)))
+  (try
+    (-> opts
+        (set-opts)
+        (pbr/run-tests))
+    (catch Exception _
+      (System/exit 1))))   ; Exit with an error code, while avoiding the big messy stack traces barfed out by Clojure
 
 (defn nvd
   "Run an NVD vulnerability check"
