@@ -27,14 +27,11 @@
             [deps-deploy.deps-deploy :as dd]
 ;            [antq.api                :as antq]   ; Blocked on https://github.com/liquidz/antq/issues/222
             [clj-kondo.core          :as kd]
-;            [eastwood.lint           :as ew]
-;            [codox.main              :as cx]
-;            [nvd.task                :as nvd]
             [tools-convenience.api   :as tc]
             [tools-pom.tasks         :as pom]))
 
-(def ^:private ver-clj-check   {:git/sha "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"}) ; Latest version of https://github.com/athos/clj-check
-(def ^:private ver-test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"})                ; Latest version of https://github.com/cognitect-labs/test-runner
+(def ^:private ver-clj-check   {:git/sha "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"})
+(def ^:private ver-test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"})
 (def ^:private ver-logback     {:mvn/version "1.4.8"})
 (def ^:private ver-slf4j       {:mvn/version "2.0.7"})
 (def ^:private ver-eastwood    {:mvn/version "1.4.0"})
@@ -221,14 +218,21 @@
                            'org.slf4j/log4j-over-slf4j           ver-slf4j
                            'org.slf4j/jul-to-slf4j               ver-slf4j}
                           (:test-deps opts))]
-    (println "ℹ️ Running unit tests from" (str (s/join ", " test-paths) "..."))
-    ; Note: we do this this way to get around tools.deps lack of support for transitive dependencies that are git coords
-    (tc/clojure-discard-exceptions "-Sdeps"
-                                   (str "{:aliases {:test {:extra-paths " (pr-str test-paths) " "
-                                                          ":extra-deps  " (pr-str test-deps) " "
-                                                          ":main-opts   [\"-m\" \"cognitect.test-runner\"] "
-                                                          ":exec-fn     cognitect.test-runner.api/test}}}")
-                                   "-X:test"))
+    (if-let [test-paths (seq (filter #(.exists (io/file %)) test-paths))]
+      (do
+        (println "ℹ️ Running unit tests from" (str (s/join ", " test-paths) "..."))
+        ; Note: we do this this way to get around tools.deps lack of support for transitive dependencies that are git coords
+        (let [result (tc/clojure-capture-exceptions "-Sdeps"
+                                                    (str "{:aliases {:test {:extra-paths " (pr-str test-paths) " "
+                                                                           ":extra-deps  " (pr-str test-deps) " "
+                                                                           ":main-opts   [\"-m\" \"cognitect.test-runner\"] "
+                                                                           ":exec-fn     cognitect.test-runner.api/test}}}")
+                                                    "-X:test")
+              stderr (:err result)]
+          (when (not (s/includes? stderr "Test failures or errors occurred."))  ; Print stderr if it's something other than test failures (e.g. compilation errors)
+            (binding [*out* *err*]
+              (println stderr)))))
+      (println "ℹ️ No tests found - skipping")))
   opts)
 
 (defn pom
