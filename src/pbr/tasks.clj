@@ -229,10 +229,10 @@
                                                                            ":exec-fn     cognitect.test-runner.api/test}}}")
                                                     "-X:test")
               stderr (:err result)]
-          (when (not (s/includes? stderr "Test failures or errors occurred."))  ; Print stderr if it's something other than test failures (e.g. compilation errors)
+          (when-not (s/includes? stderr "Test failures or errors occurred.")  ; Print stderr if it's something other than test failures (e.g. compilation errors)
             (binding [*out* *err*]
               (println stderr)))))
-      (println "ℹ️ No unit tests found - skipping")))
+      (println "ℹ️ No unit tests found")))
   opts)
 
 (defn pom
