@@ -228,10 +228,13 @@
                                                                            ":main-opts   [\"-m\" \"cognitect.test-runner\"] "
                                                                            ":exec-fn     cognitect.test-runner.api/test}}}")
                                                     "-X:test")
+              status (:exit result)
               stderr (:err result)]
           (when-not (s/includes? stderr "Test failures or errors occurred.")  ; Print stderr if it's something other than test failures (e.g. compilation errors)
             (binding [*out* *err*]
-              (println stderr)))))
+              (println stderr)))
+          (when (not= 0 status)
+            (System/exit status))))  ; Exit with an error code, while avoiding the big messy stack traces barfed out by Clojure
       (println "ℹ️ No unit tests found")))
   opts)
 
