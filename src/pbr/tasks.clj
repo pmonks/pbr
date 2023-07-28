@@ -230,11 +230,14 @@
                                                     "-X:test")
               status (:exit result)
               stderr (:err result)]
-          (when-not (s/includes? stderr "Test failures or errors occurred.")  ; Print stderr if it's something other than test failures (e.g. compilation errors)
+          ; Print stderr if it's something other than test failures (e.g. compilation errors)
+          (when (and (not (s/blank? stderr))
+                     (not (s/includes? stderr "Test failures or errors occurred.")))
             (binding [*out* *err*]
               (println stderr)))
+          ; Exit with an error code if the sub-process failed, while avoiding the big messy stack traces barfed out by Clojure
           (when (not= 0 status)
-            (System/exit status))))  ; Exit with an error code, while avoiding the big messy stack traces barfed out by Clojure
+            (System/exit status))))
       (println "ℹ️ No unit tests found")))
   opts)
 
