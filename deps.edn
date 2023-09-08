@@ -25,7 +25,7 @@
     com.github.pmonks/tools-convenience  {:mvn/version "1.0.135"}
     com.github.pmonks/tools-pom          {:mvn/version "1.0.116"}
     com.github.pmonks/tools-licenses     {:mvn/version "1.0.136"}
-    clj-kondo/clj-kondo                  {:mvn/version "2023.07.13"}
+    clj-kondo/clj-kondo                  {:mvn/version "2023.09.07"}
 
     ; Dynamic dependencies - any time any of these changes it MUST ALSO BE CHANGED IN pbr.tasks!!
     ch.qos.logback/logback-classic       {:mvn/version "1.4.11"}
