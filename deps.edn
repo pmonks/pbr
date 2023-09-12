@@ -37,7 +37,7 @@
     codox/codox                          {:mvn/version "0.10.8"}
     com.github.athos/clj-check           {:git/sha "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"}
     io.github.cognitect-labs/test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"
-    com.github.liquidz/antq              {:mvn/version "2.4.1070"}}}
+    com.github.liquidz/antq              {:mvn/version "2.6.1121"}}}
  :aliases
    {:build {:deps       {com.github.pmonks/pbr {:local/root "."}}
             :ns-default pbr.build}}}

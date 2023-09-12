@@ -32,11 +32,11 @@
 
 (def ^:private ver-clj-check   {:git/sha "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"})
 (def ^:private ver-test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"})
-(def ^:private ver-logback     {:mvn/version "1.4.8"})
-(def ^:private ver-slf4j       {:mvn/version "2.0.7"})
+(def ^:private ver-logback     {:mvn/version "1.4.11"})
+(def ^:private ver-slf4j       {:mvn/version "2.0.9"})
 (def ^:private ver-eastwood    {:mvn/version "1.4.0"})
 (def ^:private ver-codox       {:mvn/version "0.10.8"})
-(def ^:private ver-antq        {:mvn/version "2.4.1070"})
+(def ^:private ver-antq        {:mvn/version "2.6.1121"})
 
 ; Utility functions
 
