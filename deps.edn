@@ -28,7 +28,7 @@
     clj-kondo/clj-kondo                  {:mvn/version "2023.09.07"}
 
     ; Dynamic dependencies - any time any of these changes it MUST ALSO BE CHANGED IN pbr.tasks!!
-    ch.qos.logback/logback-classic       {:mvn/version "1.4.11"}
+    ch.qos.logback/logback-classic       {:mvn/version "1.3.11"}  ; DO NOT UPGRADE THIS PAST 1.3.x OR pbr WON'T WORK ON JDK 1.8!
     org.slf4j/slf4j-api                  {:mvn/version "2.0.9"}
     org.slf4j/jcl-over-slf4j             {:mvn/version "2.0.9"}
     org.slf4j/log4j-over-slf4j           {:mvn/version "2.0.9"}
