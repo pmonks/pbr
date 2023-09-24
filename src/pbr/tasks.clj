@@ -183,7 +183,7 @@
   [opts]
   (println "ℹ️ Checking for outdated dependencies...")
   (tc/clojure "-Sdeps"
-              (str "{:aliases {:antq {:extra-deps {com.github.liquidz/antq " (pr-str ver-antq) "} :main-opts [\"-m\" \"antq.core\"]}}}")
+              (str "{:aliases {:antq {:extra-deps {com.github.liquidz/antq " (pr-str ver-antq) " ch.qos.logback/logback-classic " (pr-str ver-logback) "} :main-opts [\"-m\" \"antq.core\"]}}}")
               "-M:antq"
               "--ignore-locals"
               "--skip=pom")
