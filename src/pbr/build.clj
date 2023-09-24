@@ -104,7 +104,7 @@ clojure -A:deps -T:build help/doc"
   "Run the CI pipeline."
   [opts]
   (let [opts (set-opts opts)]
-    (outdated opts)
+    (try (outdated opts) (catch Exception e (when-not (:ignore-deps? opts) (throw e))))
     (try (check opts) (catch Exception _))   ; Ignore errors until https://github.com/athos/clj-check/issues/4 is fixed
     (test opts)
 ;    (try (nvd opts) (catch Exception _))     ; This is exceptionally slow, and therefore inappropriate for every CI build

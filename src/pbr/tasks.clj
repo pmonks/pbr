@@ -443,8 +443,8 @@
   (println "ℹ️ Checking whether a release can be made from the current directory...")
 
   ; Check that opts map is properly populated
-  (when-not (:version opts) (throw (ex-info ":version not provided" (into {} opts))))
   (when-not (:lib opts)     (throw (ex-info ":lib not provided" (into {} opts))))
+  (when-not (:version opts) (throw (ex-info ":version not provided" (into {} opts))))
 
   ; Check status of working directory
   (let [dev-branch     (dev-branch opts)
@@ -468,10 +468,10 @@
   :pr-desc     -- opt: a format string used for the PR description with two %s values passed in (%1$s = lib, %2$s = version) (defaults to \"%1$s release v%2$s. See commit log for details of what's included in this release.\")
   -- opts from the `deploy-info` task, if you wish to generate deploy-info --"
   [opts]
-  (when-not (:version opts) (throw (ex-info ":version not provided" (into {} opts))))
+  (when-not (:lib     opts) (throw (ex-info ":lib not provided"     (into {} opts))))
   (when-not (:version opts) (throw (ex-info ":version not provided" (into {} opts))))
 
-  (let [opts             (assoc opts :version (s/replace (:version opts) "-SNAPSHOT" ""))  ; Make sure we remove any snapshot suffixes for the new release
+  (let [opts             (assoc opts :version (s/replace (:version opts) "-SNAPSHOT" ""))
         lib              (:lib opts)
         version          (:version opts)
         dev-branch       (dev-branch opts)

@@ -22,6 +22,7 @@
   (assoc opts
          :lib          'com.github.pmonks/pbr
          :version      (pbr/calculate-version 2 0)
+         :ignore-deps? true
          :write-pom    true
          :validate-pom true
          :pom          {:description      "Peter's Build Resources for Clojure tools.build projects."
