@@ -446,8 +446,6 @@
   (when-not (:lib opts)     (throw (ex-info ":lib not provided" (into {} opts))))
   (when-not (:version opts) (throw (ex-info ":version not provided" (into {} opts))))
 
-  (when (s/includes? (:version opts) "-SNAPSHOT") (throw (ex-info (str "Cannot release a SNAPSHOT version") {})))
-
   ; Check status of working directory
   (let [dev-branch     (dev-branch opts)
         current-branch (tc/git-current-branch)]
@@ -475,7 +473,7 @@
 
   (let [opts             (:version opts)
         lib              (:lib opts)
-        version          (:version opts)
+        version          (assoc opts :version (s/replace (:version opts) "-SNAPSHOT" ""))
         dev-branch       (dev-branch opts)
         prod-branch      (prod-branch opts)
         deploy-info-file (:deploy-info-file opts)]
