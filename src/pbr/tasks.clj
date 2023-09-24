@@ -471,9 +471,9 @@
   (when-not (:lib     opts) (throw (ex-info ":lib not provided"     (into {} opts))))
   (when-not (:version opts) (throw (ex-info ":version not provided" (into {} opts))))
 
-  (let [opts             (:version opts)
+  (let [opts             (assoc opts :version (s/replace (:version opts) "-SNAPSHOT" ""))
         lib              (:lib opts)
-        version          (assoc opts :version (s/replace (:version opts) "-SNAPSHOT" ""))
+        version          (:version opts)
         dev-branch       (dev-branch opts)
         prod-branch      (prod-branch opts)
         deploy-info-file (:deploy-info-file opts)]
