@@ -36,7 +36,7 @@
 (def ^:private ver-slf4j       {:mvn/version "2.0.9"})
 (def ^:private ver-eastwood    {:mvn/version "1.4.0"})
 (def ^:private ver-codox       {:mvn/version "0.10.8"})
-(def ^:private ver-antq        {:mvn/version "2.6.1121"})
+(def ^:private ver-antq        {:mvn/version "2.7.1133"})
 
 ; Utility functions
 
