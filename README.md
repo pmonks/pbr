@@ -16,15 +16,13 @@ A little [tools.build](https://github.com/clojure/tools.build) task library and 
 
 Because "vanilla" tools.build build scripts impose a _lot_ of unnecessary repetition when one is working on lots of separate projects that need to have the same set of build tasks. A more detailed explanation of the problem is [here](https://ask.clojure.org/index.php/11168/tools-build-are-standard-build-tasks-under-consideration).
 
+### Why not [build.edn](https://github.com/liquidz/build.edn)?
+
+This project looks very promising - I encourage folks to try it out and contribute to it.
+
 ### Why not [build-clj](https://github.com/seancorfield/build-clj)?
 
-While build-clj provides standard _implementations_ of common build tasks, it doesn't say anything about standard _interfaces_ to those build tasks (i.e. via the `clj` / `clojure` command line).  This project is focused on providing the latter, though it also happens to provide some of the former as something of a side effect.
-
-The productivity benefits to this approach are two-fold:
-1. For project authors: new pbr-based projects require almost no build script development effort, and those scripts have virtually no code duplication
-2. For project contributors/consumers: once familiar with the build tasks in one pbr-based project, they are automatically familiar with the build tasks for _all_ pbr-based projects
-
-Furthermore, by providing the exact same build tasks across all pbr-based projects, there is an opportunity for downstream automation to reliably and consistently initiate pbr-based build tasks (this is why platforms such as [jitpack.io only support Leiningen and not tools.build/build-clj](https://docs.jitpack.io/building/)).  Obviously it is implausible in the extreme that such platforms will ever adopt pbr itself, but at least this project can serve as a proof-of-concept of how a design flaw in current versions of tools.build could be addressed.
+_Discontinued in February 2023._
 
 ## Features
 
@@ -49,7 +47,7 @@ Tasks can be listed by running `clojure -A:deps -T:build help/doc`, and are:
 * `install` - Install the library locally e.g. so it can be tested by downstream dependencies
 * `jar` - Generates a library JAR for the project.
 * `kondo` - Run the clj-kondo linter.
-* `licenses` - Attempts to list all licenses for the transitive set of dependencies of the project, as SPDX license identifiers.
+* `licenses` - Attempts to list all licenses for the transitive set of dependencies of the project, as SPDX license expressions.
 * `lint` - Run all linters.
 * `nvd` - Run an NVD vulnerability check.
 * `outdated` - Check for outdated dependencies (using antq).
