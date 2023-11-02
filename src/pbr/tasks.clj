@@ -32,11 +32,11 @@
 
 (def ^:private ver-clj-check   {:git/sha "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"})
 (def ^:private ver-test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"})
-(def ^:private ver-logback     {:mvn/version "1.3.11"})  ; DO NOT UPGRADE THIS PAST 1.3.x OR pbr WON'T WORK ON JDK 1.8!
 (def ^:private ver-slf4j       {:mvn/version "2.0.9"})
+(def ^:private ver-log4j2      {:mvn/version "2.21.1"})
 (def ^:private ver-eastwood    {:mvn/version "1.4.0"})
 (def ^:private ver-codox       {:mvn/version "0.10.8"})
-(def ^:private ver-antq        {:mvn/version "2.6.1121"})
+(def ^:private ver-antq        {:mvn/version "2.7.1133"})
 
 ; Utility functions
 
@@ -216,11 +216,12 @@
   [opts]
   (let [test-paths (vec (test-dirs opts))
         test-deps  (merge {'io.github.cognitect-labs/test-runner ver-test-runner
-                           'ch.qos.logback/logback-classic       ver-logback
-                           'org.slf4j/slf4j-api                  ver-slf4j
-                           'org.slf4j/jcl-over-slf4j             ver-slf4j
-                           'org.slf4j/log4j-over-slf4j           ver-slf4j
-                           'org.slf4j/jul-to-slf4j               ver-slf4j}
+                           'org.apache.logging.log4j/log4j-api         ver-log4j2
+                           'org.apache.logging.log4j/log4j-core        ver-log4j2
+                           'org.apache.logging.log4j/log4j-jul         ver-log4j2
+                           'org.apache.logging.log4j/log4j-jcl         ver-log4j2
+                           'org.apache.logging.log4j/log4j-slf4j2-impl ver-log4j2
+                           'org.apache.logging.log4j/log4j-1.2-api     ver-log4j2}
                           (:test-deps opts))]
     (if-let [test-paths (seq (filter #(.exists (io/file %)) test-paths))]
       (do
