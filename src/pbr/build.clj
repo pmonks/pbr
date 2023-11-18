@@ -31,7 +31,6 @@ clojure -A:deps -T:build help/doc"
             [clojure.java.shell      :as sh]
             [clojure.tools.build.api :as b]
             [tools-convenience.api   :as tc]
-            [tools-licenses.tasks    :as lic]
             [pbr.tasks               :as pbr]))
 
 (defn- set-opts [_] (throw (ex-info "Default set-opts fn called. Did you forget to redefine it in your pbr.clj script?" {})))
@@ -41,64 +40,64 @@ clojure -A:deps -T:build help/doc"
   "Clean up the project."
   [opts]
   (-> opts
-      (set-opts)
-      (pbr/clean)))
+      set-opts
+      pbr/clean))
 
 (defn check
   "Check the code by AOT compiling it (and throwing away the result)."
   [opts]
   (-> opts
-      (set-opts)
-      (pbr/check)))
+      set-opts
+      pbr/check))
 
 (defn outdated
   "Check for outdated dependencies (using antq)."
   [opts]
   (-> opts
-      (set-opts)
-      (pbr/antq-outdated)))
+      set-opts
+      pbr/antq-outdated))
 
 (defn upgrade
   "Upgrade any outdated dependencies (using antq). NOTE: does not prompt for confirmation!"
   [opts]
   (-> opts
-      (set-opts)
-      (pbr/antq-upgrade)))
+      set-opts
+      pbr/antq-upgrade))
 
 (defn test
   "Run the tests."
   [opts]
   (-> opts
-      (set-opts)
-      (pbr/run-tests)))
+      set-opts
+      pbr/run-tests))
 
 (defn nvd
   "Run an NVD vulnerability check"
   [opts]
   (-> opts
-      (set-opts)
-      (pbr/nvd)))
+      set-opts
+      pbr/nvd))
 
 (defn kondo
   "Run the clj-kondo linter."
   [opts]
   (-> opts
-      (set-opts)
-      (pbr/kondo)))
+      set-opts
+      pbr/kondo))
 
 (defn eastwood
   "Run the eastwood linter."
   [opts]
   (-> opts
-      (set-opts)
-      (pbr/eastwood)))
+      set-opts
+      pbr/eastwood))
 
 (defn lint
   "Run all linters."
   [opts]
   (-> opts
-      (kondo)
-      (eastwood)))
+      kondo
+      eastwood))
 
 (defn ci
   "Run the CI pipeline."
@@ -110,81 +109,89 @@ clojure -A:deps -T:build help/doc"
 ;    (try (nvd opts) (catch Exception _))     ; This is exceptionally slow, and therefore inappropriate for every CI build
     (lint opts)))
 
-(defn licenses
-  "Attempts to list all licenses for the transitive set of dependencies of the project, as SPDX license identifiers."
-  [opts]
-  (-> opts
-      (set-opts)
-      (lic/licenses)))
+; We do these cursed shenanigans because tools-licenses requires JDK 11+, but we want PBR to work on JDK 8+
+(if (>= (pbr/jvm-version) 11)
+  (do
+    (require 'tools-licenses.tasks)
 
-(defn check-asf-policy
-  "Checks this project's dependencies' licenses against the ASF's 3rd party license policy (https://www.apache.org/legal/resolved.html)."
-  [opts]
-  (-> opts
-      (set-opts)
-      (lic/check-asf-policy)))
+    (eval   ; I have no clue why this is necessary, unless tools.build is AOT compiling this ns or something weird...
+    '(defn licenses
+       "Attempts to list all licenses for the transitive set of dependencies of the project, as SPDX license identifiers."
+       [opts]
+       (-> opts
+           set-opts
+           tools-licenses.tasks/licenses)))
+
+    (eval   ; I have no clue why this is necessary, unless tools.build is AOT compiling this ns or something weird...
+    '(defn check-asf-policy
+       "Checks this project's dependencies' licenses against the ASF's 3rd party license policy (https://www.apache.org/legal/resolved.html)."
+       [opts]
+       (-> opts
+           set-opts
+           tools-licenses.tasks/check-asf-policy))))
+  (println "⚠️ Running on an old JVM (< v11) - some functionality is unavailable."))
 
 (defn check-release
   "Check that a release can be done from the current directory."
   [opts]
   (-> opts
-      (set-opts)
-      (ci)
-      (pbr/check-release)))
+      set-opts
+      ci
+      pbr/check-release))
 
 (defn release
   "Release a new version of the library."
   [opts]
   (check-release opts)
   (-> opts
-      (set-opts)
-      (pbr/release)))
+      set-opts
+      pbr/release))
 
 (defn pom
   "Generates a comprehensive pom.xml for the project."
   [opts]
   (-> opts
-      (set-opts)
-      (pbr/pom)))
+      set-opts
+      pbr/pom))
 
 (defn jar
   "Generates a library JAR for the project."
   [opts]
   (-> opts
-      (set-opts)
-      (pbr/jar)))
+      set-opts
+      pbr/jar))
 
 (defn uber
   "Create an uber jar."
   [opts]
   (-> opts
-      (set-opts)
-      (pbr/uber)))
+      set-opts
+      pbr/uber))
 
 (defn uberexec
   "Creates an executable uber jar. NOTE: does not bundle a JRE, though one is still required."
   [opts]
   (-> opts
-      (set-opts)
-      (pbr/uberexec)))
+      set-opts
+      pbr/uberexec))
 
 (defn install
   "Install the library locally e.g. so it can be tested by downstream dependencies"
   [opts]
   (-> opts
-      (set-opts)
-      (pbr/install)))
+      set-opts
+      pbr/install))
 
 (defn deploy
   "Deploys the library JAR to Clojars."
   [opts]
   (-> opts
-      (set-opts)
-      (pbr/deploy)))
+      set-opts
+      pbr/deploy))
 
 (defn docs
   "Generates documentation (using codox)."
   [opts]
   (-> opts
-      (set-opts)
-      (pbr/codox)))
+      set-opts
+      pbr/codox))
