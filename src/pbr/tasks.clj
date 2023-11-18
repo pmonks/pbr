@@ -34,7 +34,7 @@
 (def ^:private ver-test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"})
 (def ^:private ver-slf4j       {:mvn/version "2.0.9"})
 (def ^:private ver-log4j2      {:mvn/version "2.21.1"})
-(def ^:private ver-eastwood    {:mvn/version "1.4.2"})
+(def ^:private ver-eastwood    {:mvn/version "1.4.0"})
 (def ^:private ver-codox       {:mvn/version "0.10.8"})
 (def ^:private ver-antq        {:mvn/version "2.7.1133"})
 
