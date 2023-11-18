@@ -115,20 +115,20 @@ clojure -A:deps -T:build help/doc"
     (require 'tools-licenses.tasks)
 
     (eval   ; I have no clue why this is necessary, unless tools.build is AOT compiling this ns or something weird...
-    '(defn licenses
-       "Attempts to list all licenses for the transitive set of dependencies of the project, as SPDX license identifiers."
-       [opts]
-       (-> opts
-           set-opts
-           tools-licenses.tasks/licenses)))
+      '(defn licenses
+         "Attempts to list all licenses for the transitive set of dependencies of the project, as SPDX license identifiers."
+         [opts]
+         (-> opts
+             set-opts
+             tools-licenses.tasks/licenses)))
 
     (eval   ; I have no clue why this is necessary, unless tools.build is AOT compiling this ns or something weird...
-    '(defn check-asf-policy
-       "Checks this project's dependencies' licenses against the ASF's 3rd party license policy (https://www.apache.org/legal/resolved.html)."
-       [opts]
-       (-> opts
-           set-opts
-           tools-licenses.tasks/check-asf-policy))))
+      '(defn check-asf-policy
+         "Checks this project's dependencies' licenses against the ASF's 3rd party license policy (https://www.apache.org/legal/resolved.html)."
+         [opts]
+         (-> opts
+             set-opts
+             tools-licenses.tasks/check-asf-policy))))
   (println "⚠️ Running on an old JVM (< v11) - some functionality is unavailable."))
 
 (defn check-release
