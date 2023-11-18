@@ -34,7 +34,7 @@
 (def ^:private ver-test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"})
 (def ^:private ver-slf4j       {:mvn/version "2.0.9"})
 (def ^:private ver-log4j2      {:mvn/version "2.21.1"})
-(def ^:private ver-eastwood    {:mvn/version "1.4.0"})
+(def ^:private ver-eastwood    {:mvn/version "1.4.2"})
 (def ^:private ver-codox       {:mvn/version "0.10.8"})
 (def ^:private ver-antq        {:mvn/version "2.7.1133"})
 
@@ -125,6 +125,22 @@
   [s]
   (when s
     (s/lower-case s)))
+
+(defn jvm-version
+  "Returns the version of the running JVM as an Integer.  Older versions (e.g.
+  1.6, 1.7, 1.8) have their minor version returned (i.e. 1.6 -> 6, 1.7 -> 7,
+  etc.)
+  Adapted from http-kit (Apache-2.0 licensed): https://github.com/http-kit/http-kit/blob/e00279f6d921efd3aad3b513ebfa42604d3cf3bd/src/org/httpkit/utils.clj#L6-L16"
+  []
+  (let [s        (System/getProperty "java.version")
+        dot-idx  (.indexOf s ".")  ; e.g. "1.6.0_23"
+        dash-idx (.indexOf s "-")] ; e.g. "16-ea"
+    (cond
+      ;; e.g. "1.6.0_23"
+      (.startsWith s "1.") (Integer/parseInt (.substring s 2 3))
+      (pos? dot-idx)       (Integer/parseInt (.substring s 0 dot-idx))
+      (pos? dash-idx)      (Integer/parseInt (.substring s 0 dash-idx))
+      :else                (Integer/parseInt             s))))
 
 (defn calculate-version
   "Returns a calculated version number, using the provided major.minor components. Returns nil if one cannot be determined.  Notes: this is a utility fn, not a task fn. This logic is specific to the author's tagging and branch naming scheme and may not work as intended in other setups."
