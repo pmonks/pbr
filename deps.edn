@@ -25,7 +25,7 @@
     io.github.clojure/tools.build              {:mvn/version "0.9.6" :exclusions [org.slf4j/slf4j-nop]}
     com.github.pmonks/tools-convenience        {:mvn/version "1.0.142"}
     com.github.pmonks/tools-pom                {:mvn/version "1.0.127"}
-    com.github.pmonks/tools-licenses           {:mvn/version "2.0.175"}
+    com.github.pmonks/tools-licenses           {:mvn/version "2.0.177"}
     clj-kondo/clj-kondo                        {:mvn/version "2023.10.20"}
 
     ; Dynamic dependencies - any time any of these changes it MUST ALSO BE CHANGED IN pbr.tasks!!
