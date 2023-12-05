@@ -19,7 +19,7 @@
 {:paths ["src" "resources"]
  :deps
    {org.clojure/clojure                        {:mvn/version "1.11.1"}
-    org.clojure/tools.deps                     {:mvn/version "0.18.1354"}
+    org.clojure/tools.deps                     {:mvn/version "0.18.1374"}
     org.clojure/data.json                      {:mvn/version "2.4.0"}
     slipset/deps-deploy                        {:mvn/version "0.2.2" :exclusions [org.slf4j/slf4j-nop ch.qos.logback/logback-classic]}
     io.github.clojure/tools.build              {:mvn/version "0.9.6" :exclusions [org.slf4j/slf4j-nop]}
@@ -27,6 +27,9 @@
     com.github.pmonks/tools-pom                {:mvn/version "1.0.127"}
     com.github.pmonks/tools-licenses           {:mvn/version "2.0.179"}
     clj-kondo/clj-kondo                        {:mvn/version "2023.10.20"}
+
+    ; Forced versions for shit that's broken elsewhere
+    org.springframework.build/aws-maven        {:mvn/version "4.8.0.RELEASE"}
 
     ; Dynamic dependencies - any time any of these changes it MUST ALSO BE CHANGED IN pbr.tasks!!
     org.apache.logging.log4j/log4j-api         {:mvn/version "2.22.0"}    ; Use log4j2 for logging, since logback has become a huge pita in recent times...
