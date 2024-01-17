@@ -36,7 +36,7 @@
 (def ^:private ver-log4j2      {:mvn/version "2.22.1"})
 (def ^:private ver-eastwood    {:mvn/version "1.4.0"})
 (def ^:private ver-codox       {:mvn/version "0.10.8"})
-(def ^:private ver-antq        {:mvn/version "2.8.1165"})
+(def ^:private ver-antq        {:mvn/version "2.8.1173"})
 
 ; Utility functions
 
