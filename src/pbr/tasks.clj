@@ -367,8 +367,9 @@
 
   :nvd -- opt: a map containing nvd-clojure-specific configuration options. See https://github.com/rm-hull/nvd-clojure#configuration-options"
   [opts]
-  (when (s/blank? (System/getenv "NVD_API_TOKEN"))
-    (throw (ex-info "The NVD_API_TOKEN environment variable was not set. See https://github.com/rm-hull/nvd-clojure#configuration-options for more details about how to obtain an NVD API key." {})))
+  (when (and (s/blank? (System/getenv "NVD_API_TOKEN"))
+             (s/blank? (get-in opts [:nvd :nvd-api :key])))
+    (throw (ex-info "An NVD API token was not provided. See https://github.com/rm-hull/nvd-clojure#configuration-options for details on how to obtain one and provide it to PBR." {})))
   (println "ℹ️ Running NVD vulnerability checker (this can take a while)...")
   (flush)
   ; Notes: NVD *cannot* be run in a directory containing a deps.edn, as this "pollutes" the classpath of the JVM it's running in; something it is exceptionally sensitive to.
