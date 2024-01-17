@@ -32,11 +32,11 @@
 
 (def ^:private ver-clj-check   {:git/sha "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"})
 (def ^:private ver-test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"})
-(def ^:private ver-slf4j       {:mvn/version "2.0.9"})
-(def ^:private ver-log4j2      {:mvn/version "2.22.0"})
+(def ^:private ver-slf4j       {:mvn/version "2.0.10"})
+(def ^:private ver-log4j2      {:mvn/version "2.22.1"})
 (def ^:private ver-eastwood    {:mvn/version "1.4.0"})
 (def ^:private ver-codox       {:mvn/version "0.10.8"})
-(def ^:private ver-antq        {:mvn/version "2.7.1147"})
+(def ^:private ver-antq        {:mvn/version "2.8.1173"})
 
 ; Utility functions
 
@@ -367,6 +367,8 @@
 
   :nvd -- opt: a map containing nvd-clojure-specific configuration options. See https://github.com/rm-hull/nvd-clojure#configuration-options"
   [opts]
+  (when (s/blank? (System/getenv "NVD_API_TOKEN"))
+    (throw (ex-info "The NVD_API_TOKEN environment variable was not set. See https://github.com/rm-hull/nvd-clojure#configuration-options for more details about how to obtain an NVD API key." {})))
   (println "ℹ️ Running NVD vulnerability checker (this can take a while)...")
   (flush)
   ; Notes: NVD *cannot* be run in a directory containing a deps.edn, as this "pollutes" the classpath of the JVM it's running in; something it is exceptionally sensitive to.
@@ -383,6 +385,7 @@
     (try
       (delete-dir      output-dir)
       (delete-dir      ".nvd")
+      (io/make-parents (str output-dir "/dummy-child.txt"))
       (io/make-parents ".nvd/.")
       (spit ".nvd/nvd-options.json"
             (json/write-str {:delete-config? false
