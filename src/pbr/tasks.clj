@@ -365,7 +365,9 @@
 (defn nvd
   "Run the NVD vulnerability checker
 
-  :nvd -- opt: a map containing nvd-clojure-specific configuration options. See https://github.com/rm-hull/nvd-clojure#configuration-options"
+  :nvd -- opt: a map containing nvd-clojure-specific configuration options. See https://github.com/rm-hull/nvd-clojure#configuration-options
+
+  Note: this task requires that you obtain and configure an NVD API token."
   [opts]
   (when (and (s/blank? (System/getenv "NVD_API_TOKEN"))
              (s/blank? (get-in opts [:nvd :nvd-api :key])))
@@ -484,7 +486,7 @@
   opts)
 
 (defn release
-  "Release a new version of the code via a PR to main. opts includes:
+  "Release a new version of the code via a PR to the prod branch. opts includes:
 
   :lib         -- req: a symbol identifying your project e.g. 'org.github.pmonks/pbr
   :version     -- req: a string containing the version of your project e.g. \"1.0.0-SNAPSHOT\"
