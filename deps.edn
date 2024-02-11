@@ -29,7 +29,7 @@
     clj-kondo/clj-kondo                        {:mvn/version "2023.12.15"}
 
     ; Forced versions for shit that's broken elsewhere
-    org.springframework.build/aws-maven        {:mvn/version "4.8.0.RELEASE"}    ; Note: do NOT upgrade to 5.0.0.RELEASE or deps-deploy throws a ClassDefNotFoundException
+    org.springframework.build/aws-maven        {:mvn/version "5.0.0.RELEASE"}    ; Note: do NOT upgrade to 5.0.0.RELEASE or deps-deploy throws a ClassDefNotFoundException
 
     ; Dynamic dependencies - any time any of these changes it MUST ALSO BE CHANGED IN pbr.tasks!!
     org.apache.logging.log4j/log4j-api         {:mvn/version "2.22.1"}    ; Use log4j2 for logging, since logback has become a huge pita in recent times...
@@ -39,7 +39,7 @@
     org.apache.logging.log4j/log4j-slf4j2-impl {:mvn/version "2.22.1"}    ; SLF4J clogging bridge
     org.apache.logging.log4j/log4j-1.2-api     {:mvn/version "2.22.1"}    ; log4j1 clogging bridge
 ;    org.slf4j/slf4j-nop                        {:mvn/version "2.0.10"}    ; Note: used for some commands invoked as sub-processes, but can't be used here or it will shadow log4j2
-    jonase/eastwood                            {:mvn/version "1.4.0"}     ; Note: 1.4.2 uses a version of org.ow2.asm/asm that's incompatible with clj-kondo's dependent version
+    jonase/eastwood                            {:mvn/version "1.4.2"}     ; Note: 1.4.2 uses a version of org.ow2.asm/asm that's incompatible with clj-kondo's dependent version
     codox/codox                                {:mvn/version "0.10.8"}
     com.github.athos/clj-check                 {:git/sha "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"}
     io.github.cognitect-labs/test-runner       {:git/tag "v0.5.1" :git/sha "dfb30dd"}
