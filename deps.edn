@@ -26,7 +26,7 @@
     com.github.pmonks/tools-convenience        {:mvn/version "1.0.142"}
     com.github.pmonks/tools-pom                {:mvn/version "1.0.127"}
     com.github.pmonks/tools-licenses           {:mvn/version "2.0.188"}
-    clj-kondo/clj-kondo                        {:mvn/version "2023.12.15"}
+    clj-kondo/clj-kondo                        {:mvn/version "2024.02.12"}
 
     ; Forced versions for shit that's broken elsewhere
     org.springframework.build/aws-maven        {:mvn/version "4.8.0.RELEASE"}    ; Note: do NOT upgrade to 5.0.0.RELEASE or deps-deploy throws a ClassDefNotFoundException
