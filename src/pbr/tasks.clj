@@ -204,6 +204,7 @@
                                                   "} :main-opts [\"-m\" \"antq.core\"]}}}")
               "-M:antq"
               "--ignore-locals"
+;              "--transitive"  ; This seems to cause a deadlock, and there are several other bugs raised against it in the antq repo
               "--skip=pom")
   opts)
 
