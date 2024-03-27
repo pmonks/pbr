@@ -22,7 +22,7 @@ This project looks very promising - I encourage folks to try it out and contribu
 
 ### Why not [build-clj](https://github.com/seancorfield/build-clj)?
 
-_Discontinued in February 2023._
+_Discontinued February 2023._
 
 ## Features
 
