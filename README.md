@@ -34,29 +34,29 @@ PBR includes a library of tools.build tasks that are [documented here](https://p
 
 PBR also provides a turnkey `build.clj` script that provides all of the tasks I typically need in my build scripts.  It allows customisation via a per-project `pbr.clj` file, which must contain a `set-opts` fn where various project specific options can be set.  You can look at [PBR's own `pbr.clj` file](https://github.com/pmonks/pbr/blob/release/pbr.clj) for an idea of what this looks like.
 
-Tasks can be listed by running `clojure -A:deps -T:build help/doc`, and are:
+Tasks can be listed by running `clojure -A:deps -T:build help/doc`, and include:
 
-* `check` - Check the code by AOT compiling it (and throwing away the result).
+* `check` - Check the code by AOT compiling it (and throwing away the result).  Uses [clj-check](https://github.com/athos/clj-check).
 * `check-asf-policy` - Checks this project's dependencies' licenses against the ASF's 3rd party license policy (https://www.apache.org/legal/resolved.html).
 * `check-release` - Check that a release can be done from the current directory.
 * `ci` - Run the CI pipeline.
 * `clean` - Clean up the project.
-* `deploy` - Deploys the library JAR to Clojars.
-* `docs` - Generates documentation (using codox).
-* `eastwood` - Run the eastwood linter.
+* `deploy` - Deploys the library JAR to Clojars (using [deps-deploy](https://github.com/slipset/deps-deploy)).
+* `docs` - Generates documentation (using [codox](https://github.com/weavejester/codox)).
+* `eastwood` - Run the [eastwood](https://github.com/jonase/eastwood) linter.
 * `install` - Install the library locally e.g. so it can be tested by downstream dependencies
 * `jar` - Generates a library JAR for the project.
-* `kondo` - Run the clj-kondo linter.
-* `licenses` - Attempts to list all licenses for the transitive set of dependencies of the project, as SPDX license expressions.
+* `kondo` - Run the [clj-kondo](https://github.com/clj-kondo/clj-kondo) linter.
+* `licenses` - Attempts to list all licenses for the transitive set of dependencies of the project, as SPDX license expressions, using [tools-licenses](https://github.com/pmonks/tools-licenses).
 * `lint` - Run all linters.
-* `nvd` - Run an NVD vulnerability check.
-* `outdated` - Check for outdated dependencies (using antq).
-* `pom` - Generates a comprehensive pom.xml for the project.
+* `nvd` - Run an NVD vulnerability check. NOTE: requires an API key from [here](https://nvd.nist.gov/developers/request-an-api-key).
+* `outdated` - Check for outdated dependencies, using [antq](https://github.com/liquidz/antq).
+* `pom` - Generates a comprehensive pom.xml for the project, using [tools-pom](https://github.com/pmonks/tools-pom)
 * `release` - Release a new version of the library.
 * `test` - Run the tests.
 * `uber` - Create an uber jar.
 * `uberexec` - Creates an executable uber jar. NOTE: does not bundle a JRE, though one is still required.
-* `upgrade` - Upgrade any outdated dependencies (using antq). NOTE: does not prompt for confirmation!
+* `upgrade` - Upgrade any outdated dependencies, using [antq](https://github.com/liquidz/antq). NOTE: does not prompt for confirmation!
 
 #### deps.edn required by turnkey build script
 
