@@ -33,10 +33,10 @@
 (def ^:private ver-clj-check   {:git/sha "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"})
 (def ^:private ver-test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"})
 (def ^:private ver-slf4j       {:mvn/version "2.0.10"})
-(def ^:private ver-log4j2      {:mvn/version "2.22.1"})
+(def ^:private ver-log4j2      {:mvn/version "2.23.1"})
 (def ^:private ver-eastwood    {:mvn/version "1.4.0"})
 (def ^:private ver-codox       {:mvn/version "0.10.8"})
-(def ^:private ver-antq        {:mvn/version "2.8.1173"})
+(def ^:private ver-antq        {:mvn/version "2.8.1185"})
 
 ; Utility functions
 
@@ -204,6 +204,7 @@
                                                   "} :main-opts [\"-m\" \"antq.core\"]}}}")
               "-M:antq"
               "--ignore-locals"
+;              "--transitive"  ; This seems to cause a deadlock, and there are several other bugs raised against it in the antq repo
               "--skip=pom")
   opts)
 
@@ -365,7 +366,9 @@
 (defn nvd
   "Run the NVD vulnerability checker
 
-  :nvd -- opt: a map containing nvd-clojure-specific configuration options. See https://github.com/rm-hull/nvd-clojure#configuration-options"
+  :nvd -- opt: a map containing nvd-clojure-specific configuration options. See https://github.com/rm-hull/nvd-clojure#configuration-options
+
+  Note: this task requires that you obtain and configure an NVD API token."
   [opts]
   (when (and (s/blank? (System/getenv "NVD_API_TOKEN"))
              (s/blank? (get-in opts [:nvd :nvd-api :key])))
@@ -484,7 +487,7 @@
   opts)
 
 (defn release
-  "Release a new version of the code via a PR to main. opts includes:
+  "Release a new version of the code via a PR to the prod branch. opts includes:
 
   :lib         -- req: a symbol identifying your project e.g. 'org.github.pmonks/pbr
   :version     -- req: a string containing the version of your project e.g. \"1.0.0-SNAPSHOT\"

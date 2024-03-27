@@ -1,9 +1,9 @@
-| | | | |
-|---:|:---:|:---:|:---:|
-| [**main**](https://github.com/pmonks/pbr/tree/main) | [![CI](https://github.com/pmonks/pbr/workflows/CI/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3ACI+branch%3Amain) | [![Dependencies](https://github.com/pmonks/pbr/workflows/dependencies/badge.svg?branch=main)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies+branch%3Amain) | [![Vulnerabilities](https://github.com/pmonks/pbr/workflows/vulnerabilities/badge.svg?branch=main)](https://pmonks.github.io/pbr/nvd/dependency-check-report.html) |
-| [**dev**](https://github.com/pmonks/pbr/tree/dev)  | [![CI](https://github.com/pmonks/pbr/workflows/CI/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3ACI+branch%3Adev) | [![Dependencies](https://github.com/pmonks/pbr/workflows/dependencies/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies+branch%3Adev) | [![Vulnerabilities](https://github.com/pmonks/pbr/workflows/vulnerabilities/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Avulnerabilities+branch%3Adev) |
+| | | |
+|---:|:---:|:---:|
+| [**release**](https://github.com/pmonks/pbr/tree/release) | [![CI](https://github.com/pmonks/pbr/actions/workflows/ci.yml/badge.svg?branch=release)](https://github.com/pmonks/pbr/actions?query=workflow%3ACI+branch%3Arelease) | [![Dependencies](https://github.com/pmonks/pbr/actions/workflows/dependencies.yml/badge.svg?branch=release)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies+branch%3Arelease) |
+| [**dev**](https://github.com/pmonks/pbr/tree/dev)  | [![CI](https://github.com/pmonks/pbr/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3ACI+branch%3Adev) | [![Dependencies](https://github.com/pmonks/pbr/actions/workflows/dependencies.yml/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies+branch%3Adev) |
 
-[![Latest Version](https://img.shields.io/clojars/v/com.github.pmonks/pbr)](https://clojars.org/com.github.pmonks/pbr/) [![Open Issues](https://img.shields.io/github/issues/pmonks/pbr.svg)](https://github.com/pmonks/pbr/issues) [![License](https://img.shields.io/github/license/pmonks/pbr.svg)](https://github.com/pmonks/pbr/blob/main/LICENSE)
+[![Latest Version](https://img.shields.io/clojars/v/com.github.pmonks/pbr)](https://clojars.org/com.github.pmonks/pbr/) [![License](https://img.shields.io/github/license/pmonks/pbr.svg)](https://github.com/pmonks/pbr/blob/release/LICENSE) [![Open Issues](https://img.shields.io/github/issues/pmonks/pbr.svg)](https://github.com/pmonks/pbr/issues)
 
 
 <img alt="Ice cold can of hangover-inducing rubbish beer" align="right" width="25%" src="https://pabstblueribbon.com/wp-content/uploads/2020/10/pbr-org.png">
@@ -22,7 +22,7 @@ This project looks very promising - I encourage folks to try it out and contribu
 
 ### Why not [build-clj](https://github.com/seancorfield/build-clj)?
 
-_Discontinued in February 2023._
+_Discontinued February 2023._
 
 ## Features
 
@@ -32,31 +32,31 @@ PBR includes a library of tools.build tasks that are [documented here](https://p
 
 ### Turnkey build script
 
-PBR also provides a turnkey `build.clj` script that provides all of the tasks I typically need in my build scripts.  It allows customisation via a per-project `pbr.clj` file, which must contain a `set-opts` fn where various project specific options can be set.  You can look at [PBR's own `pbr.clj` file](https://github.com/pmonks/pbr/blob/main/pbr.clj) for an idea of what this looks like.
+PBR also provides a turnkey `build.clj` script that provides all of the tasks I typically need in my build scripts.  It allows customisation via a per-project `pbr.clj` file, which must contain a `set-opts` fn where various project specific options can be set.  You can look at [PBR's own `pbr.clj` file](https://github.com/pmonks/pbr/blob/release/pbr.clj) for an idea of what this looks like.
 
-Tasks can be listed by running `clojure -A:deps -T:build help/doc`, and are:
+Tasks can be listed by running `clojure -A:deps -T:build help/doc`, and include:
 
-* `check` - Check the code by AOT compiling it (and throwing away the result).
+* `check` - Check the code by AOT compiling it (and throwing away the result).  Uses [clj-check](https://github.com/athos/clj-check).
 * `check-asf-policy` - Checks this project's dependencies' licenses against the ASF's 3rd party license policy (https://www.apache.org/legal/resolved.html).
 * `check-release` - Check that a release can be done from the current directory.
 * `ci` - Run the CI pipeline.
 * `clean` - Clean up the project.
-* `deploy` - Deploys the library JAR to Clojars.
-* `docs` - Generates documentation (using codox).
-* `eastwood` - Run the eastwood linter.
+* `deploy` - Deploys the library JAR to Clojars (using [deps-deploy](https://github.com/slipset/deps-deploy)).
+* `docs` - Generates documentation (using [codox](https://github.com/weavejester/codox)).
+* `eastwood` - Run the [eastwood](https://github.com/jonase/eastwood) linter.
 * `install` - Install the library locally e.g. so it can be tested by downstream dependencies
 * `jar` - Generates a library JAR for the project.
-* `kondo` - Run the clj-kondo linter.
-* `licenses` - Attempts to list all licenses for the transitive set of dependencies of the project, as SPDX license expressions.
+* `kondo` - Run the [clj-kondo](https://github.com/clj-kondo/clj-kondo) linter.
+* `licenses` - Attempts to list all licenses for the transitive set of dependencies of the project, as SPDX license expressions, using [tools-licenses](https://github.com/pmonks/tools-licenses).
 * `lint` - Run all linters.
-* `nvd` - Run an NVD vulnerability check.
-* `outdated` - Check for outdated dependencies (using antq).
-* `pom` - Generates a comprehensive pom.xml for the project.
+* `nvd` - Run an NVD vulnerability check. NOTE: requires an API key from [here](https://nvd.nist.gov/developers/request-an-api-key).
+* `outdated` - Check for outdated dependencies, using [antq](https://github.com/liquidz/antq).
+* `pom` - Generates a comprehensive pom.xml for the project, using [tools-pom](https://github.com/pmonks/tools-pom)
 * `release` - Release a new version of the library.
 * `test` - Run the tests.
 * `uber` - Create an uber jar.
 * `uberexec` - Creates an executable uber jar. NOTE: does not bundle a JRE, though one is still required.
-* `upgrade` - Upgrade any outdated dependencies (using antq). NOTE: does not prompt for confirmation!
+* `upgrade` - Upgrade any outdated dependencies, using [antq](https://github.com/liquidz/antq). NOTE: does not prompt for confirmation!
 
 #### deps.edn required by turnkey build script
 
@@ -99,21 +99,21 @@ $ clj -A:build -P
 **A.** Because this code is cheap and nasty, and will give you a headache if you consume too much of it.
 
 **Q.** Does PBR use itself for build tasks?  
-**A.** Yes it does!  [You can see this sneaky self-reference here](https://github.com/pmonks/pbr/blob/main/deps.edn#L42).
+**A.** Yes it does!  [You can see this sneaky self-reference here](https://github.com/pmonks/pbr/blob/release/deps.edn#L42).
 
 ## Contributor Information
 
-[Contributing Guidelines](https://github.com/pmonks/pbr/blob/main/.github/CONTRIBUTING.md)
+[Contributing Guidelines](https://github.com/pmonks/pbr/blob/release/.github/CONTRIBUTING.md)
 
 [Bug Tracker](https://github.com/pmonks/pbr/issues)
 
-[Code of Conduct](https://github.com/pmonks/pbr/blob/main/.github/CODE_OF_CONDUCT.md)
+[Code of Conduct](https://github.com/pmonks/pbr/blob/release/.github/CODE_OF_CONDUCT.md)
 
 ### Developer Workflow
 
-This project uses the [git-flow branching strategy](https://nvie.com/posts/a-successful-git-branching-model/), with the caveat that the permanent branches are called `main` and `dev`, and any changes to the `main` branch are considered a release and auto-deployed (JARs to Clojars, API docs to GitHub Pages, etc.).
+This project uses the [git-flow branching strategy](https://nvie.com/posts/a-successful-git-branching-model/), and the permanent branches are called `release` and `dev`.  Any changes to the `release` branch are considered a release and auto-deployed (JARs to Clojars, API docs to GitHub Pages, etc.).
 
-For this reason, **all development must occur either in branch `dev`, or (preferably) in temporary branches off of `dev`.**  All PRs from forked repos must also be submitted against `dev`; the `main` branch is **only** updated from `dev` via PRs created by the core development team.  All other changes submitted to `main` will be rejected.
+For this reason, **all development must occur either in branch `dev`, or (preferably) in temporary branches off of `dev`.**  All PRs from forked repos must also be submitted against `dev`; the `release` branch is **only** updated from `dev` via PRs created by the core development team.  All other changes submitted to `release` will be rejected.
 
 ### Build Tasks
 

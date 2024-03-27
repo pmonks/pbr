@@ -2,7 +2,7 @@ name: deploy
 on:
   push:
     branches:
-      - main
+      - release
 
 jobs:
   deploy:
@@ -17,7 +17,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 21
-      - uses: DeLaGuardo/setup-clojure@12.3
+      - uses: DeLaGuardo/setup-clojure@12.5
         with:
           cli: latest
       - uses: actions/cache@v4
