@@ -22,7 +22,7 @@
     org.clojure/tools.deps                     {:mvn/version "0.19.1432"}
     org.clojure/data.json                      {:mvn/version "2.5.0"}
     slipset/deps-deploy                        {:mvn/version "0.2.2" :exclusions [org.slf4j/slf4j-nop ch.qos.logback/logback-classic]}
-    com.github.pmonks/tools-convenience        {:mvn/version "1.0.154"}
+    com.github.pmonks/tools-convenience        {:mvn/version "1.0.157"}
     com.github.pmonks/tools-pom                {:mvn/version "1.0.139"}
     com.github.pmonks/tools-licenses           {:mvn/version "2.0.243"}
     clj-kondo/clj-kondo                        {:mvn/version "2024.05.24"}
