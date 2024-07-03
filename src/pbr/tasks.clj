@@ -380,8 +380,9 @@
   (let [output-dir         (str (target-dir opts) "/nvd")
         nvd-opts           (merge {:output-dir (str "../" output-dir)}   ; Write to the project's actual target directory
                                   (:nvd opts))
+        full-classpath     (s/trim (:out (tc/clojure-silent "-Spath" "-A:any:aliases")))
         classpath-to-check (s/replace
-                             (s/replace (s/trim (:out (tc/clojure-silent "-Spath" "-A:any:aliases")))
+                             (s/replace full-classpath
                                         #":[^:]*/org/owasp/dependency-check-core/[\d\.]+/dependency-check-core-[\d\.]+.jar:"   ; Remove dependency-check jar, if present
                                         ":")
                              #":[^:]*/nvd-clojure/nvd-clojure/[\d\.]+/nvd-clojure-[\d\.]+\.jar:"                               ; Remove nvd-clojure jar, if present
@@ -397,6 +398,9 @@
                              :name           (name      (:lib opts))
                              :version        (:version opts)
                              :nvd            nvd-opts}))
+      (when tc/debug
+        (println "In .nvd/, about to invoke: clojure -J-Dclojure.main.report=stderr -Srepro -Sdeps '{:deps {nvd-clojure/nvd-clojure {:mvn/version \"RELEASE\"}}}' -M -m nvd.task.check nvd-options.json"
+                 classpath-to-check))
       (let [nvd-result (sh/sh "clojure"
                               "-J-Dclojure.main.report=stderr"
                               "-Srepro"
