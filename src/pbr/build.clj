@@ -182,6 +182,13 @@ clojure -A:deps -T:build help/doc"
       set-opts
       pbr/install))
 
+(defn deploy-info
+  "Generates deployment info, as an EDN file"
+  [opts]
+  (-> opts
+      set-opts
+      pbr/deploy-info))
+
 (defn deploy
   "Deploys the library JAR to Clojars."
   [opts]
