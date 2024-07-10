@@ -399,13 +399,13 @@
                              :version        (:version opts)
                              :nvd            nvd-opts}))
       (when tc/debug
-        (println "In .nvd/, about to invoke: clojure -J-Dclojure.main.report=stderr -Srepro -Sdeps '{:deps {nvd-clojure/nvd-clojure {:mvn/version \"RELEASE\"}}}' -M -m nvd.task.check nvd-options.json"
+        (println "In .nvd/, about to invoke: clojure -J-Dclojure.main.report=stderr -Srepro -Sdeps '{:deps {nvd-clojure/nvd-clojure {:mvn/version \"RELEASE\"} org.owasp/dependency-check-core {:mvn/version \"10.0.2\"}}}' -M -m nvd.task.check nvd-options.json"
                  classpath-to-check))
       (let [nvd-result (sh/sh "clojure"
                               "-J-Dclojure.main.report=stderr"
                               "-Srepro"
                               "-Sdeps"
-                              "{:deps {nvd-clojure/nvd-clojure {:mvn/version \"RELEASE\"}}}"
+                              "{:deps {nvd-clojure/nvd-clojure {:mvn/version \"RELEASE\"} org.owasp/dependency-check-core {:mvn/version \"10.0.2\"}}}"  ; Note: awaiting resolution of https://github.com/rm-hull/nvd-clojure/issues/178
                               "-M"
                               "-m"
                               "nvd.task.check"
