@@ -103,6 +103,7 @@ clojure -A:deps -T:build help/doc"
   "Run the CI pipeline."
   [opts]
   (-> opts
+      set-opts
       pbr/ci))
 
 ; We do these cursed shenanigans because tools-licenses requires JDK 11+, but we want PBR to work on JDK 8+
