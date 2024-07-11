@@ -446,6 +446,16 @@
                 "-M:eastwood"))
   opts)
 
+(defn ci
+  "Run the CI pipeline."
+  [opts]
+  (try (antq-outdated opts) (catch Exception e (when-not (:ignore-deps? opts) (throw e))))
+  (try (check opts) (catch Exception _))   ; Ignore errors until https://github.com/athos/clj-check/issues/4 is fixed
+  (test opts)
+;    (try (nvd opts) (catch Exception _))     ; This is exceptionally slow, and therefore inappropriate for every CI build
+  (kondo opts)
+  (eastwood opts))
+
 (defn deploy-info
   "Writes out a deploy-info EDN file, containing at least :hash and :date keys, and possibly also :repo and :tag keys. opts includes:
 
@@ -472,6 +482,8 @@
   [opts]
   ; Check for the command line tools we need
   (tc/ensure-command "hub")
+
+  (ci opts)
 
   (println "ℹ️ Checking whether a release can be made from the current directory...")
 
