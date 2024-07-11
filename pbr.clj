@@ -35,4 +35,5 @@
                                            :developer-connection "scm:git:ssh://git@github.com/pmonks/pbr.git"
                                            :tag                  (tc/git-tag-or-hash)}
                         :issue-management {:system "github" :url "https://github.com/pmonks/pbr/issues"}}
-         :codox        {:namespaces ['pbr.tasks]}))
+         :codox        {:namespaces ['pbr.tasks]}
+         :antq         {:transitive false}))   ; This locks up in this project
