@@ -134,11 +134,15 @@ clojure -A:deps -T:build help/doc"
 (defn check-release
   "Check that a release can be done from the current directory."
   [opts]
-  (-> opts
-      set-opts
-      ci
-      pbr/check-release)
-  (println "✅ Ready for release"))
+  (try
+    (-> opts
+        set-opts
+        ci
+        pbr/check-release)
+    (println "✅ Ready for release")
+    (catch Exception e
+      (println "❌ Not ready for release")
+      (throw e))))
 
 (defn release
   "Release a new version of the library."
