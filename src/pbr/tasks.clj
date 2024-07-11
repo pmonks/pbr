@@ -513,6 +513,9 @@
 
     (println (str "ℹ️ Preparing to release " lib " " version "..."))
 
+    ; Check that a release is possible (throws on failure)
+    (check-release opts)
+
     ; Ensure working directory is up to date with prod branch
     (println "ℹ️ Updating working directory...")
     (tc/git :fetch "origin" (str prod-branch ":" prod-branch))
