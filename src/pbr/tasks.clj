@@ -473,6 +473,24 @@
     (throw (ex-info ":deploy-info-file not provided" (into {} opts))))
   opts)
 
+(defn- git-local-branch-exists?
+  [branch]
+  (when-not (s/blank? branch)
+    (try
+      (tc/git :rev-parse "--verify" branch)
+      true
+      (catch Exception _
+        false))))
+
+(defn- git-remote-branch-exists?
+  [branch]
+  (when-not (s/blank? branch)
+    (try
+      (tc/git :ls-remote "--exit-code" "--heads" "origin" (str "refs/heads/" branch))
+      true
+      (catch Exception _
+        false))))
+
 (defn check-release
   "Check that a release can be made from the current directory, using the provided opts. opts includes:
 
@@ -501,6 +519,14 @@
     (when (not (s/blank? git-status))
       (throw (ex-info (str "Working directory is not clean:\n " git-status "\nPlease commit, revert, or stash these changes before preparing a release.") {}))))
 
+  ; Check that the prod branch exists, both locally and on origin
+  (let [prod-branch (prod-branch opts)]
+    (when (not (git-local-branch-exists? prod-branch))
+      (throw (ex-info (str "prod branch " prod-branch " does not exist locally. Please create it, or pull it from origin.") {})))
+
+    (when (not (git-remote-branch-exists? prod-branch))
+      (throw (ex-info (str "prod branch " prod-branch " does not exist on origin. Please create it.") {}))))
+
   opts)
 
 (defn release
@@ -525,7 +551,7 @@
 
     (println (str "ℹ️ Preparing to release " lib " " version "..."))
 
-    ; Check that a release is possible (throws on failure)
+    (println "ℹ️ Checking that a release can be made...")
     (check-release opts)
 
     ; Ensure working directory is up to date with prod branch
@@ -533,9 +559,6 @@
     (tc/git :fetch "origin" (str prod-branch ":" prod-branch))
     (tc/git :merge prod-branch)
     (tc/git :pull)
-
-    (println "ℹ️ Checking that a release can be made...")
-    (check-release opts)
 
     (println (str "ℹ️ All good; press any key to continue or Ctrl+C to abort..."))
     (flush)
