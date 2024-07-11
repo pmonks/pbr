@@ -102,12 +102,9 @@ clojure -A:deps -T:build help/doc"
 (defn ci
   "Run the CI pipeline."
   [opts]
-  (let [opts (set-opts opts)]
-    (try (outdated opts) (catch Exception e (when-not (:ignore-deps? opts) (throw e))))
-    (try (check opts) (catch Exception _))   ; Ignore errors until https://github.com/athos/clj-check/issues/4 is fixed
-    (test opts)
-;    (try (nvd opts) (catch Exception _))     ; This is exceptionally slow, and therefore inappropriate for every CI build
-    (lint opts)))
+  (-> opts
+      set-opts
+      pbr/ci))
 
 ; We do these cursed shenanigans because tools-licenses requires JDK 11+, but we want PBR to work on JDK 8+
 (if (>= (pbr/jvm-version) 11)
@@ -134,15 +131,18 @@ clojure -A:deps -T:build help/doc"
 (defn check-release
   "Check that a release can be done from the current directory."
   [opts]
-  (-> opts
-      set-opts
-      ci
-      pbr/check-release))
+  (try
+    (-> opts
+        set-opts
+        pbr/check-release)
+    (println "✅ Ready for release")
+    (catch Exception e
+      (println "❌ Not ready for release")
+      (throw e))))
 
 (defn release
   "Release a new version of the library."
   [opts]
-  (check-release opts)
   (-> opts
       set-opts
       pbr/release))
