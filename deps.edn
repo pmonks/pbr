@@ -19,7 +19,7 @@
 {:paths ["src" "resources"]
  :deps
    {org.clojure/clojure                        {:mvn/version "1.11.4"}
-    org.clojure/tools.deps                     {:mvn/version "0.19.1432"}
+    org.clojure/tools.deps                     {:mvn/version "0.20.1440"}
     org.clojure/data.json                      {:mvn/version "2.5.0"}
     slipset/deps-deploy                        {:mvn/version "0.2.2" :exclusions [org.slf4j/slf4j-nop ch.qos.logback/logback-classic]}
     com.github.pmonks/tools-convenience        {:mvn/version "1.0.157"}
