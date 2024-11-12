@@ -31,7 +31,7 @@
 (def ^:private ver-antq        {:mvn/version "2.11.1250"})
 
 ; Note: awaiting resolution of https://github.com/rm-hull/nvd-clojure/issues/178
-(def ^:private ver-owasp-dep-check "11.1.0")
+(def ^:private ver-owasp-dep-check "10.0.3")
 
 ; Utility functions
 

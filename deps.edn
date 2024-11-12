@@ -21,7 +21,7 @@
 
     ; Forced versions for shit that's broken elsewhere
     org.springframework.build/aws-maven        {:mvn/version "4.8.0.RELEASE"}    ; Note: do NOT upgrade to 5.0.0.RELEASE or deps-deploy throws a ClassDefNotFoundException
-;    org.owasp/dependency-check-core            {:mvn/version "11.1.0"}  ; A clusterfsck of a transitive dependency that will break in our classpath
+;    org.owasp/dependency-check-core            {:mvn/version "10.0.3"}  ; A clusterfsck of a dependency that will break in our classpath, also can't be upgraded beyond this version until https://github.com/rm-hull/nvd-clojure/issues/178 is addressed
 
     ; Dynamic dependencies - any time any of these changes it MUST ALSO BE CHANGED IN pbr.tasks!!
     org.apache.logging.log4j/log4j-api         {:mvn/version "2.24.1"}    ; Use log4j2 for logging, since logback has become a huge pita in recent times...
