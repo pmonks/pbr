@@ -14,10 +14,10 @@
     </Appender>
   </Appenders>
   <Loggers>
-    <Logger name="org.apache" level="FATAL">
+    <Logger name="org.apache" level="FATAL" additivity="false">
       <AppenderRef ref="File"/>
     </Logger>
-    <Logger name="org.eclipse" level="FATAL">
+    <Logger name="org.eclipse" level="FATAL" additivity="false">
       <AppenderRef ref="File"/>
     </Logger>
     <Root level="WARN">

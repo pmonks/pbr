@@ -37,7 +37,6 @@ PBR also provides a turnkey `build.clj` script that provides all of the tasks I 
 Tasks can be listed by running `clojure -A:deps -T:build help/doc`, and include:
 
 * `check` - Check the code by AOT compiling it (and throwing away the result).  Uses [clj-check](https://github.com/athos/clj-check).
-* `check-asf-policy` - Checks this project's dependencies' licenses against the ASF's 3rd party license policy (https://www.apache.org/legal/resolved.html).
 * `check-release` - Check that a release can be done from the current directory.
 * `ci` - Run the CI pipeline.
 * `clean` - Clean up the project.
@@ -136,6 +135,6 @@ Please note that the `deploy` task is restricted to the core development team (a
 
 Copyright © 2021 Peter Monks
 
-Distributed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+Distributed under the [Mozilla Public License, version 2.0](https://www.mozilla.org/en-US/MPL/2.0/).
 
-SPDX-License-Identifier: [Apache-2.0](https://spdx.org/licenses/Apache-2.0)
+SPDX-License-Identifier: [`MPL-2.0`](https://spdx.org/licenses/MPL-2.0)
