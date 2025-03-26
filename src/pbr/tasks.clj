@@ -28,10 +28,7 @@
 (def ^:private ver-log4j2      {:mvn/version "2.24.3"})
 (def ^:private ver-eastwood    {:mvn/version "1.4.3"})
 (def ^:private ver-codox       {:mvn/version "0.10.8"})
-(def ^:private ver-antq        {:mvn/version "2.11.1264"})
-
-; Note: awaiting resolution of https://github.com/rm-hull/nvd-clojure/issues/178
-(def ^:private ver-owasp-dep-check "12.0.2")
+(def ^:private ver-antq        {:mvn/version "2.11.1276"})
 
 ; Utility functions
 
@@ -395,13 +392,17 @@
                              :version        (:version opts)
                              :nvd            nvd-opts}))
       (when tc/debug
-        (println "In .nvd/, about to invoke: clojure -J-Dclojure.main.report=stderr -Srepro -Sdeps '{:deps {nvd-clojure/nvd-clojure {:mvn/version \"RELEASE\"} org.owasp/dependency-check-core {:mvn/version \"" ver-owasp-dep-check "\"}}}' -M -m nvd.task.check nvd-options.json"
+; Just in case nvd-clojure ever falls badly out of date again
+;        (println "In .nvd/, about to invoke: clojure -J-Dclojure.main.report=stderr -Srepro -Sdeps '{:deps {nvd-clojure/nvd-clojure {:mvn/version \"RELEASE\"} org.owasp/dependency-check-core {:mvn/version \"" ver-owasp-dep-check "\"}}}' -M -m nvd.task.check nvd-options.json"
+        (println "In .nvd/, about to invoke: clojure -J-Dclojure.main.report=stderr -Srepro -Sdeps '{:deps {nvd-clojure/nvd-clojure {:mvn/version \"RELEASE\"}}}' -M -m nvd.task.check nvd-options.json"
                  classpath-to-check))
       (let [nvd-result (sh/sh "clojure"
                               "-J-Dclojure.main.report=stderr"
                               "-Srepro"
                               "-Sdeps"
-                              (str "{:deps {nvd-clojure/nvd-clojure {:mvn/version \"RELEASE\"} org.owasp/dependency-check-core {:mvn/version \"" ver-owasp-dep-check "\"}}}")
+                              (str "{:deps {nvd-clojure/nvd-clojure {:mvn/version \"RELEASE\"}}}")
+; Just in case nvd-clojure ever falls badly out of date again
+;                              (str "{:deps {nvd-clojure/nvd-clojure {:mvn/version \"RELEASE\"} org.owasp/dependency-check-core {:mvn/version \"" ver-owasp-dep-check "\"}}}")
                               "-M"
                               "-m"
                               "nvd.task.check"
