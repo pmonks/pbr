@@ -1,14 +1,14 @@
-| | | |
-|---:|:---:|:---:|
-| [**release**](https://github.com/pmonks/pbr/tree/release) | [![CI](https://github.com/pmonks/pbr/actions/workflows/ci.yml/badge.svg?branch=release)](https://github.com/pmonks/pbr/actions?query=workflow%3ACI+branch%3Arelease) | [![Dependencies](https://github.com/pmonks/pbr/actions/workflows/dependencies.yml/badge.svg?branch=release)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies+branch%3Arelease) |
-| [**dev**](https://github.com/pmonks/pbr/tree/dev)  | [![CI](https://github.com/pmonks/pbr/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3ACI+branch%3Adev) | [![Dependencies](https://github.com/pmonks/pbr/actions/workflows/dependencies.yml/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies+branch%3Adev) |
-
-[![Latest Version](https://img.shields.io/clojars/v/com.github.pmonks/pbr)](https://clojars.org/com.github.pmonks/pbr/) [![License](https://img.shields.io/github/license/pmonks/pbr.svg)](https://github.com/pmonks/pbr/blob/release/LICENSE) [![Open Issues](https://img.shields.io/github/issues/pmonks/pbr.svg)](https://github.com/pmonks/pbr/issues)
-
-
 <img alt="Ice cold can of hangover-inducing rubbish beer" align="right" width="25%" src="https://pabstblueribbon.com/wp-content/uploads/2020/10/pbr-org.png">
 
 # PBR - Peter's Build Resources
+
+[![CI](https://github.com/pmonks/pbr/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3ACI+branch%3Adev)
+[![Dependencies](https://github.com/pmonks/pbr/actions/workflows/dependencies.yml/badge.svg?branch=dev)](https://github.com/pmonks/pbr/actions?query=workflow%3Adependencies+branch%3Adev) |
+<br/>
+[![Latest Version](https://img.shields.io/clojars/v/com.github.pmonks/pbr)](https://clojars.org/com.github.pmonks/pbr/)
+[![License](https://img.shields.io/github/license/pmonks/pbr.svg)](https://github.com/pmonks/pbr/blob/release/LICENSE)
+[![Open Issues](https://img.shields.io/github/issues/pmonks/pbr.svg)](https://github.com/pmonks/pbr/issues)
+![Maintained](https://badges.ws/badge/?label=maintained&value=yes,+at+author's+discretion)
 
 A little [tools.build](https://github.com/clojure/tools.build) task library and turnkey build script that supports the author's personal GitHub workflow.  It is not expected to be especially relevant for other developers' workflows, except perhaps as a model for how tools.build can be (somewhat) tamed when working with multiple independent projects that share common build tasks.
 
