@@ -16,7 +16,7 @@ A little [tools.build](https://github.com/clojure/tools.build) task library and 
 
 Because "vanilla" tools.build build scripts impose a _lot_ of unnecessary repetition when one is working on lots of separate projects that need to have the same set of build tasks. A more detailed explanation of the problem is [here](https://ask.clojure.org/index.php/11168/tools-build-are-standard-build-tasks-under-consideration).
 
-### Why not [clein](https://github.com/NoahTheDuke/clein) or [build.edn](https://github.com/liquidz/build.edn)?
+### Why not [clein](https://github.com/NoahTheDuke/clein), [build.edn](https://github.com/liquidz/build.edn), or [meyvn](https://danielsz.github.io/meyvn/)?
 
 These projects look very promising - I encourage folks to try them out and contribute to them!
 
